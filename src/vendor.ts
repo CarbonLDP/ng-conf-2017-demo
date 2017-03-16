@@ -1,17 +1,22 @@
 // Angular
-import "@angular/platform-browser";
-import "@angular/platform-browser-dynamic";
-import "@angular/core";
-import "@angular/common";
-import "@angular/http";
-import "@angular/router";
+// import "@angular/platform-browser";
+// import "@angular/platform-browser-dynamic";
+// import "@angular/core";
+// import "@angular/common";
+// import "@angular/http";
+// import "@angular/router";
 
 // RxJS
-import "rxjs";
+// import "rxjs";
+
+// Material Angular
+import "@angular/material";
+import "./styles/matherial-theme.scss";
+import "hammerjs";
 
 // JQuery
-import "jquery";
+// import "jquery";
 
 // Semantic UI
-import "../src/semantic/dist/semantic.js";
-import "../src/semantic/dist/semantic.css";
+// import "../src/semantic/dist/semantic.js";
+// import "../src/semantic/dist/semantic.css";

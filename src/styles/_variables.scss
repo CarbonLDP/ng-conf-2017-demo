@@ -1,0 +1,11 @@
+@import "~@angular/material/core/theming/palette";
+
+// Carbon palette
+$carbon-white: #E9EAEA;
+$carbon-gray: #A9A8A9;
+$carbon-orange: #FF8300;
+$carbon-blue: #0082ca;
+
+$carbon-purple: #534052;
+
+$carbon-like-blue: map-get($mat-blue-grey, 800);

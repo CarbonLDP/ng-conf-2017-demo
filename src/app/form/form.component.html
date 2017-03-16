@@ -1,0 +1,116 @@
+<div class="app-message">
+	This information is used to showcase our platform. The information is not collected for commercial marketing purposes and we do not sell or distribute it for commercial marketing purposes.
+</div>
+<form (ngSubmit)="onSubmit()" #carbonForm="ngForm">
+	<md-card>
+		<md-card-title>Personal Info</md-card-title>
+
+		<md-card-content>
+			<!-- Nickname -->
+			<md-input-container class="full-width">
+				<input mdInput type="text" placeholder="Nickname" [(ngModel)]="user.nickname" name="nickname">
+			</md-input-container>
+
+			<!-- Birth date -->
+			<label class="input-label">Birth Date</label>
+			<div class="app-row full-cover">
+				<md-select placeholder="Day" [(ngModel)]="birthDate.day" name="birthDay">
+					<md-option *ngFor="let element of getDaysOf( birthDate.month ); let day = index" [value]="day + 1">
+						{{ day + 1 }}
+					</md-option>
+				</md-select>
+				<md-select placeholder="Month" [(ngModel)]="birthDate.month" name="birthMonth">
+					<md-option *ngFor="let month of monthNames; let i = index" [value]="i">
+						{{ month }}
+					</md-option>
+				</md-select>
+				<md-select placeholder="Year" [(ngModel)]="birthDate.year" name="birthYear">
+					<md-option *ngFor="let year of yearNames" [value]="year">
+						{{ year }}
+					</md-option>
+				</md-select>
+			</div>
+
+
+			<!-- Place of birth -->
+			<label class="input-label">Place of Birth</label>
+			<div class="app-row full-cover">
+				<md-select placeholder="Country" [(ngModel)]="user.birthCountry" name="birthCountry">
+					<md-option *ngFor="let country of countries" [value]="country">
+						{{ country }}
+					</md-option>
+				</md-select>
+				<md-select placeholder="State" [(ngModel)]="user.birthState" name="birthState" [disabled]="isStateDisabled()">
+					<md-option *ngFor="let state of states" [value]="state">
+						{{ state }}
+					</md-option>
+				</md-select>
+				<md-input-container>
+					<input mdInput type="text" placeholder="City" [(ngModel)]="user.birthCity" name="birthCity">
+				</md-input-container>
+			</div>
+
+		</md-card-content>
+	</md-card>
+
+
+	<md-card>
+		<md-card-title>Work Info</md-card-title>
+		<md-card-content>
+			<!-- Company -->
+			<md-input-container class="full-width">
+				<input mdInput placeholder="Company" [(ngModel)]="user.company" [mdAutocomplete]="autoCompanies" [formControl]="companyCtrl">
+			</md-input-container>
+			<md-autocomplete #autoCompanies="mdAutocomplete">
+				<md-option *ngFor="let company of filteredCompanies | async" [value]="company">
+					{{ company }}
+				</md-option>
+			</md-autocomplete>
+
+			<!-- Technical preferences -->
+			<label class="input-label">Select your preferences</label>
+			<md-radio-group [(ngModel)]="user.layerPreference" name="layerPreference" class="app-row full-cover">
+				<md-radio-button *ngFor="let layer of layers" [value]="layer">{{ layer }}</md-radio-button>
+			</md-radio-group>
+			<md-radio-group [(ngModel)]="user.desktopOSPreference" name="desktopOSPreference" class="app-row full-cover">
+				<md-radio-button *ngFor="let os of desktopOSs" [value]="os">{{ os }}</md-radio-button>
+			</md-radio-group>
+			<md-radio-group [(ngModel)]="user.mobileOSPreference" name="mobileOSPreference" class="app-row full-cover">
+				<md-radio-button *ngFor="let os of mobileOSs" [value]="os">{{ os }}</md-radio-button>
+			</md-radio-group>
+		</md-card-content>
+	</md-card>
+
+	<md-card>
+		<md-card-title>Education Info</md-card-title>
+		<md-card-content>
+			<!-- Educational institution -->
+			<md-input-container class="full-width">
+				<input mdInput placeholder="University / College" [(ngModel)]="user.institution" [mdAutocomplete]="autoInstitution" [formControl]="institutionCtrl">
+			</md-input-container>
+
+			<md-autocomplete #autoInstitution="mdAutocomplete">
+				<md-option *ngFor="let institution of filteredInstitutions | async" [value]="institution">
+					{{ institution }}
+				</md-option>
+			</md-autocomplete>
+		</md-card-content>
+	</md-card>
+
+	<md-card>
+		<md-card-title>Want to know more?</md-card-title>
+		<md-card-content>
+			<div class="app-message">
+				For more information or to see the end result of this demo, please leave us your email. We promise you we do not spam :)
+			</div>
+			<md-input-container class="full-width">
+				<input mdInput type="email" placeholder="Email" [(ngModel)]="user.email" name="email" autocomplete="off">
+			</md-input-container>
+
+
+			<div class="app-row">
+				<button md-raised-button color="primary">Submit</button>
+			</div>
+		</md-card-content>
+	</md-card>
+</form>

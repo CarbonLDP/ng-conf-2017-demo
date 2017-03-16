@@ -4,22 +4,27 @@ import { enableProdMode, NgModuleRef } from "@angular/core";
 import { appInjector, activeContext } from "angular2-carbonldp/boot";
 import Carbon from "carbonldp/Carbon";
 
+import { PRODUCTION, SECURE, DOMAIN } from "app/config";
+
 import { AppModule } from "app/app.module";
 
 let carbon:Carbon = new Carbon( {
-	"http.ssl": process.env.CARBON.protocol === "https",
-	domain: process.env.CARBON.domain,
+	"http.ssl": SECURE,
+	domain: DOMAIN,
 } );
 
-if( process.env.ENV === "production" ) {
+if( PRODUCTION ) {
 	enableProdMode();
 }
 
-activeContext.initialize( carbon, "test-app/" ).then( () => {
-	return platformBrowserDynamic().bootstrapModule( AppModule );
-
-} ) .then( ( appRef:NgModuleRef<AppModule> ) => {
+platformBrowserDynamic().bootstrapModule( AppModule ).then( ( appRef:NgModuleRef<AppModule> ) => {
 	return appInjector( appRef.injector );
+
+} ).then( () => {
+	return activeContext.initialize( carbon, "demo-app/" )
+
+} ).then( () => {
+	return carbon.auth.authenticate( "admin@carbonldp.com", "hello" );
 
 } ).catch( ( error ) => {
 	console.error( error );

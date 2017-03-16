@@ -1,0 +1,178 @@
+@import '~@angular/material/core/theming/all-theme';
+// Plus imports for other components in your app.
+// Custom variables
+@import "variables";
+
+// Include the base styles for Angular Material core. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue.
+$candy-app-primary: mat-palette($mat-blue-grey, 800);
+$candy-app-accent: mat-palette($mat-deep-orange, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$candy-app-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-app-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($candy-app-theme);
+
+// Custom global classes
+body {
+	font: {
+		family: $mat-font-family;
+		size: $mat-body-font-size-base;
+	}
+	margin: 0;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.carbon-logo-svg-1 {
+	fill: $carbon-blue;
+}
+
+.carbon-logo-svg-2 {
+	fill: $carbon-gray;
+}
+
+.carbon-logo-svg-3 {
+	fill: $carbon-orange;
+}
+
+@mixin flex-container {
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-direction: normal;
+
+	&.full-cover > * {
+		-webkit-box-flex: 1;
+		-ms-flex: 1 1 0;
+		flex: 1 1 0;
+		width: 0;
+	}
+}
+
+.app-row {
+	@include flex-container;
+	-webkit-box-orient: horizontal;
+	-ms-flex-direction: row;
+	flex-direction: row;
+
+	&.right {
+		justify-content: flex-end;
+	}
+}
+
+.app-column {
+	@include flex-container;
+	-webkit-box-orient: vertical;
+	-ms-flex-direction: column;
+	flex-direction: column;
+}
+
+.loader {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: table;
+
+	.loader--icon {
+		display: table-cell;
+		vertical-align: middle;
+		text-align: center;
+
+		& > svg {
+			width: 150px;
+			position: relative;
+		}
+
+		& > svg.rotate-left {
+			right: 76px;
+		}
+
+		& > svg.rotate-right {
+			left: 76px;
+		}
+	}
+}
+
+.rotate-left {
+	-webkit-animation: spin-left 3s linear infinite;
+	-moz-animation: spin-left 3s linear infinite;
+	animation: spin-left 3s linear infinite;
+}
+
+@-moz-keyframes spin-left {
+	100% {
+		-moz-transform: rotate(-360deg);
+	}
+}
+
+@-webkit-keyframes spin-left {
+	100% {
+		-webkit-transform: rotate(-360deg);
+	}
+}
+
+@keyframes spin-left {
+	100% {
+		-webkit-transform: rotate(-360deg);
+		transform: rotate(-360deg);
+	}
+}
+
+.rotate-right {
+	-webkit-animation: spin-right 3s linear infinite;
+	-moz-animation: spin-right 3s linear infinite;
+	animation: spin-right 3s linear infinite;
+}
+
+@-moz-keyframes spin-right {
+	100% {
+		-moz-transform: rotate(360deg);
+	}
+}
+
+@-webkit-keyframes spin-right {
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@keyframes spin-right {
+	100% {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+}
+
+// Customize material theme
+.app-content {
+	.mat-select-trigger {
+		margin: .5em 0 1em;
+	}
+	.mat-input-underline {
+		margin-top: 5px;
+	}
+	.mat-input-infix {
+		font-size: 16px;
+	}
+	.mat-input-placeholder.mat-float.mat-focused, .mat-input-placeholder.mat-float:not(.mat-empty) {
+		transform: translateY(-1.65em) scale(.75);
+	}
+	.mat-input-placeholder-wrapper {
+		overflow: visible;
+	}
+}

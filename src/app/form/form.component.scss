@@ -1,0 +1,32 @@
+@import "../../styles/variables";
+
+.app-message {
+	background: rgba(0, 0, 0, 0.06);
+	border-left: 5px solid $carbon-orange;
+	margin: 0 0 2em 0;
+	padding: 24px;
+}
+
+md-card {
+	margin-bottom: 2em;
+}
+
+md-input-container, md-select, md-radio-button {
+	&:not(:last-child) {
+		margin-right: 1.5em;
+	}
+
+	&.full-width {
+		width: 100%;
+	}
+}
+
+md-radio-group.app-row {
+	margin-bottom: 1em;
+}
+
+.input-label {
+	padding-bottom: 0.75em;
+	display: block;
+	color: $black-87-opacity;
+}

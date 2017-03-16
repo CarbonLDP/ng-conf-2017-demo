@@ -4,6 +4,12 @@ const ExtractTextPlugin = require( "extract-text-webpack-plugin" );
 const helpers = require( "./helpers" );
 const { TsConfigPathsPlugin } = require( "awesome-typescript-loader" );
 
+const isProd = process.env.ENV === "production" || process.env.ENV === "prod";
+
+let CARBON = { protocol: isProd ? "https" : "http", domain: "localhost:8083" };
+if( process.env.CARBON && typeof process.env.CARBON === "string" )
+	Object.assign( CARBON, JSON.parse( process.env.CARBON ) );
+
 module.exports = {
 	entry: {
 		"polyfills": "./src/polyfills.ts",
@@ -18,16 +24,9 @@ module.exports = {
 		]
 	},
 
-	// Do not include node dependencies used in Carbon LDP SDK
-	/*target: "node",
-	externals: {
-		"file-type": {
-			commonjs: "file-type",
-			commonjs2: "file-type",
-			amd: "file-type",
-			root: "fileType",
-		},
-	},*/
+	node: {
+		Buffer: false,
+	},
 
 	module: {
 		rules: [
@@ -52,9 +51,28 @@ module.exports = {
 				loader: ExtractTextPlugin.extract( { fallbackLoader: "style-loader", loader: "css-loader?sourceMap" } )
 			},
 			{
+				test: /\.scss$/,
+				exclude: helpers.root( "src", "app" ),
+				loader: ExtractTextPlugin.extract( {
+					fallbackLoader: "style-loader",
+					loader: [
+						"css-loader?sourceMap",
+						"sass-loader?sourceMap",
+					],
+				} )
+			},
+			{
 				test: /\.css$/,
 				include: helpers.root( "src", "app" ),
 				loader: "raw-loader"
+			},
+			{
+				test: /\.scss$/,
+				include: helpers.root( "src", "app" ),
+				loaders: [
+					"raw-loader",
+					"sass-loader"
+				]
 			}
 		]
 	},
@@ -67,7 +85,7 @@ module.exports = {
 			helpers.root( "src" ), // location of your src
 			{} // a map of your routes
 		),
-		// For Angular 4.0.0.x
+		// For Angular 4.0.x
 		new webpack.ContextReplacementPlugin(
 			/angular(\\|\/)core(\\|\/)@angular/,
 			helpers.root( "src" )
@@ -78,13 +96,21 @@ module.exports = {
 		} ),
 
 		new HtmlWebpackPlugin( {
-			template: "src/index.html",
+			template: "ejs-loader!src/index.ejs",
+			minify: isProd ? {
+					removeComments: true,
+					removeAttributeQuotes: true,
+					collapseWhitespace: true,
+					minifyCSS: true,
+					minifyJS: true,
+				} : false,
 		} ),
 
-		new webpack.ProvidePlugin( {
-			jQuery: "jquery",
-			$: "jquery",
-			jquery: "jquery"
+		new webpack.DefinePlugin( {
+			"process.env.CARBON": {
+				protocol: JSON.stringify( CARBON.protocol ),
+				domain: JSON.stringify( CARBON.domain ),
+			}
 		} ),
 
 		// Ignore node dependencies in Carbon LDP SDK
