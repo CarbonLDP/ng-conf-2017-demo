@@ -15,6 +15,7 @@
     "removeComments": true,
 	"baseUrl": ".",
     "paths": {
+      "script/*": [ "script/*" ],
       "app/*": [ "src/app/*" ]
     }
   }

@@ -8,6 +8,8 @@
 /tmp
 /src/**/*.js
 /src/**/*.map
+/script/**/*.js
+/script/**/*.map
 
 # dependencies
 /node_modules

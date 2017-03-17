@@ -315,7 +315,7 @@ export class FormComponent {
 	companies:string[] = [ "Base22", "Google", "W3C" ];
 	filteredCompanies:Observable<string[]>;
 
-	layers:string[] = [ "FrontEnd", "BackEnd", "Full-Stack" ];
+	workLayers:string[] = [ "FrontEnd", "BackEnd", "Full-Stack" ];
 	desktopOSs:string[] = [ "Linux", "MacOS", "Windows" ];
 	mobileOSs:string[] = [ "Android", "iOS", "Windows Phone" ];
 
@@ -383,7 +383,7 @@ interface NewUser {
 	birthState?:string;
 	birthCity?:string;
 	company?:string;
-	layerPreference?:string;
+	worksOn?:string;
 	desktopOSPreference?:string;
 	mobileOSPreference?:string;
 	institution?:string;

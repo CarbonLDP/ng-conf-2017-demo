@@ -69,8 +69,8 @@
 
 			<!-- Technical preferences -->
 			<label class="input-label">Select your preferences</label>
-			<md-radio-group [(ngModel)]="user.layerPreference" name="layerPreference" class="app-row full-cover">
-				<md-radio-button *ngFor="let layer of layers" [value]="layer">{{ layer }}</md-radio-button>
+			<md-radio-group [(ngModel)]="user.worksOn" name="layerPreference" class="app-row full-cover">
+				<md-radio-button *ngFor="let layer of workLayers" [value]="layer">{{ layer }}</md-radio-button>
 			</md-radio-group>
 			<md-radio-group [(ngModel)]="user.desktopOSPreference" name="desktopOSPreference" class="app-row full-cover">
 				<md-radio-button *ngFor="let os of desktopOSs" [value]="os">{{ os }}</md-radio-button>
