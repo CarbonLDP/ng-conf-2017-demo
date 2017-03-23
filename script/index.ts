@@ -5,8 +5,8 @@ import * as NS from "carbonldp/NS";
 import Response from "carbonldp/HTTP/Response";
 
 import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP } from "script/config";
-import { elementSlug } from "script/utils";
-import { DEFAULT_CONTAINERS, DefaultContainerData } from "script/default-data";
+import { elementSlug, extractElementsData } from "script/utils";
+import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultNamedContainer } from "script/default-data";
 
 let appContext:App.Context;
 let carbon:Carbon = initCarbon( SECURE, DOMAIN );
@@ -16,13 +16,17 @@ carbon.auth.authenticate( "admin@carbonldp.com", "hello" ).then( () => {
 } ).then( ( _result:App.Context ) => {
 	appContext = _result;
 } ).then( () => {
-	DEFAULT_CONTAINERS.forEach( setContainer );
+	DEFAULT_CONTAINERS.forEach( container => setContainer( "/", container ) );
 } ).catch( console.error );
 
 function initCarbon( isSecure:boolean, domain:string ):Carbon {
 	let carbon:Carbon = new Carbon( {
 		"http.ssl": isSecure,
 		domain: domain,
+	} );
+
+	carbon.extendObjectSchema( {
+		"ldp": "http://www.w3.org/ns/ldp#",
 	} );
 
 	return carbon;
@@ -40,17 +44,26 @@ async function getApp( appSlug:string ):Promise<App.Context> {
 	return carbon.apps.getContext( appSlug );
 }
 
-async function setContainer( container:DefaultContainerData ):Promise<void> {
-	let [ exists ]:[ boolean, Response ] = await appContext.documents.exists( container.slug );
+async function setContainer( parentSlug:string, container:DefaultNamedContainer ):Promise<void> {
+	let [ exists ]:[ boolean, Response ] = await appContext.documents.exists( container.elementSlug );
 
 	if( exists && CLEAN_APP ) {
-		await appContext.documents.delete( container.slug );
+		await appContext.documents.delete( container.elementSlug );
 		exists = false;
 	}
 
 	if( ! exists ) {
-		await appContext.documents.createChild( "/", {}, container.slug );
-		await appContext.documents.createChildren( container.slug, container.elements, container.elements.map( elementSlug ) );
+		await appContext.documents.createChild( parentSlug, {}, container.elementSlug );
+		await setChildren( parentSlug + container.elementSlug, container );
 	}
 }
 
+async function setChildren( containerSlug:string, container:DefaultContainerData ):Promise<void> {
+	await appContext.documents.createChildren( containerSlug, extractElementsData( container ), container.children.map( elementSlug ) );
+	for( let element of container.children ) {
+		if( ! (  "children" in element ) ) continue;
+
+		let childContainer:DefaultContainerData = element as DefaultContainerData;
+		await setChildren( containerSlug + elementSlug( element ), childContainer );
+	}
+}

@@ -13,8 +13,8 @@ if( argv.protocol )
 	CARBON.protocol = argv.protocol;
 if( argv.domain )
 	CARBON.domain = argv.domain;
-if( argv.slug )
-	CARBON.slug = argv.slug;
+if( argv.elementSlug )
+	CARBON.slug = argv.elementSlug;
 
 export const PRODUCTION:boolean = process.env.ENV === "production";
 export const SECURE:boolean = CARBON.protocol === "https";

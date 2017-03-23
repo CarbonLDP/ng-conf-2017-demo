@@ -13,10 +13,15 @@ let carbon:Carbon = new Carbon( {
 	domain: DOMAIN,
 } );
 
+carbon.extendObjectSchema( {
+	"ldp": "http://www.w3.org/ns/ldp#",
+} );
+
 if( PRODUCTION ) {
 	enableProdMode();
 }
 
+/*
 platformBrowserDynamic().bootstrapModule( AppModule ).then( ( appRef:NgModuleRef<AppModule> ) => {
 	return appInjector( appRef.injector );
 
@@ -29,4 +34,14 @@ platformBrowserDynamic().bootstrapModule( AppModule ).then( ( appRef:NgModuleRef
 } ).catch( ( error ) => {
 	console.error( error );
 } );
+*/
 
+carbon.auth.authenticate( "admin@carbonldp.com", "hello" );
+activeContext.initialize( carbon, "demo-app/" );
+
+platformBrowserDynamic().bootstrapModule( AppModule ).then( ( appRef:NgModuleRef<AppModule> ) => {
+	return appInjector( appRef.injector );
+
+} ).catch( ( error:Error ) => {
+	console.error( error.stack );
+} );

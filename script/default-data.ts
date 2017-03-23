@@ -1,821 +1,1629 @@
 export interface DefaultElementData {
-	name:string;
+	elementSlug?:string;
+	data?:{
+		name:string;
+	};
 }
 
-export interface DefaultContainerData {
-	slug:string;
-	elements:DefaultElementData[];
+export interface DefaultContainerData extends DefaultElementData {
+	childTemplate?:Object;
+	children:DefaultElementData[];
 }
 
-export let defaultCountries:DefaultContainerData = {
-	slug: "countries/",
-	elements: [
-		{
-			name: "Afghanistan",
-		},
-		{
-			name: "Aland Islands",
-		},
-		{
-			name: "Albania",
-		},
-		{
-			name: "Algeria",
-		},
-		{
-			name: "American Samoa",
-		},
-		{
-			name: "Andorra",
-		},
-		{
-			name: "Angola",
-		},
-		{
-			name: "Anguilla",
-		},
-		{
-			name: "Antigua",
-		},
-		{
-			name: "Argentina",
-		},
-		{
-			name: "Armenia",
-		},
-		{
-			name: "Aruba",
-		},
-		{
-			name: "Australia",
-		},
-		{
-			name: "Austria",
-		},
-		{
-			name: "Azerbaijan",
-		},
-		{
-			name: "Bahamas",
-		},
-		{
-			name: "Bahrain",
-		},
-		{
-			name: "Bangladesh",
-		},
-		{
-			name: "Barbados",
-		},
-		{
-			name: "Belarus",
-		},
-		{
-			name: "Belgium",
-		},
-		{
-			name: "Belize",
-		},
-		{
-			name: "Benin",
-		},
-		{
-			name: "Bermuda",
-		},
-		{
-			name: "Bhutan",
-		},
-		{
-			name: "Bolivia",
-		},
-		{
-			name: "Bosnia",
-		},
-		{
-			name: "Botswana",
-		},
-		{
-			name: "Bouvet Island",
-		},
-		{
-			name: "Brazil",
-		},
-		{
-			name: "British Virgin Islands",
-		},
-		{
-			name: "Brunei",
-		},
-		{
-			name: "Bulgaria",
-		},
-		{
-			name: "Burkina Faso",
-		},
-		{
-			name: "Burma",
-		},
-		{
-			name: "Burundi",
-		},
-		{
-			name: "Caicos Islands",
-		},
-		{
-			name: "Cambodia",
-		},
-		{
-			name: "Cameroon",
-		},
-		{
-			name: "Canada",
-		},
-		{
-			name: "Cape Verde",
-		},
-		{
-			name: "Cayman Islands",
-		},
-		{
-			name: "Central African Republic",
-		},
-		{
-			name: "Chad",
-		},
-		{
-			name: "Chile",
-		},
-		{
-			name: "China",
-		},
-		{
-			name: "Christmas Island",
-		},
-		{
-			name: "Cocos Islands",
-		},
-		{
-			name: "Colombia",
-		},
-		{
-			name: "Comoros",
-		},
-		{
-			name: "Congo Brazzaville",
-		},
-		{
-			name: "Congo",
-		},
-		{
-			name: "Cook Islands",
-		},
-		{
-			name: "Costa Rica",
-		},
-		{
-			name: "Cote Divoire",
-		},
-		{
-			name: "Croatia",
-		},
-		{
-			name: "Cuba",
-		},
-		{
-			name: "Cyprus",
-		},
-		{
-			name: "Czech Republic",
-		},
-		{
-			name: "Denmark",
-		},
-		{
-			name: "Djibouti",
-		},
-		{
-			name: "Dominica",
-		},
-		{
-			name: "Dominican Republic",
-		},
-		{
-			name: "Ecuador",
-		},
-		{
-			name: "Egypt",
-		},
-		{
-			name: "El Salvador",
-		},
-		{
-			name: "England",
-		},
-		{
-			name: "Equatorial Guinea",
-		},
-		{
-			name: "Eritrea",
-		},
-		{
-			name: "Estonia",
-		},
-		{
-			name: "Ethiopia",
-		},
-		{
-			name: "European Union",
-		},
-		{
-			name: "Falkland Islands",
-		},
-		{
-			name: "Faroe Islands",
-		},
-		{
-			name: "Fiji",
-		},
-		{
-			name: "Finland",
-		},
-		{
-			name: "France",
-		},
-		{
-			name: "French Guiana",
-		},
-		{
-			name: "French Polynesia",
-		},
-		{
-			name: "French Territories",
-		},
-		{
-			name: "Gabon",
-		},
-		{
-			name: "Gambia",
-		},
-		{
+export interface DefaultNamedContainer extends DefaultContainerData {
+	elementSlug:string;
+}
+
+export let defaultUsers:DefaultNamedContainer = {
+	elementSlug: "users/",
+	children: [
+		{
+			data: {
+				name: "admin",
+				nickname: "admin",
+			}
+		} as DefaultElementData
+	],
+};
+
+export let defaultUSStates:DefaultElementData[] = [
+	{
+		data: {
+			name: "Alabama",
+		},
+	},
+	{
+		data: {
+			name: "Alaska",
+		},
+	},
+	{
+		data: {
+			name: "Arizona",
+		},
+	},
+	{
+		data: {
+			name: "Arkansas",
+		},
+	},
+	{
+		data: {
+			name: "California",
+		},
+	},
+	{
+		data: {
+			name: "Colorado",
+		},
+	},
+	{
+		data: {
+			name: "Connecticut",
+		},
+	},
+	{
+		data: {
+			name: "Delaware",
+		},
+	},
+	{
+		data: {
+			name: "District Of Columbia",
+		},
+	},
+	{
+		data: {
+			name: "Florida",
+		},
+	},
+	{
+		data: {
 			name: "Georgia",
 		},
+	},
+	{
+		data: {
+			name: "Hawaii",
+		},
+	},
+	{
+		data: {
+			name: "Idaho",
+		},
+	},
+	{
+		data: {
+			name: "Illinois",
+		},
+	},
+	{
+		data: {
+			name: "Indiana",
+		},
+	},
+	{
+		data: {
+			name: "Iowa",
+		},
+	},
+	{
+		data: {
+			name: "Kansas",
+		},
+	},
+	{
+		data: {
+			name: "Kentucky",
+		},
+	},
+	{
+		data: {
+			name: "Louisiana",
+		},
+	},
+	{
+		data: {
+			name: "Maine",
+		},
+	},
+	{
+		data: {
+			name: "Maryland",
+		},
+	},
+	{
+		data: {
+			name: "Massachusetts",
+		},
+	},
+	{
+		data: {
+			name: "Michigan",
+		},
+	},
+	{
+		data: {
+			name: "Minnesota",
+		},
+	},
+	{
+		data: {
+			name: "Mississippi",
+		},
+	},
+	{
+		data: {
+			name: "Missouri",
+		},
+	},
+	{
+		data: {
+			name: "Montana",
+		},
+	},
+	{
+		data: {
+			name: "Nebraska",
+		},
+	},
+	{
+		data: {
+			name: "Nevada",
+		},
+	},
+	{
+		data: {
+			name: "New Hampshire",
+		},
+	},
+	{
+		data: {
+			name: "New Jersey",
+		},
+	},
+	{
+		data: {
+			name: "New Mexico",
+		},
+	},
+	{
+		data: {
+			name: "New York",
+		},
+	},
+	{
+		data: {
+			name: "North Carolina",
+		},
+	},
+	{
+		data: {
+			name: "North Dakota",
+		},
+	},
+	{
+		data: {
+			name: "Ohio",
+		},
+	},
+	{
+		data: {
+			name: "Oklahoma",
+		},
+	},
+	{
+		data: {
+			name: "Oregon",
+		},
+	},
+	{
+		data: {
+			name: "Pennsylvania",
+		},
+	},
+	{
+		data: {
+			name: "Rhode Island",
+		},
+	},
+	{
+		data: {
+			name: "South Carolina",
+		},
+	},
+	{
+		data: {
+			name: "South Dakota",
+		},
+	},
+	{
+		data: {
+			name: "Tennessee",
+		},
+	},
+	{
+		data: {
+			name: "Texas",
+		},
+	},
+	{
+		data: {
+			name: "Utah",
+		},
+	},
+	{
+		data: {
+			name: "Vermont",
+		},
+	},
+	{
+		data: {
+			name: "Virginia",
+		},
+	},
+	{
+		data: {
+			name: "Washington",
+		},
+	},
+	{
+		data: {
+			name: "West Virginia",
+		},
+	},
+	{
+		data: {
+			name: "Wisconsin",
+		},
+	},
+	{
+		data: {
+			name: "Wyoming",
+		},
+	},
+];
+
+export let defaultCountries:DefaultNamedContainer = {
+	elementSlug: "countries/",
+	childTemplate: {
+		hasMemberRelation: "state"
+	},
+	children: [
+		{
+			data: {
+				name: "Afghanistan",
+			},
+		},
+		{
+			data: {
+				name: "Aland Islands",
+			},
+		},
+		{
+			data: {
+				name: "Albania",
+			},
+		},
+		{
+			data: {
+				name: "Algeria",
+			},
+		},
+		{
+			data: {
+				name: "American Samoa",
+			},
+		},
+		{
+			data: {
+				name: "Andorra",
+			},
+		},
+		{
+			data: {
+				name: "Angola",
+			},
+		},
+		{
+			data: {
+				name: "Anguilla",
+			},
+		},
+		{
+			data: {
+				name: "Antigua",
+			},
+		},
+		{
+			data: {
+				name: "Argentina",
+			},
+		},
+		{
+			data: {
+				name: "Armenia",
+			},
+		},
+		{
+			data: {
+				name: "Aruba",
+			},
+		},
+		{
+			data: {
+				name: "Australia",
+			},
+		},
+		{
+			data: {
+				name: "Austria",
+			},
+		},
+		{
+			data: {
+				name: "Azerbaijan",
+			},
+		},
+		{
+			data: {
+				name: "Bahamas",
+			},
+		},
+		{
+			data: {
+				name: "Bahrain",
+			},
+		},
+		{
+			data: {
+				name: "Bangladesh",
+			},
+		},
+		{
+			data: {
+				name: "Barbados",
+			},
+		},
+		{
+			data: {
+				name: "Belarus",
+			},
+		},
+		{
+			data: {
+				name: "Belgium",
+			},
+		},
+		{
+			data: {
+				name: "Belize",
+			},
+		},
+		{
+			data: {
+				name: "Benin",
+			},
+		},
+		{
+			data: {
+				name: "Bermuda",
+			},
+		},
+		{
+			data: {
+				name: "Bhutan",
+			},
+		},
+		{
+			data: {
+				name: "Bolivia",
+			},
+		},
+		{
+			data: {
+				name: "Bosnia",
+			},
+		},
+		{
+			data: {
+				name: "Botswana",
+			},
+		},
+		{
+			data: {
+				name: "Bouvet Island",
+			},
+		},
+		{
+			data: {
+				name: "Brazil",
+			},
+		},
+		{
+			data: {
+				name: "British Virgin Islands",
+			},
+		},
+		{
+			data: {
+				name: "Brunei",
+			},
+		},
+		{
+			data: {
+				name: "Bulgaria",
+			},
+		},
+		{
+			data: {
+				name: "Burkina Faso",
+			},
+		},
+		{
+			data: {
+				name: "Burma",
+			},
+		},
+		{
+			data: {
+				name: "Burundi",
+			},
+		},
+		{
+			data: {
+				name: "Caicos Islands",
+			},
+		},
+		{
+			data: {
+				name: "Cambodia",
+			},
+		},
+		{
+			data: {
+				name: "Cameroon",
+			},
+		},
 		{
-			name: "Germany",
+			data: {
+				name: "Canada",
+			},
 		},
 		{
-			name: "Ghana",
+			data: {
+				name: "Cape Verde",
+			},
 		},
 		{
-			name: "Gibraltar",
+			data: {
+				name: "Cayman Islands",
+			},
 		},
 		{
-			name: "Greece",
+			data: {
+				name: "Central African Republic",
+			},
 		},
 		{
-			name: "Greenland",
+			data: {
+				name: "Chad",
+			},
 		},
 		{
-			name: "Grenada",
+			data: {
+				name: "Chile",
+			},
 		},
 		{
-			name: "Guadeloupe",
+			data: {
+				name: "China",
+			},
 		},
 		{
-			name: "Guam",
+			data: {
+				name: "Christmas Island",
+			},
 		},
 		{
-			name: "Guatemala",
+			data: {
+				name: "Cocos Islands",
+			},
 		},
 		{
-			name: "Guinea-Bissau",
+			data: {
+				name: "Colombia",
+			},
 		},
 		{
-			name: "Guinea",
+			data: {
+				name: "Comoros",
+			},
 		},
 		{
-			name: "Guyana",
+			data: {
+				name: "Congo Brazzaville",
+			},
 		},
 		{
-			name: "Haiti",
+			data: {
+				name: "Congo",
+			},
 		},
 		{
-			name: "Heard Island",
+			data: {
+				name: "Cook Islands",
+			},
 		},
 		{
-			name: "Honduras",
+			data: {
+				name: "Costa Rica",
+			},
 		},
 		{
-			name: "Hong Kong",
+			data: {
+				name: "Cote Divoire",
+			},
 		},
 		{
-			name: "Hungary",
+			data: {
+				name: "Croatia",
+			},
 		},
 		{
-			name: "Iceland",
+			data: {
+				name: "Cuba",
+			},
 		},
 		{
-			name: "India",
+			data: {
+				name: "Cyprus",
+			},
 		},
 		{
-			name: "Indian Ocean Territory",
+			data: {
+				name: "Czech Republic",
+			},
 		},
 		{
-			name: "Indonesia",
+			data: {
+				name: "Denmark",
+			},
 		},
 		{
-			name: "Iran",
+			data: {
+				name: "Djibouti",
+			},
 		},
 		{
-			name: "Iraq",
+			data: {
+				name: "Dominica",
+			},
 		},
 		{
-			name: "Ireland",
+			data: {
+				name: "Dominican Republic",
+			},
 		},
 		{
-			name: "Israel",
+			data: {
+				name: "Ecuador",
+			},
 		},
 		{
-			name: "Italy",
+			data: {
+				name: "Egypt",
+			},
 		},
 		{
-			name: "Jamaica",
+			data: {
+				name: "El Salvador",
+			},
 		},
 		{
-			name: "Japan",
+			data: {
+				name: "England",
+			},
 		},
 		{
-			name: "Jordan",
+			data: {
+				name: "Equatorial Guinea",
+			},
 		},
 		{
-			name: "Kazakhstan",
+			data: {
+				name: "Eritrea",
+			},
 		},
 		{
-			name: "Kenya",
+			data: {
+				name: "Estonia",
+			},
 		},
 		{
-			name: "Kiribati",
+			data: {
+				name: "Ethiopia",
+			},
 		},
 		{
-			name: "Kuwait",
+			data: {
+				name: "European Union",
+			},
 		},
 		{
-			name: "Kyrgyzstan",
+			data: {
+				name: "Falkland Islands",
+			},
 		},
 		{
-			name: "Laos",
+			data: {
+				name: "Faroe Islands",
+			},
 		},
 		{
-			name: "Latvia",
+			data: {
+				name: "Fiji",
+			},
 		},
 		{
-			name: "Lebanon",
+			data: {
+				name: "Finland",
+			},
 		},
 		{
-			name: "Lesotho",
+			data: {
+				name: "France",
+			},
 		},
 		{
-			name: "Liberia",
+			data: {
+				name: "French Guiana",
+			},
 		},
 		{
-			name: "Libya",
+			data: {
+				name: "French Polynesia",
+			},
 		},
 		{
-			name: "Liechtenstein",
+			data: {
+				name: "French Territories",
+			},
 		},
 		{
-			name: "Lithuania",
+			data: {
+				name: "Gabon",
+			},
 		},
 		{
-			name: "Luxembourg",
+			data: {
+				name: "Gambia",
+			},
 		},
 		{
-			name: "Macau",
+			data: {
+				name: "Georgia",
+			},
 		},
 		{
-			name: "Macedonia",
+			data: {
+				name: "Germany",
+			},
 		},
 		{
-			name: "Madagascar",
+			data: {
+				name: "Ghana",
+			},
 		},
 		{
-			name: "Malawi",
+			data: {
+				name: "Gibraltar",
+			},
 		},
 		{
-			name: "Malaysia",
+			data: {
+				name: "Greece",
+			},
 		},
 		{
-			name: "Maldives",
+			data: {
+				name: "Greenland",
+			},
 		},
 		{
-			name: "Mali",
+			data: {
+				name: "Grenada",
+			},
 		},
 		{
-			name: "Malta",
+			data: {
+				name: "Guadeloupe",
+			},
 		},
 		{
-			name: "Marshall Islands",
+			data: {
+				name: "Guam",
+			},
 		},
 		{
-			name: "Martinique",
+			data: {
+				name: "Guatemala",
+			},
 		},
 		{
-			name: "Mauritania",
+			data: {
+				name: "Guinea-Bissau",
+			},
 		},
 		{
-			name: "Mauritius",
+			data: {
+				name: "Guinea",
+			},
 		},
 		{
-			name: "Mayotte",
+			data: {
+				name: "Guyana",
+			},
 		},
 		{
-			name: "Mexico",
+			data: {
+				name: "Haiti",
+			},
 		},
 		{
-			name: "Micronesia",
+			data: {
+				name: "Heard Island",
+			},
 		},
 		{
-			name: "Moldova",
+			data: {
+				name: "Honduras",
+			},
 		},
 		{
-			name: "Monaco",
+			data: {
+				name: "Hong Kong",
+			},
 		},
 		{
-			name: "Mongolia",
+			data: {
+				name: "Hungary",
+			},
 		},
 		{
-			name: "Montenegro",
+			data: {
+				name: "Iceland",
+			},
 		},
 		{
-			name: "Montserrat",
+			data: {
+				name: "India",
+			},
 		},
 		{
-			name: "Morocco",
+			data: {
+				name: "Indian Ocean Territory",
+			},
 		},
 		{
-			name: "Mozambique",
+			data: {
+				name: "Indonesia",
+			},
 		},
 		{
-			name: "Namibia",
+			data: {
+				name: "Iran",
+			},
 		},
 		{
-			name: "Nauru",
+			data: {
+				name: "Iraq",
+			},
 		},
 		{
-			name: "Nepal",
+			data: {
+				name: "Ireland",
+			},
 		},
 		{
-			name: "Netherlands Antilles",
+			data: {
+				name: "Israel",
+			},
 		},
 		{
-			name: "Netherlands",
+			data: {
+				name: "Italy",
+			},
 		},
 		{
-			name: "New Caledonia",
+			data: {
+				name: "Jamaica",
+			},
 		},
 		{
-			name: "New Guinea",
+			data: {
+				name: "Japan",
+			},
 		},
 		{
-			name: "New Zealand",
+			data: {
+				name: "Jordan",
+			},
 		},
 		{
-			name: "Nicaragua",
+			data: {
+				name: "Kazakhstan",
+			},
 		},
 		{
-			name: "Niger",
+			data: {
+				name: "Kenya",
+			},
 		},
 		{
-			name: "Nigeria",
+			data: {
+				name: "Kiribati",
+			},
 		},
 		{
-			name: "Niue",
+			data: {
+				name: "Kuwait",
+			},
 		},
 		{
-			name: "Norfolk Island",
+			data: {
+				name: "Kyrgyzstan",
+			},
 		},
 		{
-			name: "North Korea",
+			data: {
+				name: "Laos",
+			},
 		},
 		{
-			name: "Northern Mariana Islands",
+			data: {
+				name: "Latvia",
+			},
 		},
 		{
-			name: "Norway",
+			data: {
+				name: "Lebanon",
+			},
 		},
 		{
-			name: "Oman",
+			data: {
+				name: "Lesotho",
+			},
 		},
 		{
-			name: "Pakistan",
+			data: {
+				name: "Liberia",
+			},
 		},
 		{
-			name: "Palau",
+			data: {
+				name: "Libya",
+			},
 		},
 		{
-			name: "Palestine",
+			data: {
+				name: "Liechtenstein",
+			},
 		},
 		{
-			name: "Panama",
+			data: {
+				name: "Lithuania",
+			},
 		},
 		{
-			name: "Paraguay",
+			data: {
+				name: "Luxembourg",
+			},
 		},
 		{
-			name: "Peru",
+			data: {
+				name: "Macau",
+			},
 		},
 		{
-			name: "Philippines",
+			data: {
+				name: "Macedonia",
+			},
 		},
 		{
-			name: "Pitcairn Islands",
+			data: {
+				name: "Madagascar",
+			},
 		},
 		{
-			name: "Poland",
+			data: {
+				name: "Malawi",
+			},
 		},
 		{
-			name: "Portugal",
+			data: {
+				name: "Malaysia",
+			},
 		},
 		{
-			name: "Puerto Rico",
+			data: {
+				name: "Maldives",
+			},
 		},
 		{
-			name: "Qatar",
+			data: {
+				name: "Mali",
+			},
 		},
 		{
-			name: "Reunion",
+			data: {
+				name: "Malta",
+			},
 		},
 		{
-			name: "Romania",
+			data: {
+				name: "Marshall Islands",
+			},
 		},
 		{
-			name: "Russia",
+			data: {
+				name: "Martinique",
+			},
 		},
 		{
-			name: "Rwanda",
+			data: {
+				name: "Mauritania",
+			},
 		},
 		{
-			name: "Saint Helena",
+			data: {
+				name: "Mauritius",
+			},
 		},
 		{
-			name: "Saint Kitts and Nevis",
+			data: {
+				name: "Mayotte",
+			},
 		},
 		{
-			name: "Saint Lucia",
+			data: {
+				name: "Mexico",
+			},
 		},
 		{
-			name: "Saint Pierre",
+			data: {
+				name: "Micronesia",
+			},
 		},
 		{
-			name: "Saint Vincent",
+			data: {
+				name: "Moldova",
+			},
 		},
 		{
-			name: "Samoa",
+			data: {
+				name: "Monaco",
+			},
 		},
 		{
-			name: "San Marino",
+			data: {
+				name: "Mongolia",
+			},
 		},
 		{
-			name: "Sandwich Islands",
+			data: {
+				name: "Montenegro",
+			},
 		},
 		{
-			name: "Sao Tome",
+			data: {
+				name: "Montserrat",
+			},
 		},
 		{
-			name: "Saudi Arabia",
+			data: {
+				name: "Morocco",
+			},
 		},
 		{
-			name: "Senegal",
+			data: {
+				name: "Mozambique",
+			},
 		},
 		{
-			name: "Serbia",
+			data: {
+				name: "Namibia",
+			},
 		},
 		{
-			name: "Serbia",
+			data: {
+				name: "Nauru",
+			},
 		},
 		{
-			name: "Seychelles",
+			data: {
+				name: "Nepal",
+			},
 		},
 		{
-			name: "Sierra Leone",
+			data: {
+				name: "Netherlands Antilles",
+			},
 		},
 		{
-			name: "Singapore",
+			data: {
+				name: "Netherlands",
+			},
 		},
 		{
-			name: "Slovakia",
+			data: {
+				name: "New Caledonia",
+			},
 		},
 		{
-			name: "Slovenia",
+			data: {
+				name: "New Guinea",
+			},
 		},
 		{
-			name: "Solomon Islands",
+			data: {
+				name: "New Zealand",
+			},
 		},
 		{
-			name: "Somalia",
+			data: {
+				name: "Nicaragua",
+			},
 		},
 		{
-			name: "South Africa",
+			data: {
+				name: "Niger",
+			},
 		},
 		{
-			name: "South Korea",
+			data: {
+				name: "Nigeria",
+			},
 		},
 		{
-			name: "Spain",
+			data: {
+				name: "Niue",
+			},
 		},
 		{
-			name: "Sri Lanka",
+			data: {
+				name: "Norfolk Island",
+			},
 		},
 		{
-			name: "Sudan",
+			data: {
+				name: "North Korea",
+			},
 		},
 		{
-			name: "Suriname",
+			data: {
+				name: "Northern Mariana Islands",
+			},
 		},
 		{
-			name: "Svalbard",
+			data: {
+				name: "Norway",
+			},
 		},
 		{
-			name: "Swaziland",
+			data: {
+				name: "Oman",
+			},
 		},
 		{
-			name: "Sweden",
+			data: {
+				name: "Pakistan",
+			},
 		},
 		{
-			name: "Switzerland",
+			data: {
+				name: "Palau",
+			},
 		},
 		{
-			name: "Syria",
+			data: {
+				name: "Palestine",
+			},
 		},
 		{
-			name: "Taiwan",
+			data: {
+				name: "Panama",
+			},
 		},
 		{
-			name: "Tajikistan",
+			data: {
+				name: "Paraguay",
+			},
 		},
 		{
-			name: "Tanzania",
+			data: {
+				name: "Peru",
+			},
 		},
 		{
-			name: "Thailand",
+			data: {
+				name: "Philippines",
+			},
 		},
 		{
-			name: "Timorleste",
+			data: {
+				name: "Pitcairn Islands",
+			},
 		},
 		{
-			name: "Togo",
+			data: {
+				name: "Poland",
+			},
 		},
 		{
-			name: "Tokelau",
+			data: {
+				name: "Portugal",
+			},
 		},
 		{
-			name: "Tonga",
+			data: {
+				name: "Puerto Rico",
+			},
 		},
 		{
-			name: "Trinidad",
+			data: {
+				name: "Qatar",
+			},
 		},
 		{
-			name: "Tunisia",
+			data: {
+				name: "Reunion",
+			},
 		},
 		{
-			name: "Turkey",
+			data: {
+				name: "Romania",
+			},
 		},
 		{
-			name: "Turkmenistan",
+			data: {
+				name: "Russia",
+			},
 		},
 		{
-			name: "Tuvalu",
+			data: {
+				name: "Rwanda",
+			},
 		},
 		{
-			name: "Uganda",
+			data: {
+				name: "Saint Helena",
+			},
 		},
 		{
-			name: "Ukraine",
+			data: {
+				name: "Saint Kitts and Nevis",
+			},
 		},
 		{
-			name: "United Arab Emirates",
+			data: {
+				name: "Saint Lucia",
+			},
 		},
 		{
-			name: "United States",
+			data: {
+				name: "Saint Pierre",
+			},
 		},
+		{
+			data: {
+				name: "Saint Vincent",
+			},
+		},
+		{
+			data: {
+				name: "Samoa",
+			},
+		},
+		{
+			data: {
+				name: "San Marino",
+			},
+		},
+		{
+			data: {
+				name: "Sandwich Islands",
+			},
+		},
+		{
+			data: {
+				name: "Sao Tome",
+			},
+		},
+		{
+			data: {
+				name: "Saudi Arabia",
+			},
+		},
+		{
+			data: {
+				name: "Senegal",
+			},
+		},
+		{
+			data: {
+				name: "Serbia",
+			},
+		},
+		{
+			data: {
+				name: "Serbia",
+			},
+		},
+		{
+			data: {
+				name: "Seychelles",
+			},
+		},
+		{
+			data: {
+				name: "Sierra Leone",
+			},
+		},
+		{
+			data: {
+				name: "Singapore",
+			},
+		},
+		{
+			data: {
+				name: "Slovakia",
+			},
+		},
+		{
+			data: {
+				name: "Slovenia",
+			},
+		},
+		{
+			data: {
+				name: "Solomon Islands",
+			},
+		},
+		{
+			data: {
+				name: "Somalia",
+			},
+		},
+		{
+			data: {
+				name: "South Africa",
+			},
+		},
+		{
+			data: {
+				name: "South Korea",
+			},
+		},
+		{
+			data: {
+				name: "Spain",
+			},
+		},
+		{
+			data: {
+				name: "Sri Lanka",
+			},
+		},
+		{
+			data: {
+				name: "Sudan",
+			},
+		},
+		{
+			data: {
+				name: "Suriname",
+			},
+		},
+		{
+			data: {
+				name: "Svalbard",
+			},
+		},
+		{
+			data: {
+				name: "Swaziland",
+			},
+		},
+		{
+			data: {
+				name: "Sweden",
+			},
+		},
+		{
+			data: {
+				name: "Switzerland",
+			},
+		},
+		{
+			data: {
+				name: "Syria",
+			},
+		},
+		{
+			data: {
+				name: "Taiwan",
+			},
+		},
+		{
+			data: {
+				name: "Tajikistan",
+			},
+		},
+		{
+			data: {
+				name: "Tanzania",
+			},
+		},
+		{
+			data: {
+				name: "Thailand",
+			},
+		},
+		{
+			data: {
+				name: "Timorleste",
+			},
+		},
+		{
+			data: {
+				name: "Togo",
+			},
+		},
+		{
+			data: {
+				name: "Tokelau",
+			},
+		},
+		{
+			data: {
+				name: "Tonga",
+			},
+		},
+		{
+			data: {
+				name: "Trinidad",
+			},
+		},
+		{
+			data: {
+				name: "Tunisia",
+			},
+		},
+		{
+			data: {
+				name: "Turkey",
+			},
+		},
+		{
+			data: {
+				name: "Turkmenistan",
+			},
+		},
+		{
+			data: {
+				name: "Tuvalu",
+			},
+		},
+		{
+			data: {
+				name: "Uganda",
+			},
+		},
+		{
+			data: {
+				name: "Ukraine",
+			},
+		},
+		{
+			data: {
+				name: "United Arab Emirates",
+			},
+		},
+		{
+			data: {
+				name: "United States",
+			},
+			children: defaultUSStates,
+		} as DefaultElementData,
 		{
-			name: "Uruguay",
+			data: {
+				name: "Uruguay",
+			},
 		},
 		{
-			name: "Us Minor Islands",
+			data: {
+				name: "Us Minor Islands",
+			},
 		},
 		{
-			name: "Us Virgin Islands",
+			data: {
+				name: "Us Virgin Islands",
+			},
 		},
 		{
-			name: "Uzbekistan",
+			data: {
+				name: "Uzbekistan",
+			},
 		},
 		{
-			name: "Vanuatu",
+			data: {
+				name: "Vanuatu",
+			},
 		},
 		{
-			name: "Vatican City",
+			data: {
+				name: "Vatican City",
+			},
 		},
 		{
-			name: "Venezuela",
+			data: {
+				name: "Venezuela",
+			},
 		},
 		{
-			name: "Vietnam",
+			data: {
+				name: "Vietnam",
+			},
 		},
 		{
-			name: "Wallis and Futuna",
+			data: {
+				name: "Wallis and Futuna",
+			},
 		},
 		{
-			name: "Western Sahara",
+			data: {
+				name: "Western Sahara",
+			},
 		},
 		{
-			name: "Yemen",
+			data: {
+				name: "Yemen",
+			},
 		},
 		{
-			name: "Zambia",
+			data: {
+				name: "Zambia",
+			},
 		},
 		{
-			name: "Zimbabwe",
+			data: {
+				name: "Zimbabwe",
+			},
 		},
 	],
 };
 
-export let defaultCompanies:DefaultContainerData = {
-	slug: "companies/",
-	elements: [
+export let defaultCities:DefaultNamedContainer = {
+	elementSlug: "cities/",
+	children: [
 		{
-			name: "Base22",
-		},
-		{
-			name: "Google",
-		},
-		{
-			name: "W3C",
+			data: {
+				name: "Monterrey",
+			},
 		},
 	],
 };
 
-export let defaultWorkLayers:DefaultContainerData = {
-	slug: "work-layers/",
-	elements: [
+export let defaultCompanies:DefaultNamedContainer = {
+	elementSlug: "companies/",
+	children: [
 		{
-			name: "FrontEnd",
+			data: {
+				name: "Base22",
+			},
 		},
 		{
-			name: "BackEnd",
+			data: {
+				name: "Google",
+			},
 		},
 		{
-			name: "Full-Stack",
-		},
-	],
-};
-
-export let defaultDesktopOSs:DefaultContainerData = {
-	slug: "desktop-oss/",
-	elements: [
-		{
-			name: "Linux",
-		},
-		{
-			name: "MacOS",
-		},
-		{
-			name: "Windows",
+			data: {
+				name: "W3C",
+			},
 		},
 	],
 };
 
-export let defaultMobileOSs:DefaultContainerData = {
-	slug: "mobile-oss/",
-	elements: [
+export let defaultWorkLayers:DefaultNamedContainer = {
+	elementSlug: "work-layers/",
+	children: [
 		{
-			name: "Android"
+			data: {
+				name: "FrontEnd",
+			},
 		},
 		{
-			name: "iOS"
+			data: {
+				name: "BackEnd",
+			},
 		},
 		{
-			name: "Windows Phone"
-		},
-	],
-};
-
-export let defaultInstitutes:DefaultContainerData = {
-	slug: "institutes/",
-	elements: [
-		{
-			name: "ITESM",
-		},
-		{
-			name: "University of Florida",
-		},
-		{
-			name: "Berkely",
+			data: {
+				name: "Full-Stack",
+			},
 		},
 	],
 };
 
-export const DEFAULT_CONTAINERS:DefaultContainerData[] = [
+export let defaultDesktopOSs:DefaultNamedContainer = {
+	elementSlug: "desktop-oss/",
+	children: [
+		{
+			data: {
+				name: "Linux",
+			},
+		},
+		{
+			data: {
+				name: "MacOS",
+			},
+		},
+		{
+			data: {
+				name: "Windows",
+			},
+		},
+	],
+};
+
+export let defaultMobileOSs:DefaultNamedContainer = {
+	elementSlug: "mobile-oss/",
+	children: [
+		{
+			data: {
+				name: "Android"
+			},
+		},
+		{
+			data: {
+				name: "Windows Phone"
+			},
+		},
+		{
+			data: {
+				name: "iOS"
+			},
+		},
+	],
+};
+
+export let defaultInstitutes:DefaultNamedContainer = {
+	elementSlug: "institutes/",
+	children: [
+		{
+			data: {
+				name: "ITESM",
+			},
+		},
+		{
+			data: {
+				name: "University of Florida",
+			},
+		},
+		{
+			data: {
+				name: "Berkely",
+			},
+		},
+	],
+};
+
+export const DEFAULT_CONTAINERS:DefaultNamedContainer[] = [
+	defaultUsers,
 	defaultCountries,
+	defaultCities,
 	defaultCompanies,
 	defaultWorkLayers,
 	defaultDesktopOSs,

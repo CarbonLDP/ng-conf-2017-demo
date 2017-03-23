@@ -1,9 +1,16 @@
-import { Component } from "@angular/core";
-
-import { FormControl } from "@angular/forms";
+import { Component, QueryList, ViewChildren } from "@angular/core";
 import { Observable } from "rxjs";
 
+import { MdAutocompleteTrigger } from "@angular/material";
+
+import { CarbonDataService } from "../data/carbonData.service";
+import { BasicCarbonData, CountryCarbonData } from "app/data/carbonData";
+
 @Component( {
+	selector: "app-form",
+	providers: [
+		CarbonDataService,
+	],
 	templateUrl: "./form.component.html",
 	styleUrls: [ "form.component.scss" ]
 } )
@@ -13,361 +20,125 @@ export class FormComponent {
 	yearNames:number[];
 	birthDate:Birth;
 
-	countries:string[] = [
-		"Afghanistan",
-		"Aland Islands",
-		"Albania",
-		"Algeria",
-		"American Samoa",
-		"Andorra",
-		"Angola",
-		"Anguilla",
-		"Antigua",
-		"Argentina",
-		"Armenia",
-		"Aruba",
-		"Australia",
-		"Austria",
-		"Azerbaijan",
-		"Bahamas",
-		"Bahrain",
-		"Bangladesh",
-		"Barbados",
-		"Belarus",
-		"Belgium",
-		"Belize",
-		"Benin",
-		"Bermuda",
-		"Bhutan",
-		"Bolivia",
-		"Bosnia",
-		"Botswana",
-		"Bouvet Island",
-		"Brazil",
-		"British Virgin Islands",
-		"Brunei",
-		"Bulgaria",
-		"Burkina Faso",
-		"Burma",
-		"Burundi",
-		"Caicos Islands",
-		"Cambodia",
-		"Cameroon",
-		"Canada",
-		"Cape Verde",
-		"Cayman Islands",
-		"Central African Republic",
-		"Chad",
-		"Chile",
-		"China",
-		"Christmas Island",
-		"Cocos Islands",
-		"Colombia",
-		"Comoros",
-		"Congo Brazzaville",
-		"Congo",
-		"Cook Islands",
-		"Costa Rica",
-		"Cote Divoire",
-		"Croatia",
-		"Cuba",
-		"Cyprus",
-		"Czech Republic",
-		"Denmark",
-		"Djibouti",
-		"Dominica",
-		"Dominican Republic",
-		"Ecuador",
-		"Egypt",
-		"El Salvador",
-		"England",
-		"Equatorial Guinea",
-		"Eritrea",
-		"Estonia",
-		"Ethiopia",
-		"European Union",
-		"Falkland Islands",
-		"Faroe Islands",
-		"Fiji",
-		"Finland",
-		"France",
-		"French Guiana",
-		"French Polynesia",
-		"French Territories",
-		"Gabon",
-		"Gambia",
-		"Georgia",
-		"Germany",
-		"Ghana",
-		"Gibraltar",
-		"Greece",
-		"Greenland",
-		"Grenada",
-		"Guadeloupe",
-		"Guam",
-		"Guatemala",
-		"Guinea-Bissau",
-		"Guinea",
-		"Guyana",
-		"Haiti",
-		"Heard Island",
-		"Honduras",
-		"Hong Kong",
-		"Hungary",
-		"Iceland",
-		"India",
-		"Indian Ocean Territory",
-		"Indonesia",
-		"Iran",
-		"Iraq",
-		"Ireland",
-		"Israel",
-		"Italy",
-		"Jamaica",
-		"Japan",
-		"Jordan",
-		"Kazakhstan",
-		"Kenya",
-		"Kiribati",
-		"Kuwait",
-		"Kyrgyzstan",
-		"Laos",
-		"Latvia",
-		"Lebanon",
-		"Lesotho",
-		"Liberia",
-		"Libya",
-		"Liechtenstein",
-		"Lithuania",
-		"Luxembourg",
-		"Macau",
-		"Macedonia",
-		"Madagascar",
-		"Malawi",
-		"Malaysia",
-		"Maldives",
-		"Mali",
-		"Malta",
-		"Marshall Islands",
-		"Martinique",
-		"Mauritania",
-		"Mauritius",
-		"Mayotte",
-		"Mexico",
-		"Micronesia",
-		"Moldova",
-		"Monaco",
-		"Mongolia",
-		"Montenegro",
-		"Montserrat",
-		"Morocco",
-		"Mozambique",
-		"Namibia",
-		"Nauru",
-		"Nepal",
-		"Netherlands Antilles",
-		"Netherlands",
-		"New Caledonia",
-		"New Guinea",
-		"New Zealand",
-		"Nicaragua",
-		"Niger",
-		"Nigeria",
-		"Niue",
-		"Norfolk Island",
-		"North Korea",
-		"Northern Mariana Islands",
-		"Norway",
-		"Oman",
-		"Pakistan",
-		"Palau",
-		"Palestine",
-		"Panama",
-		"Paraguay",
-		"Peru",
-		"Philippines",
-		"Pitcairn Islands",
-		"Poland",
-		"Portugal",
-		"Puerto Rico",
-		"Qatar",
-		"Reunion",
-		"Romania",
-		"Russia",
-		"Rwanda",
-		"Saint Helena",
-		"Saint Kitts and Nevis",
-		"Saint Lucia",
-		"Saint Pierre",
-		"Saint Vincent",
-		"Samoa",
-		"San Marino",
-		"Sandwich Islands",
-		"Sao Tome",
-		"Saudi Arabia",
-		"Senegal",
-		"Serbia",
-		"Serbia",
-		"Seychelles",
-		"Sierra Leone",
-		"Singapore",
-		"Slovakia",
-		"Slovenia",
-		"Solomon Islands",
-		"Somalia",
-		"South Africa",
-		"South Korea",
-		"Spain",
-		"Sri Lanka",
-		"Sudan",
-		"Suriname",
-		"Svalbard",
-		"Swaziland",
-		"Sweden",
-		"Switzerland",
-		"Syria",
-		"Taiwan",
-		"Tajikistan",
-		"Tanzania",
-		"Thailand",
-		"Timorleste",
-		"Togo",
-		"Tokelau",
-		"Tonga",
-		"Trinidad",
-		"Tunisia",
-		"Turkey",
-		"Turkmenistan",
-		"Tuvalu",
-		"Uganda",
-		"Ukraine",
-		"United Arab Emirates",
-		"United States",
-		"Uruguay",
-		"Us Minor Islands",
-		"Us Virgin Islands",
-		"Uzbekistan",
-		"Vanuatu",
-		"Vatican City",
-		"Venezuela",
-		"Vietnam",
-		"Wallis and Futuna",
-		"Western Sahara",
-		"Yemen",
-		"Zambia",
-		"Zimbabwe",
-	];
-	states:string[] = [
-		"Alabama",
-		"Alaska",
-		"Arizona",
-		"Arkansas",
-		"California",
-		"Colorado",
-		"Connecticut",
-		"Delaware",
-		"District Of Columbia",
-		"Florida",
-		"Georgia",
-		"Hawaii",
-		"Idaho",
-		"Illinois",
-		"Indiana",
-		"Iowa",
-		"Kansas",
-		"Kentucky",
-		"Louisiana",
-		"Maine",
-		"Maryland",
-		"Massachusetts",
-		"Michigan",
-		"Minnesota",
-		"Mississippi",
-		"Missouri",
-		"Montana",
-		"Nebraska",
-		"Nevada",
-		"New Hampshire",
-		"New Jersey",
-		"New Mexico",
-		"New York",
-		"North Carolina",
-		"North Dakota",
-		"Ohio",
-		"Oklahoma",
-		"Oregon",
-		"Pennsylvania",
-		"Rhode Island",
-		"South Carolina",
-		"South Dakota",
-		"Tennessee",
-		"Texas",
-		"Utah",
-		"Vermont",
-		"Virginia",
-		"Washington",
-		"West Virginia",
-		"Wisconsin",
-		"Wyoming",
-	];
+	countries:Observable<CountryCarbonData[]>;
 
-	companyCtrl:FormControl;
-	companies:string[] = [ "Base22", "Google", "W3C" ];
-	filteredCompanies:Observable<string[]>;
+	cities:Observable<BasicCarbonData[]>;
+	filteredCities:Observable<BasicCarbonData[]>;
 
-	workLayers:string[] = [ "FrontEnd", "BackEnd", "Full-Stack" ];
-	desktopOSs:string[] = [ "Linux", "MacOS", "Windows" ];
-	mobileOSs:string[] = [ "Android", "iOS", "Windows Phone" ];
+	institutes:Observable<BasicCarbonData[]>;
+	filteredInstitutes:Observable<BasicCarbonData[]>;
 
-	institutionCtrl:FormControl;
-	institutions:string[] = [ "ITESM", "University of Florida", "Berkely" ];
-	filteredInstitutions:Observable<string[]>;
+	companies:Observable<BasicCarbonData[]>;
+	filteredCompanies:Observable<BasicCarbonData[]>;
 
-	user:NewUser = {
-		company: null,
-		institution: null,
+	workLayers:Observable<BasicCarbonData[]>;
+	desktopOSs:Observable<BasicCarbonData[]>;
+	mobileOSs:Observable<BasicCarbonData[]>;
+
+	masks:{
+		nickname:TextMaskFunction;
 	};
 
-	constructor() {
-		let today:Date = new Date();
-		this.birthDate = {
-			year: today.getFullYear(),
-			month: today.getMonth(),
-			day: today.getDate(),
-		};
+	user:NewUser;
+
+	constructor( private dataService:CarbonDataService ) {
+		this.birthDate = { year: void 0, month: void 0, day: void 0 };
 		this.yearNames = new Array( 90 )
 			.fill( void 0 )
-			.map( ( elem, index ) => this.birthDate.year - 89 + index );
+			.map( ( elem, index ) => new Date().getFullYear() - index );
 
-		this.companyCtrl = new FormControl();
-		this.filteredCompanies = this.companyCtrl.valueChanges
-			.startWith( null )
-			.map( name => this.filterCompanies( name ) );
+		this.filteredCities = this.cities = dataService.getBasicData( "cities/" );
+		this.filteredCompanies = this.companies = dataService.getBasicData( "companies/" );
+		this.filteredInstitutes = this.institutes = dataService.getBasicData( "institutes/" );
 
-		this.institutionCtrl = new FormControl();
-		this.filteredInstitutions = this.institutionCtrl.valueChanges
-			.startWith( null )
-			.map( name => this.filterInstitutions( name ) );
+		this.countries = dataService.getCountriesData();
+
+		this.workLayers = dataService.getBasicData( "work-layers/" );
+		this.desktopOSs = dataService.getBasicData( "desktop-oss/" );
+		this.mobileOSs = dataService.getBasicData( "mobile-oss/" );
+
+		this.masks = {
+			nickname: ( val:string ) => {
+				let match:string[] = val.match( /[A-Za-z\d\-]/g );
+				let length:number = match ? match.length : 0;
+				return new Array( length ).fill( /[A-Za-z\d\-]/ );
+			},
+		};
+
+		this.user = {};
 	}
 
-	filterCompanies( val:string ) {
-		return val ? this.companies.filter( s => new RegExp( val, 'gi' ).test( s ) ) : this.companies;
+	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"cities" | "companies" | "institutes" ):void {
+		if( typeof value === "object" ) return;
+
+		switch( autoComplete ) {
+			case "cities":
+				this.filteredCities = this.filterCarbonData( value, this.cities );
+				break;
+			case "companies":
+				this.filteredCompanies = this.filterCarbonData( value, this.companies );
+				break;
+			case "institutes":
+				this.filteredInstitutes = this.filterCarbonData( value, this.institutes );
+				break;
+		}
+
 	}
 
-	filterInstitutions( val:string ) {
-		return val ? this.institutions.filter( s => new RegExp( val, 'gi' ).test( s ) ) : this.institutions;
+	filterCarbonData( data:string, observable:Observable<BasicCarbonData[]> ):Observable<BasicCarbonData[]> {
+		if( ! data ) return observable;
+		return observable.map( elements => elements.filter( element => FormComponent.dataMatches( data, element ) ) );
 	}
 
-	getDaysOf( month:number ):number[] {
-		let maxDay = new Date( this.birthDate.year, month + 1, 0 ).getDate();
+	static dataMatches( data:string, element:BasicCarbonData ):boolean {
+		return new RegExp( data, 'gi' ).test( element.name );
+	}
+
+	displayDataName( data:BasicCarbonData ):string {
+		if( ! data ) return null;
+		return data.name;
+	}
+
+	getDaysOf( month:number = new Date().getMonth(), year:number = new Date().getFullYear() ):number[] {
+		if( month === void 0 ) return [];
+
+		let maxDay = new Date( year, month + 1, 0 ).getDate();
 		return new Array( maxDay );
 	}
 
 	isStateDisabled():boolean {
-		return false;
-		// return this.user.birthCountry !== "United States";
+		return ! this.user.birthCountry || ! this.user.birthCountry.states;
 	}
 
+	// angular/material2#645
+	@ViewChildren( MdAutocompleteTrigger ) autoCompleteTriggers:QueryList<MdAutocompleteTrigger>;
+
+	preventSubmit( $event:Event ):void {
+		if( this.autoCompleteTriggers.reduce( ( isOpen:boolean, trigger:MdAutocompleteTrigger ) => isOpen || trigger.panelOpen, false ) )
+			$event.preventDefault();
+	}
+
+	onSubmit():void {
+		if( this.isValidBirthDate() )
+			this.user.birthDate = new Date( this.birthDate.year, this.birthDate.month, this.birthDate.day );
+
+		console.log( "TODO: Submit the user %o!", this.user );
+	}
+
+	private isValidBirthDate():boolean {
+		return this.birthDate.year !== void 0
+			&& this.birthDate.month !== void 0
+			&& this.birthDate.day !== void 0
+			;
+	}
+
+}
+
+interface TextMask {
+	[ index:number ]:RegExp | string;
+}
+interface TextMaskFunction {
+	( rawValue:string ):TextMask;
 }
 
 interface Birth {
@@ -379,13 +150,13 @@ interface Birth {
 interface NewUser {
 	nickname?:string;
 	birthDate?:Date;
-	birthCountry?:string;
-	birthState?:string;
-	birthCity?:string;
-	company?:string;
-	worksOn?:string;
-	desktopOSPreference?:string;
-	mobileOSPreference?:string;
-	institution?:string;
+	birthCountry?:CountryCarbonData;
+	birthState?:BasicCarbonData;
+	birthCity?:BasicCarbonData | string;
+	company?:BasicCarbonData | string;
+	worksOn?:BasicCarbonData;
+	desktopOSPreference?:BasicCarbonData;
+	mobileOSPreference?:BasicCarbonData;
+	institute?:BasicCarbonData | string;
 	email?:string;
 }

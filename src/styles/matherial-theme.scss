@@ -158,16 +158,26 @@ body {
 	}
 }
 
-// Customize material theme
+/**** Fix material theme issues ****/
 .app-content {
 	.mat-select-trigger {
 		margin: .5em 0 1em;
 	}
-	.mat-input-underline {
-		margin-top: 5px;
-	}
-	.mat-input-infix {
-		font-size: 16px;
+
+	.mat-input-wrapper {
+		margin-bottom: 1.35em;
+
+		.mat-input-infix {
+			font-size: 16px;
+		}
+
+		.mat-input-underline {
+			margin-top: 5px;
+		}
+
+		.mat-hint {
+			font-size: 12px;
+		}
 	}
 	.mat-input-placeholder.mat-float.mat-focused, .mat-input-placeholder.mat-float:not(.mat-empty) {
 		transform: translateY(-1.65em) scale(.75);
@@ -175,4 +185,26 @@ body {
 	.mat-input-placeholder-wrapper {
 		overflow: visible;
 	}
+}
+
+// Input errors: angular/material2/pull/3560
+md-input-container.ng-dirty.ng-invalid {
+	.mat-input-underline {
+		border-top-width: 2px;
+		border-color: map-get($mat-red, 500);
+
+		.mat-input-ripple {
+			background-color: map-get($mat-red, 500);
+		}
+	}
+
+	md-hint {
+		color: map-get($mat-red, 500);
+	}
+}
+
+.cdk-overlay-pane[style*="pointer-events: auto"] {
+	//padding: 100% calc(5em + 24px);
+	//margin: -100% calc(-5em - 24px);
+	//min-width: 100%;
 }
