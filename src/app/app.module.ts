@@ -7,7 +7,6 @@ import { MaterialModule } from "@angular/material";
 
 import { CARBON_PROVIDERS } from "angular2-carbonldp/boot";
 import { CARBON_SERVICES_PROVIDERS } from "angular2-carbonldp/services";
-import { ActiveContextResolver } from "angular2-carbonldp/resolvers";
 import { AuthenticatedGuard, NotAuthenticatedGuard } from "angular2-carbonldp/guards";
 
 import { TextMaskModule } from 'angular2-text-mask';
@@ -16,6 +15,8 @@ import { AppComponent } from "app/app.component";
 import { FormComponent } from "app/form/form.component";
 import { ErrorComponent } from "app/error/error.component";
 import { UniqueNicknameDirective } from "app/form/validators/uniqueNickname.directive";
+import { SuccessDialog } from "app/form/dialogs/successDialog.component";
+import { FailDialog } from "app/form/dialogs/failDialog.component";
 
 const appRoutes:Routes = [
 	{
@@ -53,12 +54,17 @@ const appRoutes:Routes = [
 		FormComponent,
 		ErrorComponent,
 		UniqueNicknameDirective,
+		SuccessDialog,
+		FailDialog,
 	],
 	providers: [
 		CARBON_PROVIDERS,
 		CARBON_SERVICES_PROVIDERS,
-		ActiveContextResolver,
 		AuthenticatedGuard, NotAuthenticatedGuard,
+	],
+	entryComponents: [
+		SuccessDialog,
+		FailDialog,
 	],
 	bootstrap: [ AppComponent ]
 } )

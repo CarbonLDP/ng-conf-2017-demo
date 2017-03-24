@@ -1,29 +1,57 @@
 import * as App from "carbonldp/App";
+import Pointer from "carbonldp/Pointer";
 import Response from "carbonldp/HTTP/Response";
 import SELECTResults from "carbonldp/SPARQL/SELECTResults";
+import HTTPError from "carbonldp/HTTP/Errors/HTTPError";
 
 import { Injectable } from '@angular/core';
 import { Observable } from "rxjs";
+import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 
-import { BasicCarbonData, CountryCarbonData } from "app/data/carbonData";
+import { BasicCarbonData, RawBasicData, CountryCarbonData } from "app/data/carbonData";
+import { dataSlug } from "app/utils";
+import { UserTemplate } from "app/user/userData";
+
 
 @Injectable()
 export class CarbonDataService {
-	private static _countriesSlug:string = "countries/";
+	public static COUNTRIES_SLUG:string = "countries/";
+	public static CITIES_SLUG:string = "cities/";
+	public static COMPANIES_SLUG:string = "companies/";
+	public static INSTITUTES_SLUG:string = "institutes/";
+	public static WORK_LAYERS_SLUG:string = "work-layers/";
+	public static DESKTOP_OSS_SLUG:string = "desktop-oss/";
+	public static MOBILE_OSS_SLUG:string = "mobile-oss/";
+	public static USERS_SLUG:string = "users/";
 
 	constructor( protected appContext:App.Context ) {}
 
-	getBasicData( containerSlug:string ):Observable<BasicCarbonData[]> {
+	getBasicData( containerSlug:string ):PromiseObservable<BasicCarbonData[]> {
 		let promise:Promise<BasicCarbonData[]> = this._getBasicCarbonData( containerSlug );
-		return Observable.fromPromise( promise );
+		return Observable.fromPromise( promise ) as PromiseObservable<BasicCarbonData[]>;
 	}
 
 	getCountriesData():Observable<CountryCarbonData[]> {
 		let promise:Promise<CountryCarbonData[]> = Promise.all( [
-			this._getBasicCarbonData( CarbonDataService._countriesSlug ),
-			this._getCountriesCarbonData()
+			this._getBasicCarbonData( CarbonDataService.COUNTRIES_SLUG ),
+			this._getStatesCarbonData()
 		] ).then( ( [ countriesData ] ) => countriesData );
 
+		return Observable.fromPromise( promise );
+	}
+
+	convertBasicData( containerSlug:string, data:RawBasicData ):BasicCarbonData {
+		let pointer:Pointer = this.appContext.documents.getPointer( containerSlug + dataSlug( data.name ) );
+		return Object.assign( pointer, data );
+	}
+
+	saveBasicData( containerSlug:string, data:BasicCarbonData ):Observable<void> {
+		let promise:Promise<void> = this._saveBasicCarbonData( containerSlug, data );
+		return Observable.fromPromise( promise );
+	}
+
+	createUser( newUser:UserTemplate ):Observable<void> {
+		let promise:Promise<void> = this._createUser( newUser );
 		return Observable.fromPromise( promise );
 	}
 
@@ -51,12 +79,12 @@ export class CarbonDataService {
 			} );
 	}
 
-	private _getCountriesCarbonData():Promise<void> {
+	private _getStatesCarbonData():Promise<void> {
 		return this.appContext.documents
-			.sparql( CarbonDataService._countriesSlug )
+			.sparql( CarbonDataService.COUNTRIES_SLUG )
 			.select( "country", "state", "name" )
 			.where( _ => {
-				let container = _.resource( CarbonDataService._countriesSlug );
+				let container = _.resource( CarbonDataService.COUNTRIES_SLUG );
 				let country = _.var( "country" );
 				let state = _.var( "state" );
 
@@ -80,6 +108,23 @@ export class CarbonDataService {
 					return countryData;
 				} );
 			} );
+	}
+
+	private _saveBasicCarbonData( containerSlug:string, data:BasicCarbonData ):Promise<void> {
+		let slug:string = dataSlug( data.name );
+		return this.appContext.documents
+			.createChild( containerSlug, data, slug )
+			.then( () => {} )
+			.catch( ( error:HTTPError ) => {
+				if( error.statusCode !== 409 ) return Promise.reject( error );
+			} );
+	}
+
+	private _createUser( newUser:UserTemplate ):Promise<void> {
+		let slug:string = dataSlug( newUser.nickname );
+		return this.appContext.documents
+			.createChild( CarbonDataService.USERS_SLUG, newUser, slug )
+			.then( () => {} );
 	}
 
 }

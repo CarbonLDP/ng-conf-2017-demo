@@ -1,11 +1,8 @@
 import { DefaultContainerData, DefaultElementData } from "script/default-data";
+import { dataSlug } from "app/utils";
 
 export function elementSlug( element:DefaultElementData ):string {
-	let name:string = element.data.name
-		.trim()
-		.toLowerCase()
-		.replace( /\s+/g, "-" );
-	return encodeURI( name ) + "/";
+	return dataSlug( element.data.name );
 }
 
 export function extractElementsData( container:DefaultContainerData ):Object[] {

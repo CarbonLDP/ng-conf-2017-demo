@@ -2,6 +2,7 @@
 	This information is used to showcase our platform.<br>
 	The information is not collected for commercial marketing purposes and we do not sell or distribute it for commercial marketing purposes.
 </div>
+
 <form (ngSubmit)="onSubmit()" #appForm="ngForm">
 	<md-card>
 		<md-card-title>Personal Info</md-card-title>
@@ -10,7 +11,7 @@
 			<!-- Nickname -->
 			<div class="app-row">
 				<md-input-container class="full-width">
-					<input mdInput type="text" placeholder="Nickname" #nickname="ngModel" [(ngModel)]="user.nickname" name="nickname" autocomplete="false" required minlength="4" [textMask]="{mask: masks.nickname}" uniqueNickname>
+					<input mdInput type="text" placeholder="Nickname" #nickname="ngModel" [(ngModel)]="newUser.nickname" name="nickname" autocomplete="false" required minlength="4" [textMask]="{mask: masks.nickname}" uniqueNickname #nicknameInput>
 					<md-hint *ngIf="!nickname.pristine && nickname.errors">
 						<span *ngIf="nickname.errors.required">The nickname is obligatory</span>
 						<span *ngIf="nickname.errors.minlength">The nickname should be at least 4 characters long</span>
@@ -42,18 +43,18 @@
 			<!-- Place of birth -->
 			<label class="input-label">Place of Birth</label>
 			<div class="app-row full-cover">
-				<md-select placeholder="Country" [(ngModel)]="user.birthCountry" name="birthCountry">
+				<md-select placeholder="Country" [(ngModel)]="newUser.birthCountry" name="birthCountry">
 					<md-option *ngFor="let country of countries | async" [value]="country">
 						{{ country.name }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="State" [(ngModel)]="user.birthState" name="birthState" [disabled]="isStateDisabled()">
-					<md-option *ngFor="let state of user.birthCountry?.states" [value]="state">
+				<md-select placeholder="State" [(ngModel)]="newUser.birthState" name="birthState" [disabled]="isStateDisabled()">
+					<md-option *ngFor="let state of newUser.birthCountry?.states" [value]="state">
 						{{ state.name }}
 					</md-option>
 				</md-select>
 				<md-input-container>
-					<input mdInput type="text" placeholder="City" [ngModel]="user.birthCity" (ngModelChange)="autoCompleteChange($event, 'cities')" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)">
+					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity" (ngModelChange)="autoCompleteChange($event, 'birthCity')" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)">
 				</md-input-container>
 			</div>
 			<md-autocomplete #autoCities="mdAutocomplete" [displayWith]="displayDataName">
@@ -71,7 +72,7 @@
 		<md-card-content>
 			<!-- Company -->
 			<md-input-container class="full-width">
-				<input mdInput placeholder="Company" [ngModel]="user.company" (ngModelChange)="autoCompleteChange($event, 'companies')" name="company" [mdAutocomplete]="autoCompanies" (keydown.enter)="preventSubmit($event)">
+				<input mdInput placeholder="Company" [(ngModel)]="newUser.company" (ngModelChange)="autoCompleteChange($event, 'company')" name="company" [mdAutocomplete]="autoCompanies" (keydown.enter)="preventSubmit($event)">
 			</md-input-container>
 			<md-autocomplete #autoCompanies="mdAutocomplete" [displayWith]="displayDataName">
 				<md-option *ngFor="let company of filteredCompanies | async" [value]="company">
@@ -81,19 +82,19 @@
 
 			<!-- Technical preferences -->
 			<label class="input-label">With which one do you identify the most?</label>
-			<md-radio-group [(ngModel)]="user.worksOn" name="layerPreference" class="app-column">
+			<md-radio-group [(ngModel)]="newUser.worksOn" name="layerPreference" class="app-column">
 				<md-radio-button *ngFor="let layer of workLayers | async" [value]="layer">{{ layer.name }}</md-radio-button>
 			</md-radio-group>
 
 			<br>
 			<label class="input-label">Which OS do you prefer?</label>
-			<md-radio-group [(ngModel)]="user.desktopOSPreference" name="desktopOSPreference" class="app-column">
+			<md-radio-group [(ngModel)]="newUser.desktopOSPreference" name="desktopOSPreference" class="app-column">
 				<md-radio-button *ngFor="let os of desktopOSs | async" [value]="os">{{ os.name }}</md-radio-button>
 			</md-radio-group>
 
 			<br>
 			<label class="input-label">Which mobile OS do you prefer?</label>
-			<md-radio-group [(ngModel)]="user.mobileOSPreference" name="mobileOSPreference" class="app-column">
+			<md-radio-group [(ngModel)]="newUser.mobileOSPreference" name="mobileOSPreference" class="app-column">
 				<md-radio-button *ngFor="let os of mobileOSs | async" [value]="os">{{ os.name }}</md-radio-button>
 			</md-radio-group>
 		</md-card-content>
@@ -104,7 +105,7 @@
 		<md-card-content>
 			<!-- Educational institute -->
 			<md-input-container class="full-width">
-				<input mdInput placeholder="University / College" [ngModel]="user.institute" (ngModelChange)="autoCompleteChange($event, 'institutes')" name="institute" [mdAutocomplete]="autoInstitution" (keydown.enter)="preventSubmit($event)">
+				<input mdInput placeholder="University / College" [(ngModel)]="newUser.institute" (ngModelChange)="autoCompleteChange($event, 'institute')" name="institute" [mdAutocomplete]="autoInstitution" (keydown.enter)="preventSubmit($event)">
 			</md-input-container>
 
 			<md-autocomplete #autoInstitution="mdAutocomplete" [displayWith]="displayDataName">
@@ -123,7 +124,7 @@
 				We promise you we do not spam :)
 			</div>
 			<md-input-container class="full-width">
-				<input mdInput type="email" placeholder="Email" [(ngModel)]="user.email" #email="ngModel" name="email" autocomplete="off" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
+				<input mdInput type="email" placeholder="Email" [(ngModel)]="newUser.email" #email="ngModel" name="email" autocomplete="off" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
 				<md-hint *ngIf="!email.pristine && email.errors">
 					<span *ngIf="email.errors.pattern">The email is malformed</span>
 				</md-hint>
@@ -132,8 +133,7 @@
 	</md-card>
 
 	<div class="app-row">
-		<button md-raised-button color="primary" [disabled]="appForm.invalid">Submit</button>
-		<!--<span></span>-->
-		<!--<span></span>-->
+		<button type="reset" md-raised-button (click)="initForm( true )">Clear Form</button>
+		<button type="submit" md-raised-button color="primary" [disabled]="appForm.invalid">Submit</button>
 	</div>
 </form>

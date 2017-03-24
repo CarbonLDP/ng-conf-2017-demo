@@ -22,7 +22,7 @@ md-card {
 	}
 }
 
-md-input-container, md-select, md-radio-button {
+md-input-container, md-select, md-radio-button, button {
 	&:not(:last-child) {
 		margin-right: 1.5em;
 	}

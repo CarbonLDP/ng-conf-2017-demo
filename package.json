@@ -5,7 +5,6 @@
   "scripts": {
     "start": "webpack-dev-server --inline --progress --port 8080",
     "build": "rimraf dist && webpack --config config/webpack.prod.js --progress --profile --bail",
-    "build:semantic": "gulp --gulpfile src/semantic/gulpfile.js build",
     "script:build_app": "ts-node -r tsconfig-paths/register --compilerOptions '{\"target\":\"es6\"}' ./script/index.ts",
     "script:clean_app": "ts-node -r tsconfig-paths/register --compilerOptions '{\"target\":\"es6\"}' ./script/index.ts --clean"
   },

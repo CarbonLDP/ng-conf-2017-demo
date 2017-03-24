@@ -19,7 +19,7 @@ export let defaultUsers:DefaultNamedContainer = {
 	children: [
 		{
 			data: {
-				name: "admin",
+				name: "Admin",
 				nickname: "admin",
 			}
 		} as DefaultElementData
