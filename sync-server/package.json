@@ -1,0 +1,24 @@
+{
+  "name": "sync-server",
+  "version": "1.0.0",
+  "description": "Server used to synchronize applications using Carbon LDP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarbonLDP/ng-conf-2017-demo.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CarbonLDP/ng-conf-2017-demo/issues"
+  },
+  "homepage": "https://github.com/CarbonLDP/ng-conf-2017-demo#readme",
+  "dependencies": {
+    "ws": "2.2.2",
+    "yargs": "7.0.2"
+  }
+}
