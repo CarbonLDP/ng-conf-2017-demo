@@ -21,27 +21,13 @@ if( PRODUCTION ) {
 	enableProdMode();
 }
 
-/*
-platformBrowserDynamic().bootstrapModule( AppModule ).then( ( appRef:NgModuleRef<AppModule> ) => {
-	return appInjector( appRef.injector );
-
-} ).then( () => {
-	return activeContext.initialize( carbon, "demo-app/" )
-
-} ).then( () => {
-	return carbon.auth.authenticate( "admin@carbonldp.com", "hello" );
-
-} ).catch( ( error ) => {
-	console.error( error );
-} );
-*/
-
-carbon.auth.authenticate( "admin@carbonldp.com", "hello" );
-activeContext.initialize( carbon, "demo-app/" );
-
-platformBrowserDynamic().bootstrapModule( AppModule ).then( ( appRef:NgModuleRef<AppModule> ) => {
-	return appInjector( appRef.injector );
-
-} ).catch( ( error:Error ) => {
+// TODO: Fix fre
+carbon.auth.authenticate( "admin@carbonldp.com", "hello" ).then( () =>
+	activeContext.initialize( carbon, "demo-app/" )
+).then( () =>
+	platformBrowserDynamic().bootstrapModule( AppModule )
+).then( ( appRef:NgModuleRef<AppModule> ) =>
+	appInjector( appRef.injector )
+).catch( ( error:Error ) => {
 	console.error( error.stack );
 } );

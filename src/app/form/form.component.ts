@@ -20,7 +20,6 @@ import { FailDialog } from "app/form/dialogs/failDialog.component";
 	],
 	templateUrl: "./form.component.html",
 	styleUrls: [ "form.component.scss" ],
-	// host: { "(window:scroll)": "closeAutoComplete($event)" },
 } )
 export class FormComponent implements OnInit {
 
@@ -132,13 +131,6 @@ export class FormComponent implements OnInit {
 	preventSubmit( $event:Event ):void {
 		if( this._isAnyAutoCompleteOpen() )
 			$event.preventDefault();
-	}
-
-	@HostListener( "scroll", [] )
-	onWindowScroll( $event:Event ) {
-		console.log( $event );
-		if( this._isAnyAutoCompleteOpen() )
-			this.autoCompleteTriggers.forEach( trigger => trigger.closePanel() );
 	}
 
 	private _isAnyAutoCompleteOpen():boolean {
