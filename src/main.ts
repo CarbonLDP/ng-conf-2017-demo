@@ -21,7 +21,7 @@ if( PRODUCTION ) {
 	enableProdMode();
 }
 
-// TODO: Fix fre
+// TODO: Fix
 carbon.auth.authenticate( "admin@carbonldp.com", "hello" ).then( () =>
 	activeContext.initialize( carbon, "demo-app/" )
 ).then( () =>
