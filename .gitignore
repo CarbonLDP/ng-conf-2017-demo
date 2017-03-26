@@ -12,7 +12,7 @@
 /script/**/*.map
 
 # dependencies
-/node_modules
+**/node_modules
 
 # Semantic UI
 **/semantic/dist/
