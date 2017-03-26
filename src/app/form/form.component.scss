@@ -4,6 +4,10 @@
 	& > *:last-child {
 		padding-bottom: 1em;
 	}
+
+	button[type="reset"] {
+		margin-left: auto;
+	}
 }
 
 .app-message {

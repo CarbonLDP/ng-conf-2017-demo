@@ -3,5 +3,5 @@ export function dataSlug( rawSlug:string ):string {
 		.trim()
 		.toLowerCase()
 		.replace( /(?:\s+)|(?:\/)/g, "-" );
-	return encodeURI( name ) + "/";
+	return name + "/";
 }

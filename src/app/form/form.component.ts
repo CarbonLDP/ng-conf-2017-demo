@@ -1,8 +1,8 @@
-import { Component, ElementRef, HostListener, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Observable } from "rxjs";
 
-import { MdAutocompleteTrigger, MdDialog } from "@angular/material";
+import { MdAutocompleteTrigger, MdDialog, MdSelect } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { BasicCarbonData, CountryCarbonData, RawBasicData } from "app/data/carbonData";
@@ -85,8 +85,16 @@ export class FormComponent implements OnInit {
 		this.mobileOSs = this.dataService.getBasicData( CarbonDataService.MOBILE_OSS_SLUG );
 	}
 
-	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"birthCity" | "company" | "institute" ):void {
+	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"birthCity" | "company" | "institute", element?:HTMLInputElement ):void {
 		if( typeof value === "object" && value !== null ) return;
+
+		if( value && element ) {
+			value = (value as string).replace( /[^a-zA-Z0-9\- ]/g, "" );
+			if( value !== this.newUser[ autoComplete ] ) {
+				this.newUser[ autoComplete ] = value;
+				element.value = value;
+			}
+		}
 
 		switch( autoComplete ) {
 			case "birthCity":
@@ -134,7 +142,11 @@ export class FormComponent implements OnInit {
 	}
 
 	private _isAnyAutoCompleteOpen():boolean {
-		return this.autoCompleteTriggers.reduce( ( isOpen:boolean, trigger:MdAutocompleteTrigger ) => isOpen || trigger.panelOpen, false )
+		return this.autoCompleteTriggers.reduce( ( isOpen:boolean, trigger:MdAutocompleteTrigger ) => isOpen || trigger.panelOpen && ! ! trigger.activeOption, false )
+	}
+
+	private closeAutoCompletePanels( $event:KeyboardEvent ) {
+		this.autoCompleteTriggers.forEach( trigger => trigger.closePanel() );
 	}
 
 	@ViewChild( "appForm" ) appForm:NgForm;
@@ -149,6 +161,7 @@ export class FormComponent implements OnInit {
 	}
 
 	onSubmit():void {
+		console.log( "Submit" );
 		if( this._isValidBirthDate() )
 			this.newUser.birthDate = new Date( this.birthDate.year, this.birthDate.month, this.birthDate.day, 0, 0, 0, 0 );
 
@@ -164,18 +177,19 @@ export class FormComponent implements OnInit {
 				// TODO: remove when web sockets
 				dynamic.observable.value.push( carbonData );
 				dynamic.observable.value.sort( ( data1:BasicCarbonData, data2:BasicCarbonData ) => data1.name.localeCompare( data2.name ) );
-				this.autoCompleteChange( null, dynamic.property );
+				this.autoCompleteChange( carbonData.name, dynamic.property );
 
 				return this.dataService.saveBasicData( dynamic.containerSlug, carbonData );
 			} );
 
-		Observable.forkJoin( ...savingDynamicData, this.dataService.createUser( this.newUser ) ).subscribe( () => {
+		Observable.forkJoin( ...savingDynamicData, Promise.resolve() ).flatMap( () => {
+			return this.dataService.createUser( this.newUser );
+		} ).subscribe( () => {
 				this.dialog.open( SuccessDialog )
 					.afterClosed()
 					.subscribe( () => this.initForm() );
 			}, ( error:Error ) => {
 				this.dialog.open( FailDialog, { data: { error: error.message } } );
-			}, () => {
 			}
 		);
 	}

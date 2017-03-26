@@ -23,18 +23,18 @@
 			<!-- Birth date -->
 			<label class="input-label">Birth Date</label>
 			<div class="app-row full-cover">
-				<md-select placeholder="Day" [(ngModel)]="birthDate.day" name="birthDay">
-					<md-option *ngFor="let element of getDaysOf( birthDate.month, birthDate.year ); let day = index" [value]="day + 1">
+				<md-select placeholder="Day" [(ngModel)]="birthDate.day" name="birthDay" #birthDayElement>
+					<md-option *ngFor="let element of getDaysOf( birthDate.month, birthDate.year ); let day = index" [value]="day + 1" (keyup.esc)="birthDayElement.close()">
 						{{ day + 1 }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="Month" [(ngModel)]="birthDate.month" name="birthMonth">
-					<md-option *ngFor="let month of monthNames; let i = index" [value]="i">
+				<md-select placeholder="Month" [(ngModel)]="birthDate.month" name="birthMonth" #birthMonthElement>
+					<md-option *ngFor="let month of monthNames; let i = index" [value]="i" (keyup.esc)="birthMonthElement.close()">
 						{{ month }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="Year" [(ngModel)]="birthDate.year" name="birthYear">
-					<md-option *ngFor="let year of yearNames" [value]="year">
+				<md-select placeholder="Year" [(ngModel)]="birthDate.year" name="birthYear" #birthYearElement>
+					<md-option *ngFor="let year of yearNames" [value]="year" (keyup.esc)="birthYearElement.close()">
 						{{ year }}
 					</md-option>
 				</md-select>
@@ -43,18 +43,18 @@
 			<!-- Place of birth -->
 			<label class="input-label">Place of Birth</label>
 			<div class="app-row full-cover">
-				<md-select placeholder="Country" [(ngModel)]="newUser.birthCountry" name="birthCountry">
-					<md-option *ngFor="let country of countries | async" [value]="country">
+				<md-select placeholder="Country" [(ngModel)]="newUser.birthCountry" name="birthCountry" #birthCountrySelect>
+					<md-option *ngFor="let country of countries | async" [value]="country" (keyup.esc)="birthCountrySelect.close()">
 						{{ country.name }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="State" [(ngModel)]="newUser.birthState" name="birthState" [disabled]="isStateDisabled()">
-					<md-option *ngFor="let state of newUser.birthCountry?.states" [value]="state">
+				<md-select placeholder="State" [(ngModel)]="newUser.birthState" name="birthState" [disabled]="isStateDisabled()" #birthStateSelect>
+					<md-option *ngFor="let state of newUser.birthCountry?.states" [value]="state" (keyup.esc)="birthStateSelect.close()">
 						{{ state.name }}
 					</md-option>
 				</md-select>
 				<md-input-container>
-					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity" (ngModelChange)="autoCompleteChange($event, 'birthCity')" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)">
+					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity"  #birthCityElement (ngModelChange)="autoCompleteChange($event, 'birthCity', birthCityElement)" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels($event)">
 				</md-input-container>
 			</div>
 			<md-autocomplete #autoCities="mdAutocomplete" [displayWith]="displayDataName">
@@ -72,7 +72,7 @@
 		<md-card-content>
 			<!-- Company -->
 			<md-input-container class="full-width">
-				<input mdInput placeholder="Company" [(ngModel)]="newUser.company" (ngModelChange)="autoCompleteChange($event, 'company')" name="company" [mdAutocomplete]="autoCompanies" (keydown.enter)="preventSubmit($event)">
+				<input mdInput placeholder="Company" [(ngModel)]="newUser.company" #companyElement (ngModelChange)="autoCompleteChange($event, 'company', companyElement)" name="company" [mdAutocomplete]="autoCompanies" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels($event)">
 			</md-input-container>
 			<md-autocomplete #autoCompanies="mdAutocomplete" [displayWith]="displayDataName">
 				<md-option *ngFor="let company of filteredCompanies | async" [value]="company">
@@ -105,7 +105,7 @@
 		<md-card-content>
 			<!-- Educational institute -->
 			<md-input-container class="full-width">
-				<input mdInput placeholder="University / College" [(ngModel)]="newUser.institute" (ngModelChange)="autoCompleteChange($event, 'institute')" name="institute" [mdAutocomplete]="autoInstitution" (keydown.enter)="preventSubmit($event)">
+				<input mdInput placeholder="University / College" [(ngModel)]="newUser.institute" #instituteElement (ngModelChange)="autoCompleteChange($event, 'institute', instituteElement)" name="institute" [mdAutocomplete]="autoInstitution" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels($event)">
 			</md-input-container>
 
 			<md-autocomplete #autoInstitution="mdAutocomplete" [displayWith]="displayDataName">
@@ -133,7 +133,7 @@
 	</md-card>
 
 	<div class="app-row">
-		<button type="reset" md-raised-button (click)="initForm( true )">Clear Form</button>
 		<button type="submit" md-raised-button color="primary" [disabled]="appForm.invalid">Submit</button>
+		<button type="reset" md-raised-button (click)="initForm( true )">Clear Form</button>
 	</div>
 </form>
