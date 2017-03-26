@@ -2,16 +2,17 @@ import Carbon from "carbonldp/Carbon";
 
 import * as App from "carbonldp/App";
 import * as NS from "carbonldp/NS";
+import * as Pointer from "carbonldp/Pointer";
 import Response from "carbonldp/HTTP/Response";
 
-import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP } from "script/config";
+import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS } from "script/config";
 import { elementSlug, extractElementsData } from "script/utils";
 import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultNamedContainer } from "script/default-data";
 
 let appContext:App.Context;
 let carbon:Carbon = initCarbon( SECURE, DOMAIN );
 
-carbon.auth.authenticate( "admin@carbonldp.com", "hello" ).then( () => {
+carbon.auth.authenticate( CARBON_USER, CARBON_PASS ).then( () => {
 	return getApp( APP_SLUG );
 } ).then( ( _result:App.Context ) => {
 	appContext = _result;
@@ -37,7 +38,7 @@ async function getApp( appSlug:string ):Promise<App.Context> {
 
 	if( ! exists ) {
 		let memoryApp:App.Class = App.Factory.create( "Demo app", "NG-Conf demo app" );
-		memoryApp.allowsOrigins = [ NS.CS.Class.AllOrigins ];
+		memoryApp.allowsOrigins = [ Pointer.Factory.create( NS.CS.Class.AllOrigins ) ];
 		await carbon.apps.create( memoryApp, appSlug );
 	}
 
