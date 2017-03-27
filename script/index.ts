@@ -1,5 +1,4 @@
 import Carbon from "carbonldp/Carbon";
-
 import * as App from "carbonldp/App";
 import * as NS from "carbonldp/NS";
 import * as Pointer from "carbonldp/Pointer";
@@ -9,6 +8,8 @@ import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS } from "s
 import { elementSlug, extractElementsData } from "script/utils";
 import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultNamedContainer } from "script/default-data";
 
+const ora = require( "ora" );
+
 let appContext:App.Context;
 let carbon:Carbon = initCarbon( SECURE, DOMAIN );
 
@@ -17,7 +18,9 @@ carbon.auth.authenticate( CARBON_USER, CARBON_PASS ).then( () => {
 } ).then( ( _result:App.Context ) => {
 	appContext = _result;
 } ).then( () => {
-	DEFAULT_CONTAINERS.forEach( container => setContainer( "/", container ) );
+	return DEFAULT_CONTAINERS.reduce( ( promise, container ) => {
+		return promise.then( () => setContainer( "/", container ) );
+	}, Promise.resolve() );
 } ).catch( console.error );
 
 function initCarbon( isSecure:boolean, domain:string ):Carbon {
@@ -34,28 +37,57 @@ function initCarbon( isSecure:boolean, domain:string ):Carbon {
 }
 
 async function getApp( appSlug:string ):Promise<App.Context> {
+	let spinner = ora( "Loading app" ).stopAndPersist();
 	let [ exists ]:[ boolean, Response ] = await carbon.documents.exists( "apps/" + appSlug );
 
 	if( ! exists ) {
+		spinner = ora( "\tCreating app" ).start();
 		let memoryApp:App.Class = App.Factory.create( "Demo app", "NG-Conf demo app" );
 		memoryApp.allowsOrigins = [ Pointer.Factory.create( NS.CS.Class.AllOrigins ) ];
-		await carbon.apps.create( memoryApp, appSlug );
+		await carbon.apps.create( memoryApp, appSlug ).then( () => {
+			spinner.succeed( "\tApp context created" );
+		}, ( error:Error ) => {
+			spinner.fail( "App creation error: " + error.message );
+			return Promise.reject( error );
+		} );
 	}
 
-	return carbon.apps.getContext( appSlug );
+	spinner = ora( "\tRetrieving app context" ).start();
+	return carbon.apps.getContext( appSlug ).then( _appContext => {
+		spinner.succeed( "\tApp context retrieved" );
+		return _appContext;
+	} );
 }
 
 async function setContainer( parentSlug:string, container:DefaultNamedContainer ):Promise<void> {
+	let spinner = ora( `Setting container: "${ container.elementSlug }"` ).stopAndPersist();
 	let [ exists ]:[ boolean, Response ] = await appContext.documents.exists( container.elementSlug );
 
 	if( exists && CLEAN_APP ) {
-		await appContext.documents.delete( container.elementSlug );
+		spinner = ora( "\tCleaning container" ).start();
+		await appContext.documents.delete( container.elementSlug ).then( () => {
+			spinner.succeed( "\tContainer cleaned" );
+		} );
 		exists = false;
 	}
 
 	if( ! exists ) {
-		await appContext.documents.createChild( parentSlug, {}, container.elementSlug );
-		await setChildren( parentSlug + container.elementSlug, container );
+		spinner = ora( "\tCreating container" ).start();
+		await appContext.documents.createChild( parentSlug, {}, container.elementSlug ).then( () => {
+			spinner.succeed( "\tContainer created" );
+		}, ( error:Error ) => {
+			spinner.fail( "\tContainer creation error: " + error.message );
+		} );
+
+		spinner = ora( `\t\tCreating children` ).start();
+		await setChildren( parentSlug + container.elementSlug, container ).then( () => {
+			spinner.succeed( "\t\tChildren created" );
+		}, ( error:Error ) => {
+			console.error( (<any>error).response );
+			spinner.fail( "\t\tChildren creation error: " + error.message );
+		} );
+	} else {
+		spinner.info( "\tContainer already exists" );
 	}
 }
 

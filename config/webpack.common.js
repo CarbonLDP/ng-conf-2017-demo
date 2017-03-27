@@ -6,7 +6,7 @@ const { TsConfigPathsPlugin } = require( "awesome-typescript-loader" );
 
 const isProd = process.env.ENV === "production" || process.env.ENV === "prod";
 
-let CARBON = { protocol: isProd ? "https" : "http", domain: "localhost:8083" };
+let CARBON = { protocol: "http", domain: "localhost:8083" };
 if( process.env.CARBON && typeof process.env.CARBON === "string" )
 	Object.assign( CARBON, JSON.parse( process.env.CARBON ) );
 

@@ -1257,11 +1257,6 @@ export let defaultCountries:DefaultNamedContainer = {
 		},
 		{
 			data: {
-				name: "Serbia",
-			},
-		},
-		{
-			data: {
 				name: "Seychelles",
 			},
 		},

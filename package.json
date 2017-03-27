@@ -5,8 +5,8 @@
   "scripts": {
     "start": "webpack-dev-server --inline --progress --port 8080",
     "build": "rimraf dist && webpack --config config/webpack.prod.js --progress --profile --bail",
-    "script:build_app": "ts-node -r tsconfig-paths/register --compilerOptions '{\"target\":\"es6\"}' ./script/index.ts",
-    "script:clean_app": "ts-node -r tsconfig-paths/register --compilerOptions '{\"target\":\"es6\"}' ./script/index.ts --clean"
+    "script:build": "ts-node -r tsconfig-paths/register ./script/index.ts",
+    "script:clean_build": "ts-node -r tsconfig-paths/register ./script/index.ts --clean"
   },
   "contributors": [
     {
@@ -30,7 +30,6 @@
     "carbonldp": "^0.41.0",
     "core-js": "^2.4.1",
     "hammerjs": "^2.0.8",
-    "minimist": "^1.2.0",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.2.0",
     "vis": "4.19.1",
@@ -38,7 +37,9 @@
   },
   "devDependencies": {
     "@types/node": "^6.0.45",
+    "@types/ora": "^0.3.31",
     "@types/vis": "4.17.4",
+    "@types/yargs": "^6.6.0",
     "angular2-template-loader": "^0.6.0",
     "awesome-typescript-loader": "^3.1.2",
     "css-loader": "^0.26.1",
@@ -53,6 +54,7 @@
     "node-sass": "^4.5.0",
     "null-loader": "^0.1.1",
     "optimize-css-assets-webpack-plugin": "^1.3.0",
+    "ora": "^1.2.0",
     "raw-loader": "^0.5.1",
     "rimraf": "^2.6.1",
     "sass-loader": "^6.0.3",
@@ -62,6 +64,7 @@
     "typescript": "^2.2.1",
     "webpack": "2.2.1",
     "webpack-dev-server": "2.4.1",
-    "webpack-merge": "^3.0.0"
+    "webpack-merge": "^3.0.0",
+    "yargs": "^7.0.2"
   }
 }
