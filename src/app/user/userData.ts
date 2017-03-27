@@ -1,3 +1,5 @@
+import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
+
 import { BasicCarbonData, CountryCarbonData } from "app/data/carbonData";
 
 export interface UserTemplate {
@@ -14,7 +16,7 @@ export interface UserTemplate {
 	email?:string;
 }
 
-export interface User extends UserTemplate {
+export interface User extends UserTemplate, ProtectedDocument {
 	nickname:string;
 	birthDate?:Date;
 	birthCountry?:CountryCarbonData;

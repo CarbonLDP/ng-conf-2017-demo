@@ -33,10 +33,12 @@
     "minimist": "^1.2.0",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.2.0",
+    "vis": "4.19.1",
     "zone.js": "^0.7.7"
   },
   "devDependencies": {
     "@types/node": "^6.0.45",
+    "@types/vis": "4.17.4",
     "angular2-template-loader": "^0.6.0",
     "awesome-typescript-loader": "^3.1.2",
     "css-loader": "^0.26.1",

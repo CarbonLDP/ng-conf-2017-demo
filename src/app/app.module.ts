@@ -17,8 +17,16 @@ import { ErrorComponent } from "app/error/error.component";
 import { UniqueNicknameDirective } from "app/form/validators/uniqueNickname.directive";
 import { SuccessDialog } from "app/form/dialogs/successDialog.component";
 import { FailDialog } from "app/form/dialogs/failDialog.component";
+import { GraphComponent } from "app/graph/graph.component";
+import { CarbonDataService } from "app/data/carbonData.service";
+import { SyncService } from "app/data/sync.service";
 
 const appRoutes:Routes = [
+	{
+		path: "",
+		redirectTo: "/form",
+		pathMatch: "full",
+	},
 	{
 		path: "form",
 		component: FormComponent,
@@ -30,9 +38,14 @@ const appRoutes:Routes = [
 		}
 	},
 	{
-		path: "",
-		redirectTo: "/form",
-		pathMatch: "full",
+		path: "graph",
+		component: GraphComponent,
+		canActivate: [ AuthenticatedGuard ],
+		data: {
+			// AuthenticatedGuard cases
+			onReject: [ "/" ],
+			onError: [ "/error" ],
+		}
 	},
 	{
 		path: "error",
@@ -52,6 +65,7 @@ const appRoutes:Routes = [
 	declarations: [
 		AppComponent,
 		FormComponent,
+		GraphComponent,
 		ErrorComponent,
 		UniqueNicknameDirective,
 		SuccessDialog,
@@ -61,6 +75,8 @@ const appRoutes:Routes = [
 		CARBON_PROVIDERS,
 		CARBON_SERVICES_PROVIDERS,
 		AuthenticatedGuard, NotAuthenticatedGuard,
+
+		CarbonDataService, SyncService,
 	],
 	entryComponents: [
 		SuccessDialog,

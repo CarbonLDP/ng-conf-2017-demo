@@ -5,6 +5,8 @@ import { Observable } from "rxjs";
 import { MdAutocompleteTrigger, MdDialog, MdSelect } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
+import { SyncService } from "app/data/sync.service";
+
 import { BasicCarbonData, CountryCarbonData, RawBasicData } from "app/data/carbonData";
 import { UserTemplate } from "app/user/userData";
 import { SuccessDialog } from "app/form/dialogs/successDialog.component";
@@ -15,9 +17,6 @@ import { FailDialog } from "app/form/dialogs/failDialog.component";
 
 @Component( {
 	selector: "app-form",
-	providers: [
-		CarbonDataService,
-	],
 	templateUrl: "./form.component.html",
 	styleUrls: [ "form.component.scss" ],
 } )
@@ -50,7 +49,9 @@ export class FormComponent implements OnInit {
 
 	private _dynamicProperties:DynamicProperty[];
 
-	constructor( private dataService:CarbonDataService, private dialog:MdDialog ) {}
+	constructor( private dataService:CarbonDataService, private syncService:SyncService, private dialog:MdDialog ) {
+		syncService.connect( "localhost:8090" ).subscribe();
+	}
 
 	ngOnInit():void {
 		this.birthDate = {};
@@ -189,6 +190,7 @@ export class FormComponent implements OnInit {
 					.afterClosed()
 					.subscribe( () => this.initForm() );
 			}, ( error:Error ) => {
+				console.log( error );
 				this.dialog.open( FailDialog, { data: { error: error.message } } );
 			}
 		);

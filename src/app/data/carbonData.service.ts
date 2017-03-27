@@ -4,13 +4,14 @@ import Response from "carbonldp/HTTP/Response";
 import SELECTResults from "carbonldp/SPARQL/SELECTResults";
 import HTTPError from "carbonldp/HTTP/Errors/HTTPError";
 
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 
 import { BasicCarbonData, RawBasicData, CountryCarbonData } from "app/data/carbonData";
 import { dataSlug } from "app/utils";
-import { UserTemplate } from "app/user/userData";
+import { UserTemplate, User } from "app/user/userData";
+import { SyncService } from "app/data/sync.service";
 
 
 @Injectable()
@@ -24,7 +25,7 @@ export class CarbonDataService {
 	public static MOBILE_OSS_SLUG:string = "mobile-oss/";
 	public static USERS_SLUG:string = "users/";
 
-	constructor( protected appContext:App.Context ) {}
+	constructor( protected appContext:App.Context, protected syncService:SyncService ) {}
 
 	getBasicData( containerSlug:string ):PromiseObservable<BasicCarbonData[]> {
 		let promise:Promise<BasicCarbonData[]> = this._getBasicCarbonData( containerSlug );
@@ -48,6 +49,11 @@ export class CarbonDataService {
 	saveBasicData( containerSlug:string, data:BasicCarbonData ):Observable<void> {
 		let promise:Promise<void> = this._saveBasicCarbonData( containerSlug, data );
 		return Observable.fromPromise( promise );
+	}
+
+	getUsers():Observable<User> {
+		let promise:Promise<User[]> = this._getUsers();
+		return Observable.fromPromise( promise ).mergeMap( users => Observable.from( users ) );
 	}
 
 	createUser( newUser:UserTemplate ):Observable<void> {
@@ -120,11 +126,19 @@ export class CarbonDataService {
 			} );
 	}
 
+	private _getUsers():Promise<User[]> {
+		return this.appContext.documents
+			.getChildren<User>( CarbonDataService.USERS_SLUG )
+			.then( ( [ users, response ]:[ User[], Response] ) => users );
+	}
+
 	private _createUser( newUser:UserTemplate ):Promise<void> {
 		let slug:string = dataSlug( newUser.nickname );
 		return this.appContext.documents
 			.createChild( CarbonDataService.USERS_SLUG, newUser, slug )
-			.then( () => {} );
+			.then( ( [ document, response ]:[ Pointer, Response ] ) => {
+				this.syncService.notifyDocumentCreation( document );
+			} );
 	}
 
 }
