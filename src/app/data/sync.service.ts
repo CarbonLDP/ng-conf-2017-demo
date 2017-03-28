@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import { Observable } from "rxjs";
+import { Observable, Observer, Subscription } from "rxjs";
 import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
 
 import * as Pointer from "carbonldp/Pointer";
@@ -31,15 +31,47 @@ export class DocumentEventFactory {
 export class SyncService {
 	private connection:WebSocketSubject<string>;
 
-	constructor(){
-		this.connection = Observable.webSocket( { url: WS_HOST } );
-		this.connection.subscribe();
+	private subscription:Subscription;
+
+	constructor() {
+		this.connection = Observable.webSocket( {
+			url: WS_HOST,
+			resultSelector: ( e:MessageEvent ) => e.data,
+			openObserver: {
+				next: () => {
+					console.log( "WebSocket opened" );
+				}
+			},
+			closeObserver: {
+				next: () => {
+					console.log( "WebSocket closed" );
+					this.subscription = null;
+				}
+			}
+		} );
+	}
+
+	openNotificationSender():void {
+		if( ! ! this.subscription ) {
+			return;
+		}
+
+		console.log( "Subscribe" );
+		this.subscription = this.connection.subscribe();
+	}
+
+	closeNotificationSender():void {
+		if( ! this.subscription ) {
+			return;
+		}
+
+		console.log( "UNSubscribe" );
+		this.subscription.unsubscribe();
 	}
 
 	onDocumentEvent():Observable<DocumentEvent> {
 		return this.connection
 			.map( data => {
-				console.log( "Received: ", data );
 				try {
 					return JSON.parse( data );
 				} catch( error ) {

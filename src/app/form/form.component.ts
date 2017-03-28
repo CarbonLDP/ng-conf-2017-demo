@@ -1,14 +1,14 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { Observable } from "rxjs";
 
-import { MdAutocompleteTrigger, MdDialog, MdSelect } from "@angular/material";
+import { MdAutocompleteTrigger, MdDialog } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { SyncService } from "app/data/sync.service";
 
 import { BasicCarbonData, CountryCarbonData, RawBasicData } from "app/data/carbonData";
-import { UserTemplate } from "app/user/userData";
+import { UserTemplate, Factory as UserFactory } from "app/user/userData";
 import { SuccessDialog } from "app/form/dialogs/successDialog.component";
 
 import 'rxjs/operator/finally';
@@ -20,7 +20,7 @@ import { FailDialog } from "app/form/dialogs/failDialog.component";
 	templateUrl: "./form.component.html",
 	styleUrls: [ "form.component.scss" ],
 } )
-export class FormComponent implements OnInit {
+export class FormComponent implements OnInit, OnDestroy {
 
 	monthNames:string[] = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 	yearNames:number[];
@@ -82,6 +82,13 @@ export class FormComponent implements OnInit {
 		this.workLayers = this.dataService.getBasicData( CarbonDataService.WORK_LAYERS_SLUG );
 		this.desktopOSs = this.dataService.getBasicData( CarbonDataService.DESKTOP_OSS_SLUG );
 		this.mobileOSs = this.dataService.getBasicData( CarbonDataService.MOBILE_OSS_SLUG );
+
+		this.syncService.openNotificationSender();
+	}
+
+	ngOnDestroy():void {
+		console.log( "Form closed" );
+		this.syncService.closeNotificationSender();
 	}
 
 	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"birthCity" | "company" | "institute", element?:HTMLInputElement ):void {
@@ -152,7 +159,7 @@ export class FormComponent implements OnInit {
 	@ViewChild( "nicknameInput" ) nicknameInput:ElementRef;
 
 	initForm( alreadyClear?:boolean ):void {
-		this.newUser = {};
+		this.newUser = UserFactory.createTemplate();
 		if( ! alreadyClear ) this.appForm.resetForm();
 		setTimeout( () => {
 			this.nicknameInput.nativeElement.focus();
@@ -187,7 +194,6 @@ export class FormComponent implements OnInit {
 					.afterClosed()
 					.subscribe( () => this.initForm() );
 			}, ( error:Error ) => {
-				console.log( error );
 				this.dialog.open( FailDialog, { data: { error: error.message } } );
 			}
 		);

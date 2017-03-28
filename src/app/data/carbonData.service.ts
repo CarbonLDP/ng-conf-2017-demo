@@ -1,8 +1,9 @@
 import * as App from "carbonldp/App";
-import Pointer from "carbonldp/Pointer";
-import Response from "carbonldp/HTTP/Response";
-import SELECTResults from "carbonldp/SPARQL/SELECTResults";
-import HTTPError from "carbonldp/HTTP/Errors/HTTPError";
+import { Class as Pointer } from "carbonldp/Pointer";
+import { Class as Response } from "carbonldp/HTTP/Response";
+import { Class as SELECTResults } from "carbonldp/SPARQL/SELECTResults";
+import { Class as HTTPError } from "carbonldp/HTTP/Errors/HTTPError";
+import { Class as ProtectedDocument }  from "carbonldp/ProtectedDocument";
 
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -25,6 +26,14 @@ export class CarbonDataService {
 	public static MOBILE_OSS_SLUG:string = "mobile-oss/";
 	public static USERS_SLUG:string = "users/";
 
+	public static CONTAINER_TYPES:Map<string, string > = new Map( [
+		[ CarbonDataService.CITIES_SLUG, "City" ],
+		[ CarbonDataService.COMPANIES_SLUG, "Company" ],
+		[ CarbonDataService.INSTITUTES_SLUG, "Institute" ],
+		[ CarbonDataService.COUNTRIES_SLUG, "Country" ],
+		[ CarbonDataService.USERS_SLUG, "User" ],
+	] );
+
 	constructor( protected appContext:App.Context, protected syncService:SyncService ) {}
 
 	getBasicData( containerSlug:string ):PromiseObservable<BasicCarbonData[]> {
@@ -43,7 +52,11 @@ export class CarbonDataService {
 
 	convertBasicData( containerSlug:string, data:RawBasicData ):BasicCarbonData {
 		let pointer:Pointer = this.appContext.documents.getPointer( containerSlug + dataSlug( data.name ) );
-		return Object.assign( pointer, data );
+		return Object.assign(
+			pointer,
+			{ types: [ CarbonDataService.CONTAINER_TYPES.get( containerSlug ) ] },
+			data
+		);
 	}
 
 	saveBasicData( containerSlug:string, data:BasicCarbonData ):Observable<void> {
@@ -51,9 +64,14 @@ export class CarbonDataService {
 		return Observable.fromPromise( promise );
 	}
 
+	resolveDocument( id:string ):Observable<ProtectedDocument> {
+		let promise:Promise<ProtectedDocument> = this._revolveDocument( id );
+		return Observable.fromPromise( promise );
+	}
+
 	getUsers():Observable<User> {
 		let promise:Promise<User[]> = this._getUsers();
-		return Observable.fromPromise( promise ).mergeMap( users => Observable.from( users ) );
+		return Observable.fromPromise( promise ).mergeMap( user => Observable.from( user ) );
 	}
 
 	createUser( newUser:UserTemplate ):Observable<void> {
@@ -124,6 +142,12 @@ export class CarbonDataService {
 			.catch( ( error:HTTPError ) => {
 				if( error.statusCode !== 409 ) return Promise.reject( error );
 			} );
+	}
+
+	private _revolveDocument( id:string ):Promise<ProtectedDocument>{
+		return this.appContext.documents
+			.get( id )
+			.then( ( [ document ]:[ ProtectedDocument, Response ] ) => document );
 	}
 
 	private _getUsers():Promise<User[]> {

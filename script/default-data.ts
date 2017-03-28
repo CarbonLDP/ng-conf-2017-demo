@@ -16,6 +16,9 @@ export interface DefaultNamedContainer extends DefaultContainerData {
 
 export let defaultUsers:DefaultNamedContainer = {
 	elementSlug: "users/",
+	childTemplate: {
+		types: [ "User" ],
+	},
 	children: [
 		{
 			data: {
@@ -287,6 +290,7 @@ export let defaultUSStates:DefaultElementData[] = [
 export let defaultCountries:DefaultNamedContainer = {
 	elementSlug: "countries/",
 	childTemplate: {
+		types: [ "Country" ],
 		hasMemberRelation: "state"
 	},
 	children: [
@@ -1430,6 +1434,9 @@ export let defaultCountries:DefaultNamedContainer = {
 				name: "United States",
 			},
 			children: defaultUSStates,
+			childrenTemplate: {
+				types: "State"
+			}
 		} as DefaultElementData,
 		{
 			data: {
@@ -1501,6 +1508,9 @@ export let defaultCountries:DefaultNamedContainer = {
 
 export let defaultCities:DefaultNamedContainer = {
 	elementSlug: "cities/",
+	childTemplate: {
+		types: [ "City" ],
+	},
 	children: [
 		{
 			data: {
@@ -1512,6 +1522,9 @@ export let defaultCities:DefaultNamedContainer = {
 
 export let defaultCompanies:DefaultNamedContainer = {
 	elementSlug: "companies/",
+	childTemplate: {
+		types: [ "Company" ],
+	},
 	children: [
 		{
 			data: {
@@ -1533,6 +1546,9 @@ export let defaultCompanies:DefaultNamedContainer = {
 
 export let defaultWorkLayers:DefaultNamedContainer = {
 	elementSlug: "work-layers/",
+	childTemplate: {
+		types: [ "Work-Layer" ],
+	},
 	children: [
 		{
 			data: {
@@ -1554,6 +1570,9 @@ export let defaultWorkLayers:DefaultNamedContainer = {
 
 export let defaultDesktopOSs:DefaultNamedContainer = {
 	elementSlug: "desktop-oss/",
+	childTemplate: {
+		types: [ "Desktop-OS" ],
+	},
 	children: [
 		{
 			data: {
@@ -1575,6 +1594,9 @@ export let defaultDesktopOSs:DefaultNamedContainer = {
 
 export let defaultMobileOSs:DefaultNamedContainer = {
 	elementSlug: "mobile-oss/",
+	childTemplate: {
+		types: [ "Mobile-OS" ],
+	},
 	children: [
 		{
 			data: {
@@ -1596,6 +1618,9 @@ export let defaultMobileOSs:DefaultNamedContainer = {
 
 export let defaultInstitutes:DefaultNamedContainer = {
 	elementSlug: "institutes/",
+	childTemplate: {
+		types: [ "Institute" ],
+	},
 	children: [
 		{
 			data: {
