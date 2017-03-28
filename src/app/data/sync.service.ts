@@ -1,11 +1,13 @@
 import { Injectable } from "@angular/core";
 
-import { Observable, Observer } from "rxjs";
+import { Observable } from "rxjs";
+import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
 
 import * as Pointer from "carbonldp/Pointer";
 import * as Utils from "carbonldp/Utils";
 
 import * as DEMO from "app/ns/demo";
+import { WS_HOST } from "app/config";
 
 export interface DocumentEvent {
 	"@context":"https://carbonldp.com/ns/demo";
@@ -27,63 +29,17 @@ export class DocumentEventFactory {
 
 @Injectable()
 export class SyncService {
-	connection:WebSocket;
-	host:string;
+	private connection:WebSocketSubject<string>;
 
-	isConnected():boolean {
-		return this.connection !== null && this.connection.readyState === WebSocket.OPEN;
-	}
-
-	connect( host?:string, ssl?:boolean ):Observable<void> {
-		if( typeof host === "undefined" ) {
-			if( this.host === null ) throw new Error( "The method 'connect' was called without a host on a service that hadn't connected yet" );
-			host = this.host;
-		} else {
-			if( ! ( host.startsWith( "ws://" ) || host.startsWith( "wss://" ) ) ) host = ssl ? `wss://${ host }` : `ws://${ host }`;
-
-			this.host = host;
-		}
-
-		return Observable.create( ( observer:Observer<void> ) => {
-			if( ! this.connection || this.connection.readyState === WebSocket.CLOSING || this.connection.readyState === WebSocket.CLOSED ) {
-				try {
-					this.connection = new WebSocket( host );
-				} catch( error ) {
-					observer.error( error );
-					return;
-				}
-			} else if( this.connection.readyState === WebSocket.OPEN ) {
-				observer.complete();
-				return;
-			}
-
-			this.connection.addEventListener( "error", event => observer.error( "The connection errored before reaching an open state" ) );
-			this.connection.addEventListener( "close", event => observer.error( "The connection was closed before reaching an open state" ) );
-			this.connection.addEventListener( "open", event => observer.complete() );
-		} );
-	}
-
-	onMessage():Observable<string> {
-		return Observable.concat(
-			// connect() doesn't emit data, we are only including it here so it triggers the evaluation of the next observable after the connection has been completed
-			<any>this.connect(),
-			Observable.create( ( observer:Observer<String> ) => {
-				this.connection.addEventListener( "message", event => {
-					observer.next( event.data );
-				} );
-				this.connection.addEventListener( "close", event => {
-					observer.complete();
-				} );
-				this.connection.addEventListener( "error", event => {
-					observer.error( event );
-				} );
-			} )
-		);
+	constructor(){
+		this.connection = Observable.webSocket( { url: WS_HOST } );
+		this.connection.subscribe();
 	}
 
 	onDocumentEvent():Observable<DocumentEvent> {
-		return this.onMessage()
+		return this.connection
 			.map( data => {
+				console.log( "Received: ", data );
 				try {
 					return JSON.parse( data );
 				} catch( error ) {
@@ -101,20 +57,12 @@ export class SyncService {
 			.map( event => event.document );
 	}
 
-	sendMessage( message:Object ):Observable<void> {
-		return Observable.concat(
-			this.connect(),
-			Observable.create( ( observer:Observer<void> ) => {
-				try {
-					this.connection.send( JSON.stringify( message ) );
-				} catch( error ) {
-					observer.error( error );
-					return;
-				}
-				// TODO: Research if the message is being sent synchronously or should we verify it somehow?
-				observer.complete();
-			} )
-		);
+	sendMessage( message:Object ):void {
+		try {
+			this.connection.next( JSON.stringify( message ) );
+		} catch( error ) {
+			this.connection.error( error );
+		}
 	}
 
 	notifyDocumentCreation( document:string | Pointer.Class ):void {

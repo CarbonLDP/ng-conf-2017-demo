@@ -24,9 +24,7 @@ export class GraphComponent implements AfterViewInit {
 	edges:DataSet<NetworkEdge>;
 
 	// Renderer needs to be injected in order for ViewChild to be injected too
-	constructor( private renderer:Renderer, private dataService:CarbonDataService, private syncService:SyncService ) {
-		syncService.connect( "localhost:8090" ).subscribe();
-	}
+	constructor( private renderer:Renderer, private dataService:CarbonDataService, private syncService:SyncService ) {}
 
 	ngAfterViewInit():void {
 		this.nodes = new DataSet<NetworkNode>();

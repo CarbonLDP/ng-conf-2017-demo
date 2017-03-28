@@ -4,7 +4,7 @@ import { enableProdMode, NgModuleRef } from "@angular/core";
 import { appInjector, activeContext } from "angular2-carbonldp/boot";
 import Carbon from "carbonldp/Carbon";
 
-import { PRODUCTION, SECURE, DOMAIN } from "app/config";
+import { PRODUCTION, SECURE, DOMAIN, APP_SLUG, CARBON_USER, CARBON_PASS } from "app/config";
 
 import { AppModule } from "app/app.module";
 
@@ -22,8 +22,8 @@ if( PRODUCTION ) {
 }
 
 // TODO: Fix
-carbon.auth.authenticate( "admin@carbonldp.com", "hello" ).then( () =>
-	activeContext.initialize( carbon, "demo-app/" )
+carbon.auth.authenticate( CARBON_USER, CARBON_PASS ).then( () =>
+	activeContext.initialize( carbon, APP_SLUG )
 ).then( () =>
 	platformBrowserDynamic().bootstrapModule( AppModule )
 ).then( ( appRef:NgModuleRef<AppModule> ) =>

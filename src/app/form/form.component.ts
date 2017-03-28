@@ -49,9 +49,7 @@ export class FormComponent implements OnInit {
 
 	private _dynamicProperties:DynamicProperty[];
 
-	constructor( private dataService:CarbonDataService, private syncService:SyncService, private dialog:MdDialog ) {
-		syncService.connect( "localhost:8090" ).subscribe();
-	}
+	constructor( private dataService:CarbonDataService, private syncService:SyncService, private dialog:MdDialog ) {}
 
 	ngOnInit():void {
 		this.birthDate = {};
@@ -162,7 +160,6 @@ export class FormComponent implements OnInit {
 	}
 
 	onSubmit():void {
-		console.log( "Submit" );
 		if( this._isValidBirthDate() )
 			this.newUser.birthDate = new Date( this.birthDate.year, this.birthDate.month, this.birthDate.day, 0, 0, 0, 0 );
 

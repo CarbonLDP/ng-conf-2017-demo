@@ -129,14 +129,14 @@ export class CarbonDataService {
 	private _getUsers():Promise<User[]> {
 		return this.appContext.documents
 			.getChildren<User>( CarbonDataService.USERS_SLUG )
-			.then( ( [ users, response ]:[ User[], Response] ) => users );
+			.then( ( [ users ]:[ User[], Response ] ) => users );
 	}
 
 	private _createUser( newUser:UserTemplate ):Promise<void> {
 		let slug:string = dataSlug( newUser.nickname );
 		return this.appContext.documents
 			.createChild( CarbonDataService.USERS_SLUG, newUser, slug )
-			.then( ( [ document, response ]:[ Pointer, Response ] ) => {
+			.then( ( [ document, ]:[ Pointer, Response ] ) => {
 				this.syncService.notifyDocumentCreation( document );
 			} );
 	}
