@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, Renderer, ViewChild, ElementRef, OnDestroy, OnInit } from "@angular/core";
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from "@angular/core";
 
 import { Network, DataSet, Node, Edge, Options } from "vis";
 
@@ -48,19 +48,19 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	private creationSubscription:Subscription;
 
 	// Renderer needs to be injected in order for ViewChild to be injected too
-	constructor( private renderer:Renderer, private dataService:CarbonDataService, private syncService:SyncService ) {}
+	constructor( private dataService:CarbonDataService, private syncService:SyncService ) {}
 
 	ngAfterViewInit():void {
 		this.nodes = new DataSet<Node>();
 		this.edges = new DataSet<Edge>();
 		this.options = {
 			width: "100%",
-			height: `${ this.graphElement.nativeElement.clientHeight }px`,
+			height: `100%`,
 			interaction: {
 				hover: true,
 			},
 			layout: {
-				randomSeed: 34,
+				randomSeed: 394275,
 				improvedLayout: false,
 			},
 			physics: {
@@ -69,7 +69,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					centralGravity: 0,
 					springLength: 210,
 					springConstant: 0.1,
-					// avoidOverlap: 0.1,
 				},
 				forceAtlas2Based: {
 					gravitationalConstant: - 50,
@@ -82,8 +81,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				timestep: 0.35,
 				stabilization: {
 					enabled: true,
-					iterations: 700,
-					updateInterval: 20,
+					iterations: 750,
+					updateInterval: 25,
 				},
 			},
 			nodes: {
@@ -94,15 +93,11 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			},
 			edges: {
 				font: {
-					align: "middle"
+					color: "rgba(0, 0, 0, 0.87)",
 				},
 				arrows: {
-					from: {
-						enabled: false,
-					},
-					to: {
-						enabled: true,
-					},
+					from: false,
+					to: true,
 				},
 				smooth: {
 					enabled: true,
@@ -161,7 +156,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.syncService.openNotificationSender();
 
 		this.isProcessing = true;
-		this.progressMode = "indeterminate";
+		this.progressMode = "determinate";
 		this.progressValue = 0;
 	}
 
@@ -217,7 +212,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					this.options
 				);
 
-				this.progressMode = "determinate";
 				this.graph.on( "stabilizationIterationsDone", () => {
 					this.isProcessing = false;
 					this.graph.setOptions( {
