@@ -1,5 +1,6 @@
 import * as App from "carbonldp/App";
 import { Class as Pointer } from "carbonldp/Pointer";
+import { Factory as ResourceFactory } from "carbonldp/Resource";
 import { Class as Response } from "carbonldp/HTTP/Response";
 import { Class as SELECTResults } from "carbonldp/SPARQL/SELECTResults";
 import { Class as HTTPError } from "carbonldp/HTTP/Errors/HTTPError";
@@ -13,11 +14,13 @@ import { BasicCarbonData, RawBasicData, CountryCarbonData } from "app/data/carbo
 import { dataSlug } from "app/utils";
 import { UserTemplate, User } from "app/user/userData";
 import { SyncService } from "app/data/sync.service";
+import * as VOCAB from "app/ns/vocab";
 
 
 @Injectable()
 export class CarbonDataService {
 	public static COUNTRIES_SLUG:string = "countries/";
+	public static STATES_SLUG:string = "states/";
 	public static CITIES_SLUG:string = "cities/";
 	public static COMPANIES_SLUG:string = "companies/";
 	public static INSTITUTES_SLUG:string = "institutes/";
@@ -26,12 +29,16 @@ export class CarbonDataService {
 	public static MOBILE_OSS_SLUG:string = "mobile-oss/";
 	public static USERS_SLUG:string = "users/";
 
-	public static CONTAINER_TYPES:Map<string, string > = new Map( [
-		[ CarbonDataService.CITIES_SLUG, "City" ],
-		[ CarbonDataService.COMPANIES_SLUG, "Company" ],
-		[ CarbonDataService.INSTITUTES_SLUG, "Institute" ],
-		[ CarbonDataService.COUNTRIES_SLUG, "Country" ],
-		[ CarbonDataService.USERS_SLUG, "User" ],
+	public static CONTAINER_TYPES:Map<string, string> = new Map( [
+		[ CarbonDataService.COUNTRIES_SLUG, VOCAB.Country ],
+		[ CarbonDataService.STATES_SLUG, VOCAB.State ],
+		[ CarbonDataService.CITIES_SLUG, VOCAB.City ],
+		[ CarbonDataService.COMPANIES_SLUG, VOCAB.Company ],
+		[ CarbonDataService.INSTITUTES_SLUG, VOCAB.Institute ],
+		[ CarbonDataService.WORK_LAYERS_SLUG, VOCAB.WorkLayer ],
+		[ CarbonDataService.DESKTOP_OSS_SLUG, VOCAB.DesktopOS ],
+		[ CarbonDataService.MOBILE_OSS_SLUG, VOCAB.MobileOS ],
+		[ CarbonDataService.USERS_SLUG, VOCAB.User ],
 	] );
 
 	constructor( protected appContext:App.Context, protected syncService:SyncService ) {}
@@ -52,10 +59,10 @@ export class CarbonDataService {
 
 	convertBasicData( containerSlug:string, data:RawBasicData ):BasicCarbonData {
 		let pointer:Pointer = this.appContext.documents.getPointer( containerSlug + dataSlug( data.name ) );
-		return Object.assign(
-			pointer,
-			{ types: [ CarbonDataService.CONTAINER_TYPES.get( containerSlug ) ] },
-			data
+		return ResourceFactory.createFrom<RawBasicData>(
+			Object.assign( pointer, data ),
+			pointer.id,
+			[ CarbonDataService.CONTAINER_TYPES.get( containerSlug ) ],
 		);
 	}
 
@@ -82,14 +89,16 @@ export class CarbonDataService {
 	private _getBasicCarbonData( containerSlug:string ):Promise<BasicCarbonData[]> {
 		return this.appContext.documents
 			.sparql( containerSlug )
-			.select( "child", "name" )
+			.select( "child", "name", "type" )
 			.where( _ => {
-				let container = _.resource( containerSlug );
-				let child = _.var( "child" );
+				const container = _.resource( containerSlug );
+				const child = _.var( "child" );
+				const types = _.var( "type" );
 
 				return [
 					container.has( "ldp:contains", child ),
-					child.has( "name", _.var( "name" ) )
+					child.has( "rdf:type", types )
+						.and( "name", _.var( "name" ) )
 				];
 			} )
 			.orderBy( "?name" )
@@ -98,8 +107,13 @@ export class CarbonDataService {
 				return _results.bindings.map( binding => {
 					let data:BasicCarbonData = binding[ "child" ] as any;
 					data.name = binding[ "name" ] as string;
-					return data;
-				} );
+					if( ! data.types ) {
+						ResourceFactory.createFrom<RawBasicData>( data, data.id, [ binding[ "type" ] as string ] );
+						return data;
+					} else {
+						data.addType( binding[ "type" ] as string );
+					}
+				} ).filter( data => ! ! data );
 			} );
 	}
 
@@ -125,8 +139,9 @@ export class CarbonDataService {
 					let countryData:CountryCarbonData = binding[ "country" ] as any;
 					if( ! countryData.states ) countryData.states = [];
 
-					let stateData:BasicCarbonData = binding[ "state" ] as any;
+					let stateData:BasicCarbonData = ResourceFactory.createFrom<RawBasicData>( binding[ "state" ] as any );
 					stateData.name = binding[ "name" ] as string;
+					stateData.addType( VOCAB.State );
 					countryData.states.push( stateData );
 
 					return countryData;
@@ -144,7 +159,7 @@ export class CarbonDataService {
 			} );
 	}
 
-	private _revolveDocument( id:string ):Promise<ProtectedDocument>{
+	private _revolveDocument( id:string ):Promise<ProtectedDocument> {
 		return this.appContext.documents
 			.get( id )
 			.then( ( [ document ]:[ ProtectedDocument, Response ] ) => document );

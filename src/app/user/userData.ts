@@ -1,10 +1,10 @@
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 
 import { BasicCarbonData, CountryCarbonData } from "app/data/carbonData";
-import { CarbonDataService } from "app/data/carbonData.service";
+import * as VOCAB from "app/ns/vocab";
 
 export interface UserTemplate {
-	types: string[],
+	types:string[],
 	nickname?:string;
 	birthDate?:Date;
 	birthCountry?:CountryCarbonData;
@@ -35,7 +35,7 @@ export interface User extends UserTemplate, ProtectedDocument {
 export class Factory {
 	static createTemplate():UserTemplate {
 		return {
-			types: [ CarbonDataService.CONTAINER_TYPES.get( CarbonDataService.USERS_SLUG ) ],
+			types: [ VOCAB.User ],
 		}
 	}
 }

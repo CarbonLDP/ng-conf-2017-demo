@@ -175,7 +175,10 @@ export class FormComponent implements OnInit, OnDestroy {
 		let savingDynamicData:Observable<void>[] = this._dynamicProperties
 			.filter( dynamic => typeof this.newUser[ dynamic.property ] === "string" )
 			.map( dynamic => {
-				let data:RawBasicData = { name: this.newUser[ dynamic.property as string ] };
+				let data:RawBasicData = {
+					types:[ CarbonDataService.CONTAINER_TYPES.get( dynamic.containerSlug ) ],
+					name: this.newUser[ dynamic.property as string ],
+				};
 				let carbonData:BasicCarbonData = this.dataService.convertBasicData( dynamic.containerSlug, data );
 				this.newUser[ dynamic.property ] = carbonData;
 

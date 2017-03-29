@@ -10,3 +10,15 @@
 	flex: 1 1 auto;
 	height: 100%;
 }
+
+.processing {
+	position: absolute;
+	display: table;
+	width: 100%;
+	height: 100%;
+	top: 30%;
+
+	.progressing__icon {
+		margin: auto;
+	}
+}

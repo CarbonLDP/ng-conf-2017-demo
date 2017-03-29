@@ -15,6 +15,7 @@ let carbon:Carbon = new Carbon( {
 
 carbon.extendObjectSchema( {
 	"ldp": "http://www.w3.org/ns/ldp#",
+	"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
 } );
 
 if( PRODUCTION ) {

@@ -1,1 +1,8 @@
+<div *ngIf="isProcessing" class="processing">
+	<md-progress-circle
+		class="progressing__icon"
+		[mode]="progressMode"
+		[value]="progressValue">
+	</md-progress-circle>
+</div>
 <div class="graph" #graph></div>
