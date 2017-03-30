@@ -50,8 +50,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	progressMode:string;
 	progressValue:number;
 
-	private toFocus:string;
-
 	private creationSubscription:Subscription;
 
 	constructor( private dataService:CarbonDataService, private syncService:SyncService ) {}
@@ -117,6 +115,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					from: false,
 					to: true,
 				},
+				arrowStrikethrough: false,
 				smooth: {
 					enabled: true,
 					type: "dynamic",
@@ -164,10 +163,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.graph.on( "stabilizationIterationsDone", () => {
 			this.isProcessing = false;
 			this.progressValue = 0;
-			if( this.toFocus ) {
-				this._focusOnNode( this.toFocus );
-				this.toFocus = null;
-			}
 		} );
 		this.graph.on( "stabilizationProgress", ( params ) => {
 			this.progressValue = params.iterations / params.total * 100;
@@ -177,7 +172,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			this._focusOnNode( params.nodes[ 0 ] );
 		} );
 		this.graph.on( "deselectNode", ( params:Properties ):void => {
-			if( params.previousSelection ) this._updateDeselectNodes( params.previousSelection.nodes );
+			if( params.previousSelection ) this._updateDeselectedNode( params.previousSelection.nodes[ 0 ] );
 		} );
 
 		this.renderExistingData();
@@ -188,10 +183,10 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				if( document.hasType( VOCAB.User ) ) {
 					this.renderUser( document as User );
 
-					this.isProcessing = true;
-					this._updateDeselectNodes( this.graph.getSelectedNodes() as string[] );
-					this.toFocus = document.id;
-					this.graph.stabilize( 100 );
+					this._updateDeselectedNode( this.graph.getSelectedNodes()[ 0 ] as string );
+					const focusedNodes:string[] = this._focusOnNode( document.id );
+					let ref = setInterval( () => this.graph.fit( { nodes: focusedNodes, animation: false, } ), 1 );
+					setTimeout( () => clearInterval( ref ), 5000 );
 				} else {
 					const type:string = this.getPrincipalType( document );
 					if( ! type ) return;
@@ -221,38 +216,19 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.dataService.getUsers()
 				.map( user => this.renderUser( user ) ),
 
-			this.dataService.getBasicData( CarbonDataService.INSTITUTES_SLUG )
-				.map( dataArray =>
-					this.renderContainerData( dataArray, VOCAB.Institute, CarbonDataService.INSTITUTES_SLUG )
-				),
-
-			this.dataService.getBasicData( CarbonDataService.COMPANIES_SLUG )
-				.map( dataArray =>
-					this.renderContainerData( dataArray, VOCAB.Company, CarbonDataService.COMPANIES_SLUG )
-				),
-
-			this.dataService.getBasicData( CarbonDataService.CITIES_SLUG )
-				.map( dataArray =>
-					this.renderContainerData( dataArray, VOCAB.City, CarbonDataService.CITIES_SLUG )
-				),
-
-			this.dataService.getCountriesData()
-				.map( dataArray => this.renderContainerData( dataArray, VOCAB.Country, CarbonDataService.COUNTRIES_SLUG ) ),
-
-			this.dataService.getBasicData( CarbonDataService.DESKTOP_OSS_SLUG )
-				.map( dataArray =>
-					this.renderContainerData( dataArray, VOCAB.DesktopOS, CarbonDataService.DESKTOP_OSS_SLUG )
-				),
-
-			this.dataService.getBasicData( CarbonDataService.MOBILE_OSS_SLUG )
-				.map( dataArray =>
-					this.renderContainerData( dataArray, VOCAB.MobileOS, CarbonDataService.MOBILE_OSS_SLUG )
-				),
-
-			this.dataService.getBasicData( CarbonDataService.WORK_LAYERS_SLUG )
-				.map( dataArray =>
-					this.renderContainerData( dataArray, VOCAB.WorkLayer, CarbonDataService.WORK_LAYERS_SLUG )
-				),
+			...Array.from( CarbonDataService.CONTAINER_TYPE.keys() )
+				.filter( containerSlug =>
+					containerSlug !== CarbonDataService.USERS_SLUG
+				)
+				.map( ( containerSlug ):[ string, Observable<BasicCarbonData[]> ] => {
+					let observable:Observable<BasicCarbonData[]> =
+						containerSlug === CarbonDataService.COUNTRIES_SLUG ? this.dataService.getCountriesData()
+							: this.dataService.getBasicData( containerSlug );
+					return [ containerSlug, observable ];
+				} )
+				.map( ( [ containerSlug, observable ]:[ string, Observable<BasicCarbonData[]> ] ) => observable.map( dataArray =>
+					this.renderContainerData( dataArray, CarbonDataService.CONTAINER_TYPE.get( containerSlug ), containerSlug )
+				) )
 		).subscribe(
 			() => {
 				this.graph.setData( {
@@ -274,10 +250,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.renderEdge( CarbonDataService.USERS_SLUG, user.id, "contains" );
 	}
 
-	private _focusOnNode( nodeID:string ) {
-		const relatedNodes:string[] = ( this.graph
-			.getConnectedNodes( nodeID ) as string[] )
-			.filter( relatedNodeID => ! CarbonDataService.CONTAINER_TYPE.has( relatedNodeID ) );
+	private _focusOnNode( nodeID:string ):string[] {
+		const relatedNodes:string[] = this.getRelatedNodes( nodeID );
 
 		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) {
 			this.nodes.update( {
@@ -292,11 +266,15 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				value: 20,
 			} );
 		} );
-		this.graph.selectNodes( [ nodeID, ...relatedNodes ] );
+		this.graph.selectNodes( [ nodeID ] );
+
+		const focusedNodes:string[] = [ nodeID, ...relatedNodes ];
 		this.graph.fit( {
-			nodes: [ nodeID, ...relatedNodes ],
+			nodes: focusedNodes,
 			animation: true,
 		} );
+
+		return focusedNodes;
 	}
 
 	private renderBasicData( basicData:BasicCarbonData, group:string, container:string, edgeName:string ) {
@@ -363,10 +341,13 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			.find( type => resource.hasType( type ) );
 	}
 
-	private _updateDeselectNodes( nodes:string[] ):void {
-		nodes.forEach( nodeID => {
-			if( CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) return;
+	private getRelatedNodes( nodeID:string ):string[] {
+		return ( this.graph.getConnectedNodes( nodeID ) as string[] )
+			.filter( relatedNodeID => ! CarbonDataService.CONTAINER_TYPE.has( relatedNodeID ) );
+	}
 
+	private _updateDeselectedNode( nodeID:string ):void {
+		[ nodeID, ...this.getRelatedNodes( nodeID ) ].forEach( nodeID => {
 			this.nodes.update( {
 				id: nodeID,
 				value: null,

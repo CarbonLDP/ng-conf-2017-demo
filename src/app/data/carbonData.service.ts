@@ -20,7 +20,6 @@ import * as VOCAB from "app/ns/vocab";
 @Injectable()
 export class CarbonDataService {
 	public static COUNTRIES_SLUG:string = "countries/";
-	public static STATES_SLUG:string = "states/";
 	public static CITIES_SLUG:string = "cities/";
 	public static COMPANIES_SLUG:string = "companies/";
 	public static INSTITUTES_SLUG:string = "institutes/";
@@ -31,7 +30,6 @@ export class CarbonDataService {
 
 	public static CONTAINER_TYPE:Map<string, string> = new Map( [
 		[ CarbonDataService.COUNTRIES_SLUG, VOCAB.Country ],
-		[ CarbonDataService.STATES_SLUG, VOCAB.State ],
 		[ CarbonDataService.CITIES_SLUG, VOCAB.City ],
 		[ CarbonDataService.COMPANIES_SLUG, VOCAB.Company ],
 		[ CarbonDataService.INSTITUTES_SLUG, VOCAB.Institute ],
@@ -42,7 +40,6 @@ export class CarbonDataService {
 	] );
 	public static TYPE_CONTAINER:Map<string, string> = new Map( [
 		[ VOCAB.Country, CarbonDataService.COUNTRIES_SLUG ],
-		[ VOCAB.State, CarbonDataService.STATES_SLUG ],
 		[ VOCAB.City, CarbonDataService.CITIES_SLUG ],
 		[ VOCAB.Company, CarbonDataService.COMPANIES_SLUG ],
 		[ VOCAB.Institute, CarbonDataService.INSTITUTES_SLUG ],
