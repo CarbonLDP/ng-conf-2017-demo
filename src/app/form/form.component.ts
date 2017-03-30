@@ -176,7 +176,7 @@ export class FormComponent implements OnInit, OnDestroy {
 			.filter( dynamic => typeof this.newUser[ dynamic.property ] === "string" )
 			.map( dynamic => {
 				let data:RawBasicData = {
-					types:[ CarbonDataService.CONTAINER_TYPES.get( dynamic.containerSlug ) ],
+					types:[ CarbonDataService.CONTAINER_TYPE.get( dynamic.containerSlug ) ],
 					name: this.newUser[ dynamic.property as string ],
 				};
 				let carbonData:BasicCarbonData = this.dataService.convertBasicData( dynamic.containerSlug, data );

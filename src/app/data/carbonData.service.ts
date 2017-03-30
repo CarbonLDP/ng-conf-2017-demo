@@ -29,7 +29,7 @@ export class CarbonDataService {
 	public static MOBILE_OSS_SLUG:string = "mobile-oss/";
 	public static USERS_SLUG:string = "users/";
 
-	public static CONTAINER_TYPES:Map<string, string> = new Map( [
+	public static CONTAINER_TYPE:Map<string, string> = new Map( [
 		[ CarbonDataService.COUNTRIES_SLUG, VOCAB.Country ],
 		[ CarbonDataService.STATES_SLUG, VOCAB.State ],
 		[ CarbonDataService.CITIES_SLUG, VOCAB.City ],
@@ -39,6 +39,17 @@ export class CarbonDataService {
 		[ CarbonDataService.DESKTOP_OSS_SLUG, VOCAB.DesktopOS ],
 		[ CarbonDataService.MOBILE_OSS_SLUG, VOCAB.MobileOS ],
 		[ CarbonDataService.USERS_SLUG, VOCAB.User ],
+	] );
+	public static TYPE_CONTAINER:Map<string, string> = new Map( [
+		[ VOCAB.Country, CarbonDataService.COUNTRIES_SLUG ],
+		[ VOCAB.State, CarbonDataService.STATES_SLUG ],
+		[ VOCAB.City, CarbonDataService.CITIES_SLUG ],
+		[ VOCAB.Company, CarbonDataService.COMPANIES_SLUG ],
+		[ VOCAB.Institute, CarbonDataService.INSTITUTES_SLUG ],
+		[ VOCAB.WorkLayer, CarbonDataService.WORK_LAYERS_SLUG ],
+		[ VOCAB.DesktopOS, CarbonDataService.DESKTOP_OSS_SLUG ],
+		[ VOCAB.MobileOS, CarbonDataService.MOBILE_OSS_SLUG ],
+		[ VOCAB.User, CarbonDataService.USERS_SLUG ],
 	] );
 
 	constructor( protected appContext:App.Context, protected syncService:SyncService ) {}
@@ -62,7 +73,7 @@ export class CarbonDataService {
 		return ResourceFactory.createFrom<RawBasicData>(
 			Object.assign( pointer, data ),
 			pointer.id,
-			[ CarbonDataService.CONTAINER_TYPES.get( containerSlug ) ],
+			[ CarbonDataService.CONTAINER_TYPE.get( containerSlug ) ],
 		);
 	}
 
@@ -71,8 +82,8 @@ export class CarbonDataService {
 		return Observable.fromPromise( promise );
 	}
 
-	resolveDocument( id:string ):Observable<ProtectedDocument> {
-		let promise:Promise<ProtectedDocument> = this._revolveDocument( id );
+	resolveDocument<T>( id:string ):Observable<ProtectedDocument & T> {
+		let promise:Promise<ProtectedDocument & T> = this._revolveDocument<T>( id );
 		return Observable.fromPromise( promise );
 	}
 
@@ -153,15 +164,17 @@ export class CarbonDataService {
 		let slug:string = dataSlug( data.name );
 		return this.appContext.documents
 			.createChild( containerSlug, data, slug )
-			.then( () => {} )
+			.then( ( [ document ]:[ Pointer, Response ] ) => {
+				this.syncService.notifyDocumentCreation( document );
+			} )
 			.catch( ( error:HTTPError ) => {
 				if( error.statusCode !== 409 ) return Promise.reject( error );
 			} );
 	}
 
-	private _revolveDocument( id:string ):Promise<ProtectedDocument> {
+	private _revolveDocument<T>( id:string ):Promise<ProtectedDocument & T> {
 		return this.appContext.documents
-			.get( id )
+			.get<T>( id )
 			.then( ( [ document ]:[ ProtectedDocument, Response ] ) => document );
 	}
 

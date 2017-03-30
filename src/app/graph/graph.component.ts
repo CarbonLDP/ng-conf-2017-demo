@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from "@angular/core";
 
-import { Network, DataSet, Node, Edge, Options } from "vis";
+import { Network, DataSet, Node, Edge, Options, Properties } from "vis";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { User } from "app/user/userData";
@@ -14,12 +14,17 @@ import * as Pointer from "carbonldp/Pointer";
 import * as Resource from "carbonldp/Resource";
 
 declare module "vis" {
+
 	interface Edge {
 		label?:string;
 	}
+
 	interface Node {
 		size?:number;
-		title?:string;
+		physics?:boolean;
+		value?:number;
+		relatedNodes?:string[];
+		mass?:number;
 	}
 }
 
@@ -45,15 +50,17 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	progressMode:string;
 	progressValue:number;
 
+	private toFocus:string;
+
 	private creationSubscription:Subscription;
 
-	// Renderer needs to be injected in order for ViewChild to be injected too
 	constructor( private dataService:CarbonDataService, private syncService:SyncService ) {}
 
 	ngAfterViewInit():void {
 		this.nodes = new DataSet<Node>();
 		this.edges = new DataSet<Edge>();
-		this.options = {
+
+		this.graph = new Network( this.graphElement.nativeElement, {}, {
 			width: "100%",
 			height: `100%`,
 			interaction: {
@@ -74,21 +81,32 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					gravitationalConstant: - 50,
 					centralGravity: 0.005,
 					springLength: 180,
-					springConstant: 0.18,
+					springConstant: 0.10,
+					avoidOverlap: 0,
 				},
 				maxVelocity: 75,
 				solver: 'forceAtlas2Based',
 				timestep: 0.35,
 				stabilization: {
 					enabled: true,
-					iterations: 750,
+					iterations: 500,
 					updateInterval: 25,
 				},
 			},
 			nodes: {
 				font: {
-					// color: "rgba(255, 255, 255, 0.87)",
 					color: "rgba(0, 0, 0, 0.87)",
+				},
+				scaling: {
+					customScalingFunction: ( min, max, total, value ) => {
+						if( ! value ) return 5 / 150;
+						return value / 150;
+					},
+					label: {
+						enabled: true,
+						min: 10,
+						max: 150,
+					}
 				},
 			},
 			edges: {
@@ -104,6 +122,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					type: "dynamic",
 					roundness: 0.5,
 				},
+				selectionWidth: 5,
 			},
 			groups: {
 				[VOCAB.Container]: {
@@ -113,6 +132,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				},
 				[VOCAB.User]: {
 					color: "#ffb74d",
+					shape: "box",
 				},
 				[VOCAB.Country]: {
 					color: "#81d4fa",
@@ -139,7 +159,26 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					color: "#80cbc4",
 				},
 			},
-		};
+		} );
+
+		this.graph.on( "stabilizationIterationsDone", () => {
+			this.isProcessing = false;
+			this.progressValue = 0;
+			if( this.toFocus ) {
+				this._focusOnNode( this.toFocus );
+				this.toFocus = null;
+			}
+		} );
+		this.graph.on( "stabilizationProgress", ( params ) => {
+			this.progressValue = params.iterations / params.total * 100;
+		} );
+
+		this.graph.on( "selectNode", ( params:Properties ) => {
+			this._focusOnNode( params.nodes[ 0 ] );
+		} );
+		this.graph.on( "deselectNode", ( params:Properties ):void => {
+			if( params.previousSelection ) this._updateDeselectNodes( params.previousSelection.nodes );
+		} );
 
 		this.renderExistingData();
 
@@ -147,7 +186,17 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			.flatMap( document => this.dataService.resolveDocument( document ) )
 			.subscribe( ( document:ProtectedDocument ) => {
 				if( document.hasType( VOCAB.User ) ) {
-					this.renderUser( document as User, true );
+					this.renderUser( document as User );
+
+					this.isProcessing = true;
+					this._updateDeselectNodes( this.graph.getSelectedNodes() as string[] );
+					this.toFocus = document.id;
+					this.graph.stabilize( 100 );
+				} else {
+					const type:string = this.getPrincipalType( document );
+					if( ! type ) return;
+
+					this.renderBasicData( <any> document, type, CarbonDataService.TYPE_CONTAINER.get( type ), "container" );
 				}
 			} );
 	}
@@ -206,77 +255,58 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				),
 		).subscribe(
 			() => {
-				this.graph = new Network(
-					this.graphElement.nativeElement,
-					{ nodes: this.nodes, edges: this.edges },
-					this.options
-				);
-
-				this.graph.on( "stabilizationIterationsDone", () => {
-					this.isProcessing = false;
-					this.graph.setOptions( {
-						physics: {
-							solver: "barnesHut",
-						},
-					} );
-				} );
-				this.graph.on( "stabilizationProgress", ( params ) => {
-					this.progressValue = params.iterations / params.total * 100;
+				this.graph.setData( {
+					nodes: this.nodes,
+					edges: this.edges,
 				} );
 			},
 			error => console.log( error ),
 		);
 	}
 
-	private renderUser( user:User, focus?:boolean ):void {
+	private renderUser( user:User ):void {
 		this.nodes.add( {
 			id: user.id,
 			label: user.nickname,
 			group: VOCAB.User,
-			title: VOCAB.User,
+			relatedNodes: this.renderProperties( user ),
 		} );
-		this.renderContainerEdge( CarbonDataService.USERS_SLUG, user.id );
-		this.renderProperties( user );
-
-		if( focus ) {
-			this.graph.focus( user.id );
-			this.graph.selectNodes( [ user.id ] );
-		}
+		this.renderEdge( CarbonDataService.USERS_SLUG, user.id, "contains" );
 	}
 
-	private renderBasicData( basicData:BasicCarbonData, group:string, hasChildren?:boolean ) {
+	private _focusOnNode( nodeID:string ) {
+		const relatedNodes:string[] = ( this.graph
+			.getConnectedNodes( nodeID ) as string[] )
+			.filter( relatedNodeID => ! CarbonDataService.CONTAINER_TYPE.has( relatedNodeID ) );
+
+		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) {
+			this.nodes.update( {
+				id: nodeID,
+				value: 35,
+			} );
+		}
+
+		relatedNodes.forEach( relatedNodeID => {
+			this.nodes.update( {
+				id: relatedNodeID,
+				value: 20,
+			} );
+		} );
+		this.graph.selectNodes( [ nodeID, ...relatedNodes ] );
+		this.graph.fit( {
+			nodes: [ nodeID, ...relatedNodes ],
+			animation: true,
+		} );
+	}
+
+	private renderBasicData( basicData:BasicCarbonData, group:string, container:string, edgeName:string ) {
 		this.nodes.add( {
 			id: basicData.id,
 			label: basicData.name,
 			group: group,
-			title: group,
-			shape: hasChildren ? "square" : null,
-			size: hasChildren ? 40 : null,
+			relatedNodes: this.renderProperties( basicData ),
 		} );
-
-		this.renderProperties( basicData );
-	}
-
-	private renderContainer( id:string, label:string ):void {
-		this.nodes.add( {
-			id: id,
-			label: label,
-			group: VOCAB.Container,
-			title: VOCAB.Container,
-		} );
-	}
-
-	private renderContainerData( dataArray:BasicCarbonData[], group:string, containerSlug:string ):void {
-		this.renderContainer( containerSlug, GraphComponent.getContainerName( containerSlug ) );
-
-		dataArray.forEach( data => {
-			this.renderContainerEdge( containerSlug, data.id );
-			this.renderBasicData( data, group );
-		} );
-	}
-
-	private static getContainerName( containerSlug:string ):string {
-		return containerSlug.charAt( 0 ).toUpperCase() + containerSlug.slice( 1, - 1 );
+		this.renderEdge( container, basicData.id, edgeName );
 	}
 
 	private renderEdge( from:string, to:string, label:string ):void {
@@ -287,11 +317,27 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} );
 	}
 
-	private renderContainerEdge( from:string, to:string ):void {
-		this.renderEdge( from, to, "contains" );
+	private renderContainer( id:string, label:string ):void {
+		this.nodes.add( {
+			id: id,
+			label: label,
+			group: VOCAB.Container,
+		} );
 	}
 
-	private renderProperties( pointer:Pointer.Class ):void {
+	private renderContainerData( dataArray:BasicCarbonData[], group:string, containerSlug:string ):void {
+		this.renderContainer( containerSlug, GraphComponent.getContainerName( containerSlug ) );
+
+		dataArray.forEach( data => this.renderBasicData( data, group, containerSlug, "contains" ) );
+	}
+
+	private static getContainerName( containerSlug:string ):string {
+		return containerSlug.charAt( 0 ).toUpperCase() + containerSlug.slice( 1, - 1 );
+	}
+
+	private renderProperties( pointer:Pointer.Class ):string[] {
+		const relatedNodes:string[] = [];
+
 		Object.keys( pointer )
 			.filter( key => commonIgnoredProperties.indexOf( key ) === - 1 )
 			.map( key => [ key, Array.isArray( pointer[ key ] ) ? pointer[ key ] : [ pointer[ key ] ] ] )
@@ -300,17 +346,32 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					.filter( data => Pointer.Factory.is( data ) )
 					.forEach( ( data:Resource.Class ) => {
 						if( data.id.startsWith( pointer.id ) ) {
-							this.renderBasicData( data as BasicCarbonData, this.getPrincipalType( data ) );
+							this.renderBasicData( data as BasicCarbonData, this.getPrincipalType( data ), pointer.id, key );
+						} else {
+							this.renderEdge( pointer.id, data.id, key );
 						}
-						this.renderEdge( pointer.id, data.id, key );
+						relatedNodes.push( data.id );
 					} );
 			} );
+
+		return relatedNodes;
 	}
 
 	private getPrincipalType( resource:Resource.Class ):string {
 		return Object.keys( VOCAB )
 			.map( key => VOCAB[ key ] )
 			.find( type => resource.hasType( type ) );
+	}
+
+	private _updateDeselectNodes( nodes:string[] ):void {
+		nodes.forEach( nodeID => {
+			if( CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) return;
+
+			this.nodes.update( {
+				id: nodeID,
+				value: null,
+			} );
+		} )
 	}
 
 }
