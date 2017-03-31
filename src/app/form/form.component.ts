@@ -1,13 +1,13 @@
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 
 import { MdAutocompleteTrigger, MdDialog } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { SyncService } from "app/data/sync.service";
 
-import { BasicCarbonData, CountryCarbonData, RawBasicData } from "app/data/carbonData";
+import { BasicCarbonData, CountryCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import { UserTemplate, Factory as UserFactory } from "app/user/userData";
 import { SuccessDialog } from "app/form/dialogs/successDialog.component";
 
@@ -15,12 +15,14 @@ import 'rxjs/operator/finally';
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 import { FailDialog } from "app/form/dialogs/failDialog.component";
 
+import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
+
 @Component( {
 	selector: "app-form",
 	templateUrl: "./form.component.html",
 	styleUrls: [ "form.component.scss" ],
 } )
-export class FormComponent implements OnInit, OnDestroy {
+export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	monthNames:string[] = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 	yearNames:number[];
@@ -86,9 +88,28 @@ export class FormComponent implements OnInit, OnDestroy {
 		this.syncService.openNotificationSender();
 	}
 
+
+	private newDocumentsSubscription:Subscription;
+
+	ngAfterViewInit():void {
+		this.newDocumentsSubscription = this.syncService.onDocumentCreated()
+			.flatMap( document => this.dataService.resolveDocument( document ) )
+			.subscribe( ( document:ProtectedDocument & BasicCarbonData ) => {
+				const type:string = CarbonDataUtils.getPrincipalType( document );
+				if( ! type ) return;
+
+				const dynamic:DynamicProperty = this._dynamicProperties
+					.find( dynamic => dynamic.containerSlug === CarbonDataService.TYPE_CONTAINER.get( type ) );
+
+				if( ! dynamic ) return;
+				this._addDynamicData( dynamic, document );
+			} );
+	}
+
 	ngOnDestroy():void {
 		console.log( "Form closed" );
 		this.syncService.closeNotificationSender();
+		this.newDocumentsSubscription.unsubscribe();
 	}
 
 	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"birthCity" | "company" | "institute", element?:HTMLInputElement ):void {
@@ -176,16 +197,13 @@ export class FormComponent implements OnInit, OnDestroy {
 			.filter( dynamic => typeof this.newUser[ dynamic.property ] === "string" )
 			.map( dynamic => {
 				let data:RawBasicData = {
-					types:[ CarbonDataService.CONTAINER_TYPE.get( dynamic.containerSlug ) ],
+					types: [ CarbonDataService.CONTAINER_TYPE.get( dynamic.containerSlug ) ],
 					name: this.newUser[ dynamic.property as string ],
 				};
 				let carbonData:BasicCarbonData = this.dataService.convertBasicData( dynamic.containerSlug, data );
 				this.newUser[ dynamic.property ] = carbonData;
 
-				// TODO: remove when web sockets
-				dynamic.observable.value.push( carbonData );
-				dynamic.observable.value.sort( ( data1:BasicCarbonData, data2:BasicCarbonData ) => data1.name.localeCompare( data2.name ) );
-				this.autoCompleteChange( carbonData.name, dynamic.property );
+				this._addDynamicData( dynamic, carbonData );
 
 				return this.dataService.saveBasicData( dynamic.containerSlug, carbonData );
 			} );
@@ -219,6 +237,12 @@ export class FormComponent implements OnInit, OnDestroy {
 			if( ! this.newUser[ key ] )
 				delete this.newUser[ key ]
 		}
+	}
+
+	private _addDynamicData( dynamicProperty:DynamicProperty, carbonData:BasicCarbonData ) {
+		dynamicProperty.observable.value.push( carbonData );
+		dynamicProperty.observable.value.sort( ( data1:BasicCarbonData, data2:BasicCarbonData ) => data1.name.localeCompare( data2.name ) );
+		this.autoCompleteChange( this.newUser[ dynamicProperty.property ], dynamicProperty.property );
 	}
 
 }

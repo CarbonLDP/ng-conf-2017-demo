@@ -6,7 +6,7 @@ import { CarbonDataService } from "app/data/carbonData.service";
 import { User } from "app/user/userData";
 import { Observable, Subscription } from "rxjs";
 import { SyncService } from "app/data/sync.service";
-import { BasicCarbonData } from "app/data/carbonData";
+import { BasicCarbonData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import * as VOCAB from "app/ns/vocab";
 
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
@@ -188,7 +188,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					let ref = setInterval( () => this.graph.fit( { nodes: focusedNodes, animation: false, } ), 1 );
 					setTimeout( () => clearInterval( ref ), 5000 );
 				} else {
-					const type:string = this.getPrincipalType( document );
+					const type:string = CarbonDataUtils.getPrincipalType( document );
 					if( ! type ) return;
 
 					this.renderBasicData( <any> document, type, CarbonDataService.TYPE_CONTAINER.get( type ), "container" );
@@ -324,7 +324,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					.filter( data => Pointer.Factory.is( data ) )
 					.forEach( ( data:Resource.Class ) => {
 						if( data.id.startsWith( pointer.id ) ) {
-							this.renderBasicData( data as BasicCarbonData, this.getPrincipalType( data ), pointer.id, key );
+							this.renderBasicData( data as BasicCarbonData, CarbonDataUtils.getPrincipalType( data ), pointer.id, key );
 						} else {
 							this.renderEdge( pointer.id, data.id, key );
 						}
@@ -333,12 +333,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			} );
 
 		return relatedNodes;
-	}
-
-	private getPrincipalType( resource:Resource.Class ):string {
-		return Object.keys( VOCAB )
-			.map( key => VOCAB[ key ] )
-			.find( type => resource.hasType( type ) );
 	}
 
 	private getRelatedNodes( nodeID:string ):string[] {
