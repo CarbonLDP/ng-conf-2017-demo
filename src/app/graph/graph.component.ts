@@ -23,7 +23,6 @@ declare module "vis" {
 		size?:number;
 		physics?:boolean;
 		value?:number;
-		relatedNodes?:string[];
 		mass?:number;
 	}
 }
@@ -173,7 +172,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.creationSubscription = this.syncService.onDocumentCreated()
 			.flatMap( document => this.dataService.resolveDocument( document ) )
-			.subscribe( ( document:ProtectedDocument ) => {
+			.subscribe( ( document:ProtectedDocument & ( User | BasicCarbonData ) ) => {
 				if( document.hasType( VOCAB.User ) ) {
 					this.renderUser( document as User );
 
@@ -185,7 +184,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					const type:string = CarbonDataUtils.getPrincipalType( document );
 					if( ! type ) return;
 
-					this.renderBasicData( <any> document, type, CarbonDataService.TYPE_CONTAINER.get( type ), "container" );
+					this.renderBasicData( document as BasicCarbonData, type, CarbonDataService.TYPE_CONTAINER.get( type ), "container" );
 				}
 			} );
 	}
@@ -239,9 +238,9 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			id: user.id,
 			label: user.nickname,
 			group: VOCAB.User,
-			relatedNodes: this.renderProperties( user ),
 		} );
 		this.renderEdge( CarbonDataService.USERS_SLUG, user.id, "contains" );
+		this.renderProperties( user );
 	}
 
 	private _focusOnNode( nodeID:string ):string[] {
@@ -272,13 +271,14 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderBasicData( basicData:BasicCarbonData, group:string, container:string, edgeName:string ) {
+		console.log( basicData );
 		this.nodes.add( {
 			id: basicData.id,
 			label: basicData.name,
 			group: group,
-			relatedNodes: this.renderProperties( basicData ),
 		} );
 		this.renderEdge( container, basicData.id, edgeName );
+		this.renderProperties( basicData );
 	}
 
 	private renderEdge( from:string, to:string, label:string ):void {
@@ -308,9 +308,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		return containerSlug.charAt( 0 ).toUpperCase() + containerSlug.slice( 1, - 1 );
 	}
 
-	private renderProperties( pointer:Pointer.Class ):string[] {
-		const relatedNodes:string[] = [];
-
+	private renderProperties( pointer:Pointer.Class ):void {
 		Object.keys( pointer )
 			.filter( key => commonIgnoredProperties.indexOf( key ) === - 1 )
 			.map( key => [ key, Array.isArray( pointer[ key ] ) ? pointer[ key ] : [ pointer[ key ] ] ] )
@@ -323,11 +321,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 						} else {
 							this.renderEdge( pointer.id, data.id, key );
 						}
-						relatedNodes.push( data.id );
 					} );
 			} );
-
-		return relatedNodes;
 	}
 
 	private _getRelatedNodes( nodeID:string ):string[] {
@@ -336,6 +331,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _updateDeselectedNode( nodeID:string ):void {
+		if( ! nodeID ) return;
+
 		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
 		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) relatedNodes.push( nodeID );
 
