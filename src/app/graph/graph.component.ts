@@ -69,12 +69,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				improvedLayout: false,
 			},
 			physics: {
-				barnesHut: {
-					gravitationalConstant: - 7500,
-					centralGravity: 0,
-					springLength: 210,
-					springConstant: 0.1,
-				},
 				forceAtlas2Based: {
 					gravitationalConstant: - 50,
 					centralGravity: 0.005,
@@ -251,7 +245,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _focusOnNode( nodeID:string ):string[] {
-		const relatedNodes:string[] = this.getRelatedNodes( nodeID );
+		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
 
 		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) {
 			this.nodes.update( {
@@ -268,13 +262,13 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} );
 		this.graph.selectNodes( [ nodeID ] );
 
-		const focusedNodes:string[] = [ nodeID, ...relatedNodes ];
+		relatedNodes.push( nodeID );
 		this.graph.fit( {
-			nodes: focusedNodes,
+			nodes: relatedNodes,
 			animation: true,
 		} );
 
-		return focusedNodes;
+		return relatedNodes;
 	}
 
 	private renderBasicData( basicData:BasicCarbonData, group:string, container:string, edgeName:string ) {
@@ -300,6 +294,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			id: id,
 			label: label,
 			group: VOCAB.Container,
+			size: 50,
 		} );
 	}
 
@@ -335,17 +330,18 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		return relatedNodes;
 	}
 
-	private getRelatedNodes( nodeID:string ):string[] {
+	private _getRelatedNodes( nodeID:string ):string[] {
 		return ( this.graph.getConnectedNodes( nodeID ) as string[] )
 			.filter( relatedNodeID => ! CarbonDataService.CONTAINER_TYPE.has( relatedNodeID ) );
 	}
 
 	private _updateDeselectedNode( nodeID:string ):void {
-		[ nodeID, ...this.getRelatedNodes( nodeID ) ].forEach( nodeID => {
-			this.nodes.update( {
-				id: nodeID,
-				value: null,
-			} );
+		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
+		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) relatedNodes.push( nodeID );
+
+		relatedNodes.forEach( relatedNodeID => {
+			this.nodes.update( { id: relatedNodeID, value: 0 } );
+			this.nodes.update( { id: relatedNodeID, value: undefined } );
 		} )
 	}
 
