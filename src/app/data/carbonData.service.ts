@@ -94,6 +94,10 @@ export class CarbonDataService {
 		return Observable.fromPromise( promise );
 	}
 
+	dropData( data:BasicCarbonData ):void {
+		this.appContext.documents.removePointer( data.id );
+	}
+
 	private _getBasicCarbonData( containerSlug:string ):Promise<BasicCarbonData[]> {
 		return this.appContext.documents
 			.sparql( containerSlug )

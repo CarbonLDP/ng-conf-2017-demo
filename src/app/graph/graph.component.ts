@@ -271,7 +271,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderBasicData( basicData:BasicCarbonData, group:string, container:string, edgeName:string ) {
-		console.log( basicData );
 		this.nodes.add( {
 			id: basicData.id,
 			label: basicData.name,

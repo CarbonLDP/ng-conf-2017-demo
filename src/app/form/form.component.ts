@@ -96,12 +96,18 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 			.flatMap( document => this.dataService.resolveDocument( document ) )
 			.subscribe( ( document:ProtectedDocument & BasicCarbonData ) => {
 				const type:string = CarbonDataUtils.getPrincipalType( document );
-				if( ! type ) return;
+				if( ! type ) {
+					this.dataService.dropData( document );
+					return;
+				}
 
 				const dynamic:DynamicProperty = this._dynamicProperties
 					.find( dynamic => dynamic.containerSlug === CarbonDataService.TYPE_CONTAINER.get( type ) );
 
-				if( ! dynamic ) return;
+				if( ! dynamic ) {
+					this.dataService.dropData( document );
+					return;
+				}
 				this._addDynamicData( dynamic, document );
 			} );
 	}
