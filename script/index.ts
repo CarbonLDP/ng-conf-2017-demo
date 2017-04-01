@@ -4,9 +4,18 @@ import * as NS from "carbonldp/NS";
 import * as Pointer from "carbonldp/Pointer";
 import Response from "carbonldp/HTTP/Response";
 
-import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS } from "script/config";
+const WebSocket = require( "ws" );
+import { Observable } from "rxjs";
+
+import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS, WS_HOST, NO_BUILD, INJECT } from "script/config";
 import { elementSlug, extractElementsData } from "script/utils";
 import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultNamedContainer } from "script/default-data";
+
+import { BasicCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
+import { DocumentEventFactory } from "app/data/documentEvent";
+import * as VOCAB from "app/ns/vocab";
+import * as DEMO from "app/ns/demo";
+import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
 
 const ora = require( "ora" );
 
@@ -18,9 +27,13 @@ carbon.auth.authenticate( CARBON_USER, CARBON_PASS ).then( () => {
 } ).then( ( _result:App.Context ) => {
 	appContext = _result;
 } ).then( () => {
+	if( NO_BUILD ) return;
 	return DEFAULT_CONTAINERS.reduce( ( promise, container ) => {
 		return promise.then( () => setContainer( "/", container ) );
 	}, Promise.resolve() );
+} ).then( () => {
+	if( INJECT )
+		return createUsers();
 } ).catch( console.error );
 
 function initCarbon( isSecure:boolean, domain:string ):Carbon {
@@ -99,4 +112,112 @@ async function setChildren( containerSlug:string, container:DefaultContainerData
 		let childContainer:DefaultContainerData = element as DefaultContainerData;
 		await setChildren( containerSlug + elementSlug( element ), childContainer );
 	}
+}
+
+async function createUsers():Promise<void> {
+	let spinner:any;
+	const socket:WebSocketSubject<string> = Observable.webSocket( {
+		url: WS_HOST,
+		WebSocketCtor: WebSocket,
+		resultSelector: ( e:MessageEvent ) => e.data,
+	} );
+	socket.subscribe();
+
+	spinner = ora( "Obtaining dynamic containers" ).start();
+	const dynamics:{
+		label:string,
+		container:string,
+		type:string,
+		data:BasicCarbonData[],
+	}[] = [
+		{
+			label: "birthCity",
+			container: "cities/",
+			type: VOCAB.City,
+			data: await appContext.documents.getChildren<BasicCarbonData>( "cities/" ).then( ( [ array ] ) => array ),
+		},
+		{
+			label: "company",
+			container: "companies/",
+			type: VOCAB.Company,
+			data: await appContext.documents.getChildren<BasicCarbonData>( "companies/" ).then( ( [ array ] ) => array ),
+		},
+		{
+			label: "institute",
+			container: "institutes/",
+			type: VOCAB.Institute,
+			data: await appContext.documents.getChildren<BasicCarbonData>( "institutes/" ).then( ( [ array ] ) => array ),
+		},
+	];
+	spinner.succeed( "Dynamic containers obtained" );
+
+	spinner = ora( "Obtaining static containers" ).start();
+	const statics:{
+		label:string,
+		data:BasicCarbonData[],
+	}[] = [
+		{
+			label: "country",
+			data: await appContext.documents.getChildren<BasicCarbonData>( "countries/" ).then( ( [ array ] ) => array ),
+		},
+		{
+			label: "worksOn",
+			data: await appContext.documents.getChildren<BasicCarbonData>( "work-layers/" ).then( ( [ array ] ) => array ),
+		},
+		{
+			label: "desktopOS",
+			data: await appContext.documents.getChildren<BasicCarbonData>( "desktop-oss/" ).then( ( [ array ] ) => array ),
+		},
+		{
+			label: "mobileOD",
+			data: await appContext.documents.getChildren<BasicCarbonData>( "mobile-oss/" ).then( ( [ array ] ) => array ),
+		},
+	];
+	spinner.succeed( "Static containers obtained" );
+
+	for( let i = 0; i < INJECT; ++ i ) {
+		ora( `Creating user ${ i + 1 }/${ INJECT }` ).stopAndPersist();
+		const user = {
+			types: [ VOCAB.User ],
+			nickname: Math.random().toString( 36 ).slice( 2 ),
+		};
+
+		for( const element of statics ) {
+			let chosen:number = Math.floor( Math.random() * element.data.length );
+			user[ element.label ] = element.data[ chosen ];
+			if( ! ! user[ element.label ].states ) {
+				chosen = Math.floor( Math.random() * user[ element.label ].states.length );
+				user[ "birthState" ] = user[ element.label ].states[ chosen ];
+			}
+		}
+
+		for( const element of dynamics ) {
+			const createNew:boolean = Math.random() * 100 > 75;
+			if( createNew ) {
+				const [ document ] = await appContext.documents.createChild<RawBasicData>( element.container, {
+						types: [ element.type ],
+						name: Math.random().toString( 36 ).slice( 2 )
+					} );
+				ora( `\tCreated document: "${ document.id }"` ).succeed();
+
+				user[ element.label ] = document;
+				element.data.push( document );
+				socket.next( JSON.stringify( DocumentEventFactory.create( DEMO.DocumentCreated, document ) ) );
+
+			} else {
+				let chosen:number = Math.floor( Math.random() * element.data.length );
+				user[ element.label ] = element.data[ chosen ];
+			}
+		}
+
+		spinner = ora( "\tPersisting the user" ).start();
+		await appContext.documents.createChild( "users/", user );
+		spinner.succeed( `\tUser "${ (<any> user).id }" created` );
+		socket.next( JSON.stringify( DocumentEventFactory.create( DEMO.DocumentCreated, <any> user ) ) );
+		await Observable.timer( 10000 ).toPromise();
+	}
+
+	ora( `Finished` ).stopAndPersist();
+	setTimeout( () => socket.unsubscribe(), 1000 );
+	return socket.toPromise().then( () => {} );
 }

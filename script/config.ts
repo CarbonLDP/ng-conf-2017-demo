@@ -10,6 +10,16 @@ let CARBON_ENV:{ protocol:string, domain:string, slug:string, user:string, pass:
 if( process.env.CARBON && typeof process.env.CARBON === "string" )
 	Object.assign( CARBON_ENV, JSON.parse( process.env.CARBON ) );
 
+const WS_ENV:{ host:string, ssl:boolean } = {
+	host: "localhost:8090",
+	ssl: false,
+};
+if( process.env.WS && typeof process.env.WS === "string" )
+	Object.assign( WS_ENV, JSON.parse( process.env.WS ) );
+WS_ENV.host = ! WS_ENV.host.startsWith( "ws://" ) && ! WS_ENV.host.startsWith( "wss://" ) ?
+	WS_ENV.ssl ? `wss://${ WS_ENV.host }` : `ws://${ WS_ENV.host }` :
+	WS_ENV.host;
+
 let argv = yargs
 	.usage( "\nUsage: $0 [args]" )
 	.describe( {
@@ -18,9 +28,20 @@ let argv = yargs
 		"slug": "Slug your application will have. It is important that it end with a trailing slash",
 		"user": "Email of your Carbon LDP application manager",
 		"password": "Password of your Carbon LDP application manager",
-		"clean": "If set, the script will reset the application data to its default values"
+		"clean": "If set, the script will reset the application data to its default values",
+		"ws_host": "Domain of the web socket server",
+		"ws_ssl": "If the server is under a secure connection or not",
+		"inject": "Creates the number of users specified",
+		"built": "Omits the building of the entire application an its default data. To be used when the application already exists and only want to inject test data",
 	} )
-	.boolean( "clean" )
+	.boolean( [
+		"clean",
+		"ssl",
+		"built",
+	] )
+	.number( [
+		"inject"
+	] )
 	.alias( {
 		"h": "help",
 		"p": "protocol",
@@ -29,6 +50,8 @@ let argv = yargs
 		"u": "user",
 		"pass": "password",
 		"c": "clean",
+		"i": "inject",
+		"b": "built",
 	} )
 	.default( {
 		"protocol": CARBON_ENV.protocol,
@@ -36,6 +59,9 @@ let argv = yargs
 		"slug": CARBON_ENV.slug,
 		"user": CARBON_ENV.user,
 		"pass": CARBON_ENV.pass,
+		"ws_host": WS_ENV.host,
+		"ws_ssl": WS_ENV.ssl,
+		"built": false,
 	} )
 	.help()
 	.argv;
@@ -44,6 +70,10 @@ export const PRODUCTION:boolean = process.env.ENV === "production";
 export const SECURE:boolean = argv.protocol === "https";
 export const DOMAIN:string = argv.domain;
 export const APP_SLUG:string = argv.slug;
-export const CLEAN_APP:boolean = !! argv.clean;
+export const CLEAN_APP:boolean = ! ! argv.clean;
 export const CARBON_USER:string = argv.user;
 export const CARBON_PASS:string = argv.pass;
+
+export const WS_HOST:string = argv[ "ws_host" ];
+export const INJECT:number = argv.inject;
+export const NO_BUILD:boolean = argv[ "built" ];

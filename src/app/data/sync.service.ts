@@ -1,31 +1,13 @@
 import { Injectable } from "@angular/core";
 
-import { Observable, Observer, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
 
 import * as Pointer from "carbonldp/Pointer";
-import * as Utils from "carbonldp/Utils";
 
+import { DocumentEvent, DocumentEventFactory, Utils as DocumentEventUtils } from "app/data/documentEvent";
 import * as DEMO from "app/ns/demo";
 import { WS_HOST } from "app/config";
-
-export interface DocumentEvent {
-	"@context":"https://carbonldp.com/ns/demo";
-	"@type":string[];
-	document:string;
-}
-
-export class DocumentEventFactory {
-	static create( type:string, document:string | Pointer.Class ):DocumentEvent {
-		let id:string = ! Utils.isString( document ) ? (<Pointer.Class> document).id : <string> document;
-
-		return {
-			"@context": "https://carbonldp.com/ns/demo",
-			"@type": [ DEMO.DocumentEvent, type ],
-			document: id
-		};
-	}
-}
 
 @Injectable()
 export class SyncService {
@@ -79,13 +61,13 @@ export class SyncService {
 				}
 			} )
 			.filter( object => object !== null )
-			.filter( object => this.hasType( object, DEMO.DocumentEvent ) )
+			.filter( object => DocumentEventUtils.hasType( object, DEMO.DocumentEvent ) )
 			.map( object => <DocumentEvent> object );
 	}
 
 	onDocumentCreated():Observable<string> {
 		return this.onDocumentEvent()
-			.filter( event => this.hasType( event, DEMO.DocumentCreated ) )
+			.filter( event => DocumentEventUtils.hasType( event, DEMO.DocumentCreated ) )
 			.map( event => event.document );
 	}
 
@@ -100,14 +82,5 @@ export class SyncService {
 	notifyDocumentCreation( document:string | Pointer.Class ):void {
 		let documentEvent:DocumentEvent = DocumentEventFactory.create( DEMO.DocumentCreated, document );
 		this.sendMessage( documentEvent );
-	}
-
-	private hasType( object:Object, type:string ):boolean {
-		if( ! Utils.isObject( object ) ) return false;
-		if( ! ( "@type" in object ) ) return false;
-
-		if( Utils.isArray( object[ "@type" ] ) ) return object[ "@type" ].indexOf( type ) !== - 1;
-		else if( Utils.isString( object[ "@type" ] ) ) return object[ "@type" ] === type;
-		else return false;
 	}
 }
