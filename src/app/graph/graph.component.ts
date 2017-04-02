@@ -8,6 +8,7 @@ import { Observable, Subscription } from "rxjs";
 import { SyncService } from "app/data/sync.service";
 import { BasicCarbonData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import * as VOCAB from "app/ns/vocab";
+import * as ContainersData from "app/data/containersData";
 
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 import * as Pointer from "carbonldp/Pointer";
@@ -184,7 +185,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					const type:string = CarbonDataUtils.getPrincipalType( document );
 					if( ! type ) return;
 
-					this.renderBasicData( document as BasicCarbonData, type, CarbonDataService.TYPE_CONTAINER.get( type ), "container" );
+					this.renderBasicData( document as BasicCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "container" );
 				}
 			} );
 	}
@@ -203,24 +204,24 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderExistingData():void {
-		this.renderContainer( CarbonDataService.USERS_SLUG, GraphComponent.getContainerName( CarbonDataService.USERS_SLUG ) );
+		this.renderContainer( ContainersData.USERS_SLUG, GraphComponent.getContainerName( ContainersData.USERS_SLUG ) );
 
 		Observable.forkJoin(
 			this.dataService.getUsers()
 				.map( user => this.renderUser( user ) ),
 
-			...Array.from( CarbonDataService.CONTAINER_TYPE.keys() )
+			...Array.from( ContainersData.CONTAINER_TYPE.keys() )
 				.filter( containerSlug =>
-					containerSlug !== CarbonDataService.USERS_SLUG
+					containerSlug !== ContainersData.USERS_SLUG
 				)
 				.map( ( containerSlug ):[ string, Observable<BasicCarbonData[]> ] => {
 					let observable:Observable<BasicCarbonData[]> =
-						containerSlug === CarbonDataService.COUNTRIES_SLUG ? this.dataService.getCountriesData()
+						containerSlug === ContainersData.COUNTRIES_SLUG ? this.dataService.getCountriesData()
 							: this.dataService.getBasicData( containerSlug );
 					return [ containerSlug, observable ];
 				} )
 				.map( ( [ containerSlug, observable ]:[ string, Observable<BasicCarbonData[]> ] ) => observable.map( dataArray =>
-					this.renderContainerData( dataArray, CarbonDataService.CONTAINER_TYPE.get( containerSlug ), containerSlug )
+					this.renderContainerData( dataArray, ContainersData.CONTAINER_TYPE.get( containerSlug ), containerSlug )
 				) )
 		).subscribe(
 			() => {
@@ -239,14 +240,14 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			label: user.nickname,
 			group: VOCAB.User,
 		} );
-		this.renderEdge( CarbonDataService.USERS_SLUG, user.id, "contains" );
+		this.renderEdge( ContainersData.USERS_SLUG, user.id, "contains" );
 		this.renderProperties( user );
 	}
 
 	private _focusOnNode( nodeID:string ):string[] {
 		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
 
-		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) {
+		if( ! ContainersData.CONTAINER_TYPE.has( nodeID ) ) {
 			this.nodes.update( {
 				id: nodeID,
 				value: 35,
@@ -326,14 +327,14 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	private _getRelatedNodes( nodeID:string ):string[] {
 		return ( this.graph.getConnectedNodes( nodeID ) as string[] )
-			.filter( relatedNodeID => ! CarbonDataService.CONTAINER_TYPE.has( relatedNodeID ) );
+			.filter( relatedNodeID => ! ContainersData.CONTAINER_TYPE.has( relatedNodeID ) );
 	}
 
 	private _updateDeselectedNode( nodeID:string ):void {
 		if( ! nodeID ) return;
 
 		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
-		if( ! CarbonDataService.CONTAINER_TYPE.has( nodeID ) ) relatedNodes.push( nodeID );
+		if( ! ContainersData.CONTAINER_TYPE.has( nodeID ) ) relatedNodes.push( nodeID );
 
 		relatedNodes.forEach( relatedNodeID => {
 			this.nodes.update( { id: relatedNodeID, value: 0 } );

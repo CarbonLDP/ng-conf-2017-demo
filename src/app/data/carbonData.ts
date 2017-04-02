@@ -14,8 +14,6 @@ export interface CountryCarbonData extends BasicCarbonData {
 	states?:BasicCarbonData[];
 }
 
-
-
 export class Utils {
 	static getPrincipalType( resource:Resource ):string {
 		return Object.keys( VOCAB )

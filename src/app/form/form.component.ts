@@ -6,6 +6,7 @@ import { MdAutocompleteTrigger, MdDialog } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { SyncService } from "app/data/sync.service";
+import * as ContainersData from "app/data/containersData";
 
 import { BasicCarbonData, CountryCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import { UserTemplate, Factory as UserFactory } from "app/user/userData";
@@ -69,21 +70,21 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 			},
 		};
 
-		this.filteredCities = this.cities = this.dataService.getBasicData( CarbonDataService.CITIES_SLUG );
-		this.filteredCompanies = this.companies = this.dataService.getBasicData( CarbonDataService.COMPANIES_SLUG );
-		this.filteredInstitutes = this.institutes = this.dataService.getBasicData( CarbonDataService.INSTITUTES_SLUG );
+		this.filteredCities = this.cities = this.dataService.getBasicData( ContainersData.CITIES_SLUG );
+		this.filteredCompanies = this.companies = this.dataService.getBasicData( ContainersData.COMPANIES_SLUG );
+		this.filteredInstitutes = this.institutes = this.dataService.getBasicData( ContainersData.INSTITUTES_SLUG );
 
 		this._dynamicProperties = [
-			{ property: "birthCity", containerSlug: CarbonDataService.CITIES_SLUG, observable: this.cities },
-			{ property: "company", containerSlug: CarbonDataService.COMPANIES_SLUG, observable: this.companies },
-			{ property: "institute", containerSlug: CarbonDataService.INSTITUTES_SLUG, observable: this.institutes },
+			{ property: "birthCity", containerSlug: ContainersData.CITIES_SLUG, observable: this.cities },
+			{ property: "company", containerSlug: ContainersData.COMPANIES_SLUG, observable: this.companies },
+			{ property: "institute", containerSlug: ContainersData.INSTITUTES_SLUG, observable: this.institutes },
 		];
 
 		this.countries = this.dataService.getCountriesData();
 
-		this.workLayers = this.dataService.getBasicData( CarbonDataService.WORK_LAYERS_SLUG );
-		this.desktopOSs = this.dataService.getBasicData( CarbonDataService.DESKTOP_OSS_SLUG );
-		this.mobileOSs = this.dataService.getBasicData( CarbonDataService.MOBILE_OSS_SLUG );
+		this.workLayers = this.dataService.getBasicData( ContainersData.WORK_LAYERS_SLUG );
+		this.desktopOSs = this.dataService.getBasicData( ContainersData.DESKTOP_OSS_SLUG );
+		this.mobileOSs = this.dataService.getBasicData( ContainersData.MOBILE_OSS_SLUG );
 
 		this.syncService.openNotificationSender();
 	}
@@ -102,7 +103,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 				}
 
 				const dynamic:DynamicProperty = this._dynamicProperties
-					.find( dynamic => dynamic.containerSlug === CarbonDataService.TYPE_CONTAINER.get( type ) );
+					.find( dynamic => dynamic.containerSlug === ContainersData.TYPE_CONTAINER.get( type ) );
 
 				if( ! dynamic ) {
 					this.dataService.dropData( document );
@@ -203,7 +204,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 			.filter( dynamic => typeof this.newUser[ dynamic.property ] === "string" )
 			.map( dynamic => {
 				let data:RawBasicData = {
-					types: [ CarbonDataService.CONTAINER_TYPE.get( dynamic.containerSlug ) ],
+					types: [ ContainersData.CONTAINER_TYPE.get( dynamic.containerSlug ) ],
 					name: this.newUser[ dynamic.property as string ],
 				};
 				let carbonData:BasicCarbonData = this.dataService.convertBasicData( dynamic.containerSlug, data );

@@ -1,4 +1,5 @@
 import * as VOCAB from "app/ns/vocab";
+import * as ContainersData  from "app/data/containersData";
 
 export interface DefaultElementData {
 	elementSlug?:string;
@@ -17,7 +18,7 @@ export interface DefaultNamedContainer extends DefaultContainerData {
 }
 
 export let defaultUsers:DefaultNamedContainer = {
-	elementSlug: "users/",
+	elementSlug: ContainersData.USERS_SLUG,
 	childTemplate: {
 		types: [ VOCAB.User ],
 	},
@@ -290,7 +291,7 @@ export let defaultUSStates:DefaultElementData[] = [
 ];
 
 export let defaultCountries:DefaultNamedContainer = {
-	elementSlug: "countries/",
+	elementSlug: ContainersData.COUNTRIES_SLUG,
 	childTemplate: {
 		types: [ VOCAB.Country ],
 		hasMemberRelation: "state"
@@ -1509,7 +1510,7 @@ export let defaultCountries:DefaultNamedContainer = {
 };
 
 export let defaultCities:DefaultNamedContainer = {
-	elementSlug: "cities/",
+	elementSlug: ContainersData.CITIES_SLUG,
 	childTemplate: {
 		types: [ VOCAB.City ],
 	},
@@ -1523,7 +1524,7 @@ export let defaultCities:DefaultNamedContainer = {
 };
 
 export let defaultCompanies:DefaultNamedContainer = {
-	elementSlug: "companies/",
+	elementSlug: ContainersData.COMPANIES_SLUG,
 	childTemplate: {
 		types: [ VOCAB.Company ],
 	},
@@ -1547,7 +1548,7 @@ export let defaultCompanies:DefaultNamedContainer = {
 };
 
 export let defaultWorkLayers:DefaultNamedContainer = {
-	elementSlug: "work-layers/",
+	elementSlug: ContainersData.WORK_LAYERS_SLUG,
 	childTemplate: {
 		types: [ VOCAB.WorkLayer ],
 	},
@@ -1571,7 +1572,7 @@ export let defaultWorkLayers:DefaultNamedContainer = {
 };
 
 export let defaultDesktopOSs:DefaultNamedContainer = {
-	elementSlug: "desktop-oss/",
+	elementSlug: ContainersData.DESKTOP_OSS_SLUG,
 	childTemplate: {
 		types: [ VOCAB.DesktopOS ],
 	},
@@ -1595,7 +1596,7 @@ export let defaultDesktopOSs:DefaultNamedContainer = {
 };
 
 export let defaultMobileOSs:DefaultNamedContainer = {
-	elementSlug: "mobile-oss/",
+	elementSlug: ContainersData.MOBILE_OSS_SLUG,
 	childTemplate: {
 		types: [ VOCAB.MobileOS ],
 	},
@@ -1619,7 +1620,7 @@ export let defaultMobileOSs:DefaultNamedContainer = {
 };
 
 export let defaultInstitutes:DefaultNamedContainer = {
-	elementSlug: "institutes/",
+	elementSlug: ContainersData.INSTITUTES_SLUG,
 	childTemplate: {
 		types: [ VOCAB.Institute ],
 	},

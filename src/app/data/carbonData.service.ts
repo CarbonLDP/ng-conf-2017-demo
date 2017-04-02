@@ -15,39 +15,10 @@ import { dataSlug } from "app/utils";
 import { UserTemplate, User } from "app/user/userData";
 import { SyncService } from "app/data/sync.service";
 import * as VOCAB from "app/ns/vocab";
-
+import * as ContainersData from "app/data/containersData";
 
 @Injectable()
 export class CarbonDataService {
-	public static COUNTRIES_SLUG:string = "countries/";
-	public static CITIES_SLUG:string = "cities/";
-	public static COMPANIES_SLUG:string = "companies/";
-	public static INSTITUTES_SLUG:string = "institutes/";
-	public static WORK_LAYERS_SLUG:string = "work-layers/";
-	public static DESKTOP_OSS_SLUG:string = "desktop-oss/";
-	public static MOBILE_OSS_SLUG:string = "mobile-oss/";
-	public static USERS_SLUG:string = "users/";
-
-	public static CONTAINER_TYPE:Map<string, string> = new Map( [
-		[ CarbonDataService.COUNTRIES_SLUG, VOCAB.Country ],
-		[ CarbonDataService.CITIES_SLUG, VOCAB.City ],
-		[ CarbonDataService.COMPANIES_SLUG, VOCAB.Company ],
-		[ CarbonDataService.INSTITUTES_SLUG, VOCAB.Institute ],
-		[ CarbonDataService.WORK_LAYERS_SLUG, VOCAB.WorkLayer ],
-		[ CarbonDataService.DESKTOP_OSS_SLUG, VOCAB.DesktopOS ],
-		[ CarbonDataService.MOBILE_OSS_SLUG, VOCAB.MobileOS ],
-		[ CarbonDataService.USERS_SLUG, VOCAB.User ],
-	] );
-	public static TYPE_CONTAINER:Map<string, string> = new Map( [
-		[ VOCAB.Country, CarbonDataService.COUNTRIES_SLUG ],
-		[ VOCAB.City, CarbonDataService.CITIES_SLUG ],
-		[ VOCAB.Company, CarbonDataService.COMPANIES_SLUG ],
-		[ VOCAB.Institute, CarbonDataService.INSTITUTES_SLUG ],
-		[ VOCAB.WorkLayer, CarbonDataService.WORK_LAYERS_SLUG ],
-		[ VOCAB.DesktopOS, CarbonDataService.DESKTOP_OSS_SLUG ],
-		[ VOCAB.MobileOS, CarbonDataService.MOBILE_OSS_SLUG ],
-		[ VOCAB.User, CarbonDataService.USERS_SLUG ],
-	] );
 
 	constructor( protected appContext:App.Context, protected syncService:SyncService ) {}
 
@@ -58,7 +29,7 @@ export class CarbonDataService {
 
 	getCountriesData():Observable<CountryCarbonData[]> {
 		let promise:Promise<CountryCarbonData[]> = Promise.all( [
-			this._getBasicCarbonData( CarbonDataService.COUNTRIES_SLUG ),
+			this._getBasicCarbonData( ContainersData.COUNTRIES_SLUG ),
 			this._getStatesCarbonData()
 		] ).then( ( [ countriesData ] ) => countriesData );
 
@@ -70,7 +41,7 @@ export class CarbonDataService {
 		return ResourceFactory.createFrom<RawBasicData>(
 			Object.assign( pointer, data ),
 			pointer.id,
-			[ CarbonDataService.CONTAINER_TYPE.get( containerSlug ) ],
+			[ ContainersData.CONTAINER_TYPE.get( containerSlug ) ],
 		);
 	}
 
@@ -131,10 +102,10 @@ export class CarbonDataService {
 
 	private _getStatesCarbonData():Promise<void> {
 		return this.appContext.documents
-			.sparql( CarbonDataService.COUNTRIES_SLUG )
+			.sparql( ContainersData.COUNTRIES_SLUG )
 			.select( "country", "state", "name" )
 			.where( _ => {
-				let container = _.resource( CarbonDataService.COUNTRIES_SLUG );
+				let container = _.resource( ContainersData.COUNTRIES_SLUG );
 				let country = _.var( "country" );
 				let state = _.var( "state" );
 
@@ -181,14 +152,14 @@ export class CarbonDataService {
 
 	private _getUsers():Promise<User[]> {
 		return this.appContext.documents
-			.getChildren<User>( CarbonDataService.USERS_SLUG )
+			.getChildren<User>( ContainersData.USERS_SLUG )
 			.then( ( [ users ]:[ User[], Response ] ) => users );
 	}
 
 	private _createUser( newUser:UserTemplate ):Promise<void> {
 		let slug:string = dataSlug( newUser.nickname );
 		return this.appContext.documents
-			.createChild( CarbonDataService.USERS_SLUG, newUser, slug )
+			.createChild( ContainersData.USERS_SLUG, newUser, slug )
 			.then( ( [ document, ]:[ Pointer, Response ] ) => {
 				this.syncService.notifyDocumentCreation( document );
 			} );
