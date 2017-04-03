@@ -5,9 +5,9 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { MaterialModule } from "@angular/material";
 
-import { CARBON_PROVIDERS } from "angular2-carbonldp/boot";
-import { CARBON_SERVICES_PROVIDERS } from "angular2-carbonldp/services";
-import { AuthenticatedGuard, NotAuthenticatedGuard } from "angular2-carbonldp/guards";
+import { CARBON_PROVIDERS } from "angular-carbonldp/boot";
+import { CARBON_SERVICES_PROVIDERS } from "angular-carbonldp/services";
+import { AuthenticatedGuard, NotAuthenticatedGuard } from "angular-carbonldp/guards";
 
 import { TextMaskModule } from 'angular2-text-mask';
 

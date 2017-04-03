@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { activeContext } from "angular2-carbonldp/boot";
+import { activeContext } from "angular-carbonldp/boot";
 
 @Component( {
 	selector: "app-error",

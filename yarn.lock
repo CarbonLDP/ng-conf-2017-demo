@@ -102,9 +102,9 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
 
-angular2-carbonldp@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/angular2-carbonldp/-/angular2-carbonldp-0.4.2.tgz#c51e1d9b6eab27301fb91e81c15d04d726413bd8"
+angular-carbonldp@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/angular-carbonldp/-/angular-carbonldp-0.9.0.tgz#9f86d2f09733289b0b4231c38270154843376307"
   dependencies:
     js-cookie "^2.1.1"
 
@@ -592,11 +592,12 @@ capture-stack-trace@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/capture-stack-trace/-/capture-stack-trace-1.0.0.tgz#4a6fa07399c26bba47f0b2496b4d0fb408c5550d"
 
-carbonldp@^0.41.0:
-  version "0.41.0"
-  resolved "https://registry.yarnpkg.com/carbonldp/-/carbonldp-0.41.0.tgz#aea209dd699244643e293f5bc65076f322c6b3f8"
+carbonldp@^0.42.0:
+  version "0.42.0"
+  resolved "https://registry.yarnpkg.com/carbonldp/-/carbonldp-0.42.0.tgz#f78bad1009fd8cc6393d2c9992570c21f0394788"
   dependencies:
     file-type "^3.8.0"
+    sparqler "0.1.1"
 
 caseless@~0.11.0:
   version "0.11.0"
@@ -2832,8 +2833,8 @@ js-base64@^2.1.9:
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.1.9.tgz#f0e80ae039a4bd654b5f281fc93f04a914a7fcce"
 
 js-cookie@^2.1.1:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.1.3.tgz#48071625217ac9ecfab8c343a13d42ec09ff0526"
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.1.4.tgz#da4ec503866f149d164cf25f579ef31015025d8d"
 
 js-tokens@^3.0.0:
   version "3.0.1"
@@ -4900,6 +4901,10 @@ source-map@~0.4.1:
 sparkles@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/sparkles/-/sparkles-1.0.0.tgz#1acbbfb592436d10bbe8f785b7cc6f82815012c3"
+
+sparqler@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/sparqler/-/sparqler-0.1.1.tgz#4880f5b9813afe48ebc9b074abfdc66d6a5e39dc"
 
 spdx-correct@~1.0.0:
   version "1.0.2"

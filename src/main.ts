@@ -1,7 +1,7 @@
 import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
 import { enableProdMode, NgModuleRef } from "@angular/core";
 
-import { appInjector, activeContext } from "angular2-carbonldp/boot";
+import { appInjector, activeContext } from "angular-carbonldp/boot";
 import Carbon from "carbonldp/Carbon";
 
 import { PRODUCTION, SECURE, DOMAIN, APP_SLUG, CARBON_USER, CARBON_PASS } from "app/config";
