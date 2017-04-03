@@ -51,13 +51,9 @@ body {
 
 @mixin flex-container {
 	position: relative;
-	display: -webkit-box;
-	display: -ms-flexbox;
 	display: flex;
-	-webkit-box-direction: normal;
 
 	&.full-cover > * {
-		-webkit-box-flex: 1;
 		-ms-flex: 1 1 0;
 		flex: 1 1 0;
 		width: 0;
@@ -66,7 +62,6 @@ body {
 
 .app-row {
 	@include flex-container;
-	-webkit-box-orient: horizontal;
 	-ms-flex-direction: row;
 	flex-direction: row;
 
@@ -77,7 +72,6 @@ body {
 
 .app-column {
 	@include flex-container;
-	-webkit-box-orient: vertical;
 	-ms-flex-direction: column;
 	flex-direction: column;
 }
@@ -201,10 +195,4 @@ md-input-container.ng-dirty.ng-invalid {
 	md-hint {
 		color: map-get($mat-red, 500);
 	}
-}
-
-.cdk-overlay-pane[style*="pointer-events: auto"] {
-	//padding: 100% calc(5em + 24px);
-	//margin: -100% calc(-5em - 24px);
-	//min-width: 100%;
 }
