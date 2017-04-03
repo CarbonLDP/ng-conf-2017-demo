@@ -9,6 +9,7 @@ import { SyncService } from "app/data/sync.service";
 import { BasicCarbonData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import * as VOCAB from "app/ns/vocab";
 import * as ContainersData from "app/data/containersData";
+import { Util as URIUtils } from "carbonldp/RDF/URI";
 
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 import * as Pointer from "carbonldp/Pointer";
@@ -27,6 +28,13 @@ declare module "vis" {
 		mass?:number;
 	}
 }
+
+interface RawGraphData {
+	timesRelated?:number;
+	rendered?:boolean;
+}
+
+interface GraphCarbonData extends BasicCarbonData, RawGraphData {}
 
 const commonIgnoredProperties:string[] = [ "types", "id", "created", "modified", "hasMemberRelation", "member", "contains", "defaultInteractionModel", "accessControlList" ];
 
@@ -49,6 +57,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	isProcessing:boolean;
 	progressMode:string;
 	progressValue:number;
+
+	private renderedContainers:Set<string> = new Set();
 
 	private creationSubscription:Subscription;
 
@@ -179,7 +189,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.creationSubscription = this.syncService.onDocumentCreated()
 			.flatMap( document => this.dataService.resolveDocument( document ) )
-			.subscribe( ( document:ProtectedDocument & ( User | BasicCarbonData ) ) => {
+			.subscribe( ( document:ProtectedDocument & ( User | GraphCarbonData ) ) => {
 				if( document.hasType( VOCAB.User ) ) {
 					this.renderUser( document as User );
 
@@ -188,10 +198,10 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					let ref = setInterval( () => this.graph.fit( { nodes: focusedNodes, animation: false, } ), 1 );
 					setTimeout( () => clearInterval( ref ), 5000 );
 				} else {
-					const type:string = CarbonDataUtils.getPrincipalType( document );
+					const type:string = CarbonDataUtils.getMainType( document as GraphCarbonData );
 					if( ! type ) return;
 
-					this.renderBasicData( document as BasicCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "container" );
+					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "container" );
 				}
 			} );
 	}
@@ -236,7 +246,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					edges: this.edges,
 				} );
 			},
-			error => console.log( error ),
+			error => console.error( error ),
 		);
 	}
 
@@ -277,7 +287,12 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		return relatedNodes;
 	}
 
-	private renderBasicData( basicData:BasicCarbonData, group:string, container:string, edgeName:string ) {
+	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName:string ):void {
+		basicData.timesRelated = (basicData.timesRelated || 0);
+		if( edgeName !== "contains" ) ++ basicData.timesRelated;
+		if( basicData.timesRelated < 2 ) return;
+
+		basicData.rendered = true;
 		this.nodes.add( {
 			id: basicData.id,
 			label: basicData.name,
@@ -285,6 +300,11 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} );
 		this.renderEdge( container, basicData.id, edgeName );
 		this.renderProperties( basicData );
+
+		if( edgeName === "contains" && ! this.renderedContainers.has( container ) ) {
+			this.renderedContainers.add( container );
+			this.renderContainer( container, GraphComponent.getContainerName( container ) );
+		}
 	}
 
 	private renderEdge( from:string, to:string, label:string ):void {
@@ -304,9 +324,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} );
 	}
 
-	private renderContainerData( dataArray:BasicCarbonData[], group:string, containerSlug:string ):void {
-		this.renderContainer( containerSlug, GraphComponent.getContainerName( containerSlug ) );
-
+	private renderContainerData( dataArray:GraphCarbonData[], group:string, containerSlug:string ):void {
 		dataArray.forEach( data => this.renderBasicData( data, group, containerSlug, "contains" ) );
 	}
 
@@ -318,15 +336,26 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		Object.keys( pointer )
 			.filter( key => commonIgnoredProperties.indexOf( key ) === - 1 )
 			.map( key => [ key, Array.isArray( pointer[ key ] ) ? pointer[ key ] : [ pointer[ key ] ] ] )
-			.forEach( ( [ key, dataArray ]:[ string, (any | Resource.Class)[] ] ) => {
+			.forEach( ( [ key, dataArray ]:[ string, (any | Pointer.Class)[] ] ) => {
 				dataArray
 					.filter( data => Pointer.Factory.is( data ) )
-					.forEach( ( data:Resource.Class ) => {
-						if( data.id.startsWith( pointer.id ) ) {
-							this.renderBasicData( data as BasicCarbonData, CarbonDataUtils.getPrincipalType( data ), pointer.id, key );
-						} else {
+					.forEach( ( data:Pointer.Class & RawGraphData ) => {
+						data.timesRelated = (data.timesRelated || 0) + 1;
+
+						if( data.rendered || ! Resource.Factory.is( data ) ) {
 							this.renderEdge( pointer.id, data.id, key );
+							return;
 						}
+						const graphData:GraphCarbonData = data as GraphCarbonData;
+						const type:string = CarbonDataUtils.getMainType( graphData );
+						let container:string = pointer.id;
+
+						if( ! URIUtils.isBaseOf( pointer.id, data.id ) ) {
+							this.renderEdge( pointer.id, data.id, key );
+							container = ContainersData.TYPE_CONTAINER.get( type );
+							key = "contains";
+						}
+						this.renderBasicData( data as GraphCarbonData, type, container, key );
 					} );
 			} );
 	}

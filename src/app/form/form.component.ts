@@ -98,7 +98,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.newDocumentsSubscription = this.syncService.onDocumentCreated()
 			.flatMap( document => this.dataService.resolveDocument( document ) )
 			.subscribe( ( document:ProtectedDocument & BasicCarbonData ) => {
-				const type:string = CarbonDataUtils.getPrincipalType( document );
+				const type:string = CarbonDataUtils.getMainType( document );
 				if( ! type ) {
 					this.dataService.dropData( document );
 					return;

@@ -39,11 +39,14 @@ export class CarbonDataService {
 
 	convertBasicData( containerSlug:string, data:RawBasicData ):BasicCarbonData {
 		let pointer:Pointer = this.appContext.documents.getPointer( containerSlug + dataSlug( data.name ) );
-		return ResourceFactory.createFrom<RawBasicData>(
+
+		const basicData:BasicCarbonData = PersistedDocumentFactory.decorate<RawBasicData>(
 			Object.assign( pointer, data ),
-			pointer.id,
-			[ ContainersData.CONTAINER_TYPE.get( containerSlug ) ],
+			this.appContext.documents,
 		);
+		basicData.addType( ContainersData.CONTAINER_TYPE.get( containerSlug ) );
+
+		return basicData;
 	}
 
 	saveBasicData( containerSlug:string, data:BasicCarbonData ):Observable<void> {
@@ -90,13 +93,14 @@ export class CarbonDataService {
 			.then( ( [ _results ]:[ SELECTResults, Response ] ) => {
 				return _results.bindings.map( binding => {
 					let data:BasicCarbonData = binding[ "child" ] as any;
-					data.name = binding[ "name" ] as string;
+					const type:string = ( binding[ "type" ] as Pointer ).id;
 					if( ! data.types ) {
-						ResourceFactory.createFrom<RawBasicData>( data, data.id, [ binding[ "type" ] as string ] );
+						PersistedDocumentFactory.decorate<RawBasicData>( data, this.appContext.documents );
+						data.addType( type );
+						data.name = binding[ "name" ] as string;
 						return data;
-					} else {
-						data.addType( binding[ "type" ] as string );
 					}
+					data.addType( type );
 				} ).filter( data => ! ! data );
 			} );
 	}
@@ -120,10 +124,10 @@ export class CarbonDataService {
 			.execute()
 			.then( ( [ _results ]:[ SELECTResults, Response ] ) => {
 				_results.bindings.map( binding => {
-					let countryData:CountryCarbonData = binding[ "country" ] as any;
+					const countryData:CountryCarbonData = binding[ "country" ] as any;
 					if( ! countryData.states ) countryData.states = [];
 
-					let stateData:BasicCarbonData = ResourceFactory.createFrom<RawBasicData>( binding[ "state" ] as any );
+					const stateData:BasicCarbonData = PersistedDocumentFactory.decorate<RawBasicData>( binding[ "state" ] as any, this.appContext.documents );
 					stateData.name = binding[ "name" ] as string;
 					stateData.addType( VOCAB.State );
 					countryData.states.push( stateData );
