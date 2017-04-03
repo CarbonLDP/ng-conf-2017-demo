@@ -329,7 +329,14 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private static getContainerName( containerSlug:string ):string {
-		return containerSlug.charAt( 0 ).toUpperCase() + containerSlug.slice( 1, - 1 );
+		return containerSlug
+			.split( "-" )
+			.map( part => {
+				if( part.startsWith( "os" ) ) return part.slice( 0, 2 ).toUpperCase() + part.slice( 2 );
+				return part.charAt( 0 ).toUpperCase() + part.slice( 1 )
+			} )
+			.join( " " )
+			.slice( 0, - 1 );
 	}
 
 	private renderProperties( pointer:Pointer.Class ):void {
@@ -340,8 +347,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				dataArray
 					.filter( data => Pointer.Factory.is( data ) )
 					.forEach( ( data:Pointer.Class & RawGraphData ) => {
-						data.timesRelated = (data.timesRelated || 0) + 1;
-
 						if( data.rendered || ! Resource.Factory.is( data ) ) {
 							this.renderEdge( pointer.id, data.id, key );
 							return;
@@ -351,6 +356,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 						let container:string = pointer.id;
 
 						if( ! URIUtils.isBaseOf( pointer.id, data.id ) ) {
+							data.timesRelated = (data.timesRelated || 0) + 1;
 							this.renderEdge( pointer.id, data.id, key );
 							container = ContainersData.TYPE_CONTAINER.get( type );
 							key = "contains";

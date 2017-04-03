@@ -54,7 +54,7 @@
 					</md-option>
 				</md-select>
 				<md-input-container>
-					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity" #birthCityElement (ngModelChange)="autoCompleteChange($event, 'birthCity', birthCityElement)" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels($event)">
+					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity" #birthCityElement (ngModelChange)="autoCompleteChange($event, 'birthCity', birthCityElement)" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels()">
 				</md-input-container>
 			</div>
 			<md-autocomplete #autoCities="mdAutocomplete" [displayWith]="displayDataName">

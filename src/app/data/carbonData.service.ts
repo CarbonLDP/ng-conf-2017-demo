@@ -1,11 +1,10 @@
 import * as App from "carbonldp/App";
 import { Class as Pointer } from "carbonldp/Pointer";
-import { Factory as ResourceFactory } from "carbonldp/Resource";
 import { Class as Response } from "carbonldp/HTTP/Response";
 import { Class as SELECTResults } from "carbonldp/SPARQL/SELECTResults";
 import { Class as HTTPError } from "carbonldp/HTTP/Errors/HTTPError";
 import { Class as ProtectedDocument }  from "carbonldp/ProtectedDocument";
-import { Factory as PersistedDocumentFactory } from "carbonldp/PersistedDocument";
+import * as PersistedDocument from "carbonldp/PersistedDocument";
 
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -37,20 +36,8 @@ export class CarbonDataService {
 		return Observable.fromPromise( promise );
 	}
 
-	convertBasicData( containerSlug:string, data:RawBasicData ):BasicCarbonData {
-		let pointer:Pointer = this.appContext.documents.getPointer( containerSlug + dataSlug( data.name ) );
-
-		const basicData:BasicCarbonData = PersistedDocumentFactory.decorate<RawBasicData>(
-			Object.assign( pointer, data ),
-			this.appContext.documents,
-		);
-		basicData.addType( ContainersData.CONTAINER_TYPE.get( containerSlug ) );
-
-		return basicData;
-	}
-
-	saveBasicData( containerSlug:string, data:BasicCarbonData ):Observable<void> {
-		let promise:Promise<void> = this._saveBasicCarbonData( containerSlug, data );
+	saveBasicData( containerSlug:string, data:RawBasicData ):Observable<BasicCarbonData> {
+		let promise:Promise<BasicCarbonData> = this._saveBasicCarbonData( containerSlug, data );
 		return Observable.fromPromise( promise );
 	}
 
@@ -95,7 +82,7 @@ export class CarbonDataService {
 					let data:BasicCarbonData = binding[ "child" ] as any;
 					const type:string = ( binding[ "type" ] as Pointer ).id;
 					if( ! data.types ) {
-						PersistedDocumentFactory.decorate<RawBasicData>( data, this.appContext.documents );
+						PersistedDocument.Factory.decorate<RawBasicData>( data, this.appContext.documents );
 						data.addType( type );
 						data.name = binding[ "name" ] as string;
 						return data;
@@ -127,7 +114,7 @@ export class CarbonDataService {
 					const countryData:CountryCarbonData = binding[ "country" ] as any;
 					if( ! countryData.states ) countryData.states = [];
 
-					const stateData:BasicCarbonData = PersistedDocumentFactory.decorate<RawBasicData>( binding[ "state" ] as any, this.appContext.documents );
+					const stateData:BasicCarbonData = PersistedDocument.Factory.decorate<RawBasicData>( binding[ "state" ] as any, this.appContext.documents );
 					stateData.name = binding[ "name" ] as string;
 					stateData.addType( VOCAB.State );
 					countryData.states.push( stateData );
@@ -137,17 +124,24 @@ export class CarbonDataService {
 			} );
 	}
 
-	private _saveBasicCarbonData( containerSlug:string, data:BasicCarbonData ):Promise<void> {
-		if( PersistedDocumentFactory.is( data ) ) return Promise.resolve();
+	private _saveBasicCarbonData( containerSlug:string, data:RawBasicData ):Promise<BasicCarbonData> {
+		if( PersistedDocument.Factory.is( data ) ) return Promise.resolve( data );
 
 		let slug:string = dataSlug( data.name );
 		return this.appContext.documents
-			.createChild( containerSlug, data, slug )
-			.then( ( [ document ]:[ Pointer, Response ] ) => {
+			.createChild<RawBasicData>( containerSlug, data, slug )
+			.then( ( [ document ]:[ BasicCarbonData, Response ] ) => {
 				this.syncService.notifyDocumentCreation( document );
+				return document;
 			} )
 			.catch( ( error:HTTPError ) => {
 				if( error.statusCode !== 409 ) return Promise.reject( error );
+
+				const document:PersistedDocument.Class = PersistedDocument.Factory.decorate(
+					this.appContext.documents.getPointer( slug ),
+					this.appContext.documents,
+				);
+				return Object.assign( document, data );
 			} );
 	}
 

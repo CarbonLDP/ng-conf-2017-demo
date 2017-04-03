@@ -65,8 +65,9 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.masks = {
 			nickname: ( val:string ) => {
 				let match:string[] = val.match( /[A-Za-z\d\-]/g );
-				let length:number = match ? match.length : 0;
-				return new Array( length ).fill( /[A-Za-z\d\-]/ );
+
+				if( ! match ) return [];
+				return new Array( match.length ).fill( /[A-Za-z\d\-]/ );
 			},
 		};
 
@@ -116,7 +117,6 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngOnDestroy():void {
-		console.log( "Form closed" );
 		this.syncService.closeNotificationSender();
 		this.newDocumentsSubscription.unsubscribe();
 	}
@@ -181,7 +181,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 		return this.autoCompleteTriggers.reduce( ( isOpen:boolean, trigger:MdAutocompleteTrigger ) => isOpen || trigger.panelOpen && ! ! trigger.activeOption, false )
 	}
 
-	private closeAutoCompletePanels( $event:KeyboardEvent ) {
+	closeAutoCompletePanels() {
 		this.autoCompleteTriggers.forEach( trigger => trigger.closePanel() );
 	}
 
@@ -211,12 +211,11 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 					types: [ ContainersData.CONTAINER_TYPE.get( dynamic.containerSlug ) ],
 					name: this.newUser[ dynamic.property as string ],
 				};
-				let carbonData:BasicCarbonData = this.dataService.convertBasicData( dynamic.containerSlug, data );
-				this.newUser[ dynamic.property ] = carbonData;
-
-				this._addDynamicData( dynamic, carbonData );
-
-				return this.dataService.saveBasicData( dynamic.containerSlug, carbonData );
+				return this.dataService.saveBasicData( dynamic.containerSlug, data )
+					.map( ( carbonData ) => {
+						this.newUser[ dynamic.property ] = carbonData;
+						this._addDynamicData( dynamic, carbonData );
+					} );
 			} );
 
 		Observable.forkJoin( ...savingDynamicData, Promise.resolve() ).flatMap( () => {
