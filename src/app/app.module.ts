@@ -3,6 +3,7 @@ import { FormsModule }   from '@angular/forms';
 import { BrowserModule }  from "@angular/platform-browser";
 import { RouterModule, Routes } from "@angular/router";
 
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MaterialModule } from "@angular/material";
 
 import { CARBON_PROVIDERS } from "angular-carbonldp/boot";
@@ -57,6 +58,7 @@ const appRoutes:Routes = [
 @NgModule( {
 	imports: [
 		MaterialModule,
+		BrowserAnimationsModule,
 		BrowserModule,
 		FormsModule,
 		RouterModule.forRoot( appRoutes ),

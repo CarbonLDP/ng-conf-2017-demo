@@ -21,4 +21,8 @@ export class Utils {
 			.map( key => VOCAB[ key ] )
 			.find( type => resource.hasType( type ) );
 	}
+
+	static getParentID( data:BasicCarbonData ):string {
+		return data.id.split( "/" ).slice( 0, -2 ).join( "/" ) + "/";
+	}
 }

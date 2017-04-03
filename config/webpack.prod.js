@@ -25,7 +25,11 @@ module.exports = function( env ) {
 			rules: [
 				{
 					test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
-					loaders: "image-webpack-loader"
+					loaders: {
+						loader: "image-webpack-loader",
+						// tcoopman/image-webpack-loader#88
+						options: {},
+					},
 				}
 			]
 		},

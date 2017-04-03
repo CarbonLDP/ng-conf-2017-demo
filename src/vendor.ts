@@ -10,9 +10,7 @@
 // import "rxjs";
 
 // Material Angular
-import "@angular/material";
 import "./styles/matherial-theme.scss";
-import "hammerjs";
 
 // JQuery
 // import "jquery";

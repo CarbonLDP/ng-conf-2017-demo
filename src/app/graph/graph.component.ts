@@ -178,11 +178,19 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.progressValue = params.iterations / params.total * 100;
 		} );
 
+		let selectedNode:string;
 		this.graph.on( "selectNode", ( params:Properties ) => {
-			this._focusOnNode( params.nodes[ 0 ] );
+			selectedNode = params.nodes[ 0 ];
+			this._focusOnNode( selectedNode );
 		} );
 		this.graph.on( "deselectNode", ( params:Properties ):void => {
 			if( params.previousSelection ) this._updateDeselectedNode( params.previousSelection.nodes[ 0 ] );
+		} );
+		this.graph.on( "dragStart", ( params:Properties ):void => {
+			if( selectedNode && selectedNode !== params.nodes[ 0 ] ) {
+				this._updateDeselectedNode( selectedNode );
+				selectedNode = null;
+			}
 		} );
 
 		this.renderExistingData();
@@ -289,7 +297,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName:string ):void {
 		basicData.timesRelated = (basicData.timesRelated || 0);
-		if( edgeName !== "contains" ) ++ basicData.timesRelated;
+		if( edgeName !== "contains" && edgeName !== "states" ) ++ basicData.timesRelated;
 		if( basicData.timesRelated < 2 ) return;
 
 		basicData.rendered = true;
@@ -308,7 +316,10 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderEdge( from:string, to:string, label:string ):void {
+		if( this.edges.get( from + to ) ) return;
+
 		this.edges.add( {
+			id: from + to,
 			from,
 			to,
 			label,
@@ -348,6 +359,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					.filter( data => Pointer.Factory.is( data ) )
 					.forEach( ( data:Pointer.Class & RawGraphData ) => {
 						if( data.rendered || ! Resource.Factory.is( data ) ) {
+							data.timesRelated = (data.timesRelated || 0) + 1;
 							this.renderEdge( pointer.id, data.id, key );
 							return;
 						}
@@ -355,13 +367,19 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 						const type:string = CarbonDataUtils.getMainType( graphData );
 						let container:string = pointer.id;
 
-						if( ! URIUtils.isBaseOf( pointer.id, data.id ) ) {
-							data.timesRelated = (data.timesRelated || 0) + 1;
-							this.renderEdge( pointer.id, data.id, key );
+						if( ! URIUtils.isBaseOf( pointer.id, graphData.id ) ) {
+							graphData.timesRelated = (graphData.timesRelated || 0) + 1;
+							this.renderEdge( pointer.id, graphData.id, key );
 							container = ContainersData.TYPE_CONTAINER.get( type );
 							key = "contains";
+
+							if( ! container ) {
+								// TODO: Make generic
+								container = CarbonDataUtils.getParentID( graphData );
+								key = "states";
+							}
 						}
-						this.renderBasicData( data as GraphCarbonData, type, container, key );
+						this.renderBasicData( graphData, type, container, key );
 					} );
 			} );
 	}
