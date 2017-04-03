@@ -32,6 +32,7 @@ let argv = yargs
 		"ws_host": "Domain of the web socket server",
 		"ws_ssl": "If the server is under a secure connection or not",
 		"inject": "Creates the number of users specified",
+		"inject-time": "Time in milliseconds, to wait between every new user creation",
 		"built": "Omits the building of the entire application an its default data. To be used when the application already exists and only want to inject test data",
 	} )
 	.boolean( [
@@ -40,7 +41,8 @@ let argv = yargs
 		"built",
 	] )
 	.number( [
-		"inject"
+		"inject",
+		"inject-time",
 	] )
 	.alias( {
 		"h": "help",
@@ -51,6 +53,7 @@ let argv = yargs
 		"pass": "password",
 		"c": "clean",
 		"i": "inject",
+		"t": "inject-time",
 		"b": "built",
 	} )
 	.default( {
@@ -61,6 +64,7 @@ let argv = yargs
 		"pass": CARBON_ENV.pass,
 		"ws_host": WS_ENV.host,
 		"ws_ssl": WS_ENV.ssl,
+		"inject-time": 5000,
 		"built": false,
 	} )
 	.help()
@@ -76,4 +80,5 @@ export const CARBON_PASS:string = argv.pass;
 
 export const WS_HOST:string = argv[ "ws_host" ];
 export const INJECT:number = argv.inject;
+export const INJECT_TIME:number = argv[ "inject-time" ];
 export const NO_BUILD:boolean = argv[ "built" ];

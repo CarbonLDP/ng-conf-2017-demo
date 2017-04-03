@@ -1,8 +1,9 @@
-import { DefaultContainerData, DefaultElementData } from "script/default-data";
+import { DefaultBasicData, DefaultContainerData, DefaultElementData, DefaultUserData } from "script/default-data";
 import { dataSlug } from "app/utils";
 
 export function elementSlug( element:DefaultElementData ):string {
-	return dataSlug( element.data.name );
+	const slugName:string = (element.data as DefaultBasicData).name || (element.data as DefaultUserData).username;
+	return dataSlug( slugName );
 }
 
 export function extractElementsData( container:DefaultContainerData ):Object[] {

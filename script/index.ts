@@ -7,7 +7,7 @@ import Response from "carbonldp/HTTP/Response";
 const WebSocket = require( "ws" );
 import { Observable } from "rxjs";
 
-import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS, WS_HOST, NO_BUILD, INJECT } from "script/config";
+import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS, WS_HOST, NO_BUILD, INJECT, INJECT_TIME } from "script/config";
 import { elementSlug, extractElementsData } from "script/utils";
 import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultNamedContainer } from "script/default-data";
 
@@ -214,7 +214,7 @@ async function createUsers():Promise<void> {
 		await appContext.documents.createChild( "users/", user );
 		spinner.succeed( `\tUser "${ (<any> user).id }" created` );
 		socket.next( JSON.stringify( DocumentEventFactory.create( DEMO.DocumentCreated, <any> user ) ) );
-		await Observable.timer( 10000 ).toPromise();
+		await Observable.timer( INJECT_TIME ).toPromise();
 	}
 
 	ora( `Finished` ).stopAndPersist();

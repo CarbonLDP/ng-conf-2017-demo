@@ -209,7 +209,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					const type:string = CarbonDataUtils.getMainType( document as GraphCarbonData );
 					if( ! type ) return;
 
-					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "container" );
+					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "contains" );
 				}
 			} );
 	}
@@ -232,7 +232,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		Observable.forkJoin(
 			this.dataService.getUsers()
-				.map( user => this.renderUser( user ) ),
+				.map( user => this.renderUser( user ) )
+				.defaultIfEmpty(),
 
 			...Array.from( ContainersData.CONTAINER_TYPE.keys() )
 				.filter( containerSlug =>

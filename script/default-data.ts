@@ -1,11 +1,19 @@
 import * as VOCAB from "app/ns/vocab";
 import * as ContainersData  from "app/data/containersData";
 
+export interface DefaultBasicData {
+	name:string;
+}
+
+export interface DefaultUserData {
+	username:string;
+}
+
+export type DefaultData = DefaultBasicData | DefaultUserData;
+
 export interface DefaultElementData {
 	elementSlug?:string;
-	data?:{
-		name:string;
-	};
+	data?:DefaultData;
 }
 
 export interface DefaultContainerData extends DefaultElementData {
