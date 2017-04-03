@@ -9,7 +9,7 @@ import { SyncService } from "app/data/sync.service";
 import * as ContainersData from "app/data/containersData";
 
 import { BasicCarbonData, CountryCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
-import { UserTemplate, Factory as UserFactory } from "app/user/userData";
+import { UserTemplate, Factory as UserFactory } from "app/data/userData";
 import { SuccessDialog } from "app/form/dialogs/successDialog.component";
 
 import 'rxjs/operator/finally';
@@ -78,6 +78,8 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 			{ property: "birthCity", containerSlug: ContainersData.CITIES_SLUG, observable: this.cities },
 			{ property: "company", containerSlug: ContainersData.COMPANIES_SLUG, observable: this.companies },
 			{ property: "institute", containerSlug: ContainersData.INSTITUTES_SLUG, observable: this.institutes },
+			{ property: "birthDate", containerSlug: ContainersData.BIRTH_DATE },
+			{ property: "birthday", containerSlug: ContainersData.BIRTHDAY },
 		];
 
 		this.countries = this.dataService.getCountriesData();
@@ -195,8 +197,10 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	onSubmit():void {
-		if( this._isValidBirthDate() )
-			this.newUser.birthDate = new Date( this.birthDate.year, this.birthDate.month, this.birthDate.day, 0, 0, 0, 0 );
+		if( this._isValidBirthDate() ) {
+			this.newUser.birthDate = `${ this.birthDate.year }/${ this.birthDate.month + 1 }/${this.birthDate.day}`;
+			this.newUser.birthday = `${ this.birthDate.month + 1 }/${this.birthDate.day}`;
+		}
 
 		this._cleanNewUser();
 
@@ -246,18 +250,20 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 		}
 	}
 
-	private _addDynamicData( dynamicProperty:DynamicProperty, carbonData:BasicCarbonData ) {
+	private _addDynamicData( dynamicProperty:DynamicProperty, carbonData:BasicCarbonData ):void {
+		if( ! dynamicProperty.observable ) return;
+
 		dynamicProperty.observable.value.push( carbonData );
 		dynamicProperty.observable.value.sort( ( data1:BasicCarbonData, data2:BasicCarbonData ) => data1.name.localeCompare( data2.name ) );
-		this.autoCompleteChange( this.newUser[ dynamicProperty.property ], dynamicProperty.property );
+		this.autoCompleteChange( this.newUser[ dynamicProperty.property ], dynamicProperty.property as "birthCity" | "company" | "institute" );
 	}
 
 }
 
 interface DynamicProperty {
-	property:"birthCity" | "company" | "institute";
+	property:"birthCity" | "company" | "institute" | "birthDate" | "birthday" ;
 	containerSlug:string;
-	observable:PromiseObservable<BasicCarbonData[]>;
+	observable?:PromiseObservable<BasicCarbonData[]>;
 }
 
 interface TextMask {

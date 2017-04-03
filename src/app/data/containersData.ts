@@ -20,6 +20,8 @@ export const CONTAINER_TYPE:Map<string, string> = new Map( [
 	[ DESKTOP_OSS_SLUG, VOCAB.DesktopOS ],
 	[ MOBILE_OSS_SLUG, VOCAB.MobileOS ],
 	[ USERS_SLUG, VOCAB.User ],
+	[ BIRTH_DATE, VOCAB.BirthDate ],
+	[ BIRTHDAY, VOCAB.Birthday ],
 ] );
 
 export const TYPE_CONTAINER:Map<string, string> = new Map(

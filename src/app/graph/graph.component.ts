@@ -3,7 +3,7 @@ import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } fr
 import { Network, DataSet, Node, Edge, Options, Properties } from "vis";
 
 import { CarbonDataService } from "app/data/carbonData.service";
-import { User } from "app/user/userData";
+import { User } from "app/data/userData";
 import { Observable, Subscription } from "rxjs";
 import { SyncService } from "app/data/sync.service";
 import { BasicCarbonData, Utils as CarbonDataUtils } from "app/data/carbonData";
@@ -150,6 +150,12 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				},
 				[VOCAB.MobileOS]: {
 					color: "#80cbc4",
+				},
+				[VOCAB.BirthDate]: {
+					color: "#b0bec5",
+				},
+				[VOCAB.Birthday]: {
+					color: "#42a5f5",
 				},
 			},
 		} );

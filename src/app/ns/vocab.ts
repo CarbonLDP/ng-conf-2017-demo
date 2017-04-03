@@ -10,3 +10,5 @@ export const WorkLayer:string = NAMESPACE + "Work-Layer";
 export const DesktopOS:string = NAMESPACE + "Desktop-OS";
 export const MobileOS:string = NAMESPACE + "Mobile-OS";
 export const User:string = NAMESPACE + "User";
+export const BirthDate:string = NAMESPACE + "Birth-Date";
+export const Birthday:string = NAMESPACE + "Birthday";

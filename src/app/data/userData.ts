@@ -6,7 +6,8 @@ import * as VOCAB from "app/ns/vocab";
 export interface UserTemplate {
 	types:string[],
 	nickname?:string;
-	birthDate?:Date;
+	birthDate?:BasicCarbonData | string;
+	birthday?:BasicCarbonData | string;
 	birthCountry?:CountryCarbonData;
 	birthState?:BasicCarbonData;
 	birthCity?:BasicCarbonData | string;
@@ -20,7 +21,8 @@ export interface UserTemplate {
 
 export interface User extends UserTemplate, ProtectedDocument {
 	nickname:string;
-	birthDate?:Date;
+	birthDate?:BasicCarbonData;
+	birthday?:BasicCarbonData;
 	birthCountry?:CountryCarbonData;
 	birthState?:BasicCarbonData;
 	birthCity?:BasicCarbonData;

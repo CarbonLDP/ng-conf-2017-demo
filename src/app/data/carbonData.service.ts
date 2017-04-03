@@ -12,7 +12,7 @@ import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 
 import { BasicCarbonData, RawBasicData, CountryCarbonData } from "app/data/carbonData";
 import { dataSlug } from "app/utils";
-import { UserTemplate, User } from "app/user/userData";
+import { UserTemplate, User } from "app/data/userData";
 import { SyncService } from "app/data/sync.service";
 import * as VOCAB from "app/ns/vocab";
 import * as ContainersData from "app/data/containersData";

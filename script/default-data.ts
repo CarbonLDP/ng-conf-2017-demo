@@ -22,14 +22,7 @@ export let defaultUsers:DefaultNamedContainer = {
 	childTemplate: {
 		types: [ VOCAB.User ],
 	},
-	children: [
-		{
-			data: {
-				name: "Admin",
-				nickname: "admin",
-			}
-		} as DefaultElementData
-	],
+	children: [],
 };
 
 export let defaultUSStates:DefaultElementData[] = [
@@ -1643,6 +1636,22 @@ export let defaultInstitutes:DefaultNamedContainer = {
 	],
 };
 
+export const defaultBirthDates:DefaultNamedContainer = {
+	elementSlug: ContainersData.BIRTH_DATE,
+	childTemplate: {
+		types: [ VOCAB.BirthDate ],
+	},
+	children: [],
+};
+
+export const defaultBirthdays:DefaultNamedContainer = {
+	elementSlug: ContainersData.BIRTHDAY,
+	childTemplate: {
+		types: [ VOCAB.Birthday ],
+	},
+	children: [],
+};
+
 export const DEFAULT_CONTAINERS:DefaultNamedContainer[] = [
 	defaultUsers,
 	defaultCountries,
@@ -1652,4 +1661,6 @@ export const DEFAULT_CONTAINERS:DefaultNamedContainer[] = [
 	defaultDesktopOSs,
 	defaultMobileOSs,
 	defaultInstitutes,
+	defaultBirthDates,
+	defaultBirthdays,
 ];

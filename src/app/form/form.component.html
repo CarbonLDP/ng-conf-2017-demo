@@ -54,7 +54,7 @@
 					</md-option>
 				</md-select>
 				<md-input-container>
-					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity"  #birthCityElement (ngModelChange)="autoCompleteChange($event, 'birthCity', birthCityElement)" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels($event)">
+					<input mdInput type="text" placeholder="City" [(ngModel)]="newUser.birthCity" #birthCityElement (ngModelChange)="autoCompleteChange($event, 'birthCity', birthCityElement)" name="birthCity" [mdAutocomplete]="autoCities" (keydown.enter)="preventSubmit($event)" (keyup.esc)="closeAutoCompletePanels($event)">
 				</md-input-container>
 			</div>
 			<md-autocomplete #autoCities="mdAutocomplete" [displayWith]="displayDataName">
@@ -81,13 +81,13 @@
 			</md-autocomplete>
 
 			<!-- Technical preferences -->
-			<label class="input-label">With which one do you identify the most?</label>
+			<label class="input-label">Which one of the next do you identify the most?</label>
 			<md-radio-group [(ngModel)]="newUser.worksOn" name="layerPreference" class="app-column">
 				<md-radio-button *ngFor="let layer of workLayers | async" [value]="layer">{{ layer.name }}</md-radio-button>
 			</md-radio-group>
 
 			<br>
-			<label class="input-label">Which OS do you prefer?</label>
+			<label class="input-label">Which desktop OS do you prefer?</label>
 			<md-radio-group [(ngModel)]="newUser.desktopOSPreference" name="desktopOSPreference" class="app-column">
 				<md-radio-button *ngFor="let os of desktopOSs | async" [value]="os">{{ os.name }}</md-radio-button>
 			</md-radio-group>
