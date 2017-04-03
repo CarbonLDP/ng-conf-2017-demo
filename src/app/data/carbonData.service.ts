@@ -5,6 +5,7 @@ import { Class as Response } from "carbonldp/HTTP/Response";
 import { Class as SELECTResults } from "carbonldp/SPARQL/SELECTResults";
 import { Class as HTTPError } from "carbonldp/HTTP/Errors/HTTPError";
 import { Class as ProtectedDocument }  from "carbonldp/ProtectedDocument";
+import { Factory as PersistedDocumentFactory } from "carbonldp/PersistedDocument";
 
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -133,6 +134,8 @@ export class CarbonDataService {
 	}
 
 	private _saveBasicCarbonData( containerSlug:string, data:BasicCarbonData ):Promise<void> {
+		if( PersistedDocumentFactory.is( data ) ) return Promise.resolve();
+
 		let slug:string = dataSlug( data.name );
 		return this.appContext.documents
 			.createChild( containerSlug, data, slug )
