@@ -80,10 +80,9 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			},
 			physics: {
 				forceAtlas2Based: {
-					gravitationalConstant: - 50,
-					centralGravity: 0.005,
-					springLength: 180,
-					springConstant: 0.10,
+					gravitationalConstant: - 40,
+					centralGravity: 0.0025,
+					springConstant: 0,
 					avoidOverlap: 0,
 				},
 				maxVelocity: 75,
@@ -120,11 +119,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					to: true,
 				},
 				arrowStrikethrough: false,
-				smooth: {
-					enabled: true,
-					type: "dynamic",
-					roundness: 0.5,
-				},
+				smooth: false,
 				selectionWidth: 5,
 			},
 			groups: {
