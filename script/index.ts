@@ -105,8 +105,8 @@ async function setContainer( parentSlug:string, container:DefaultNamedContainer 
 
 async function setChildren( containerSlug:string, container:DefaultContainerData ):Promise<void> {
 	const allChildren:DefaultData[] = extractElementsData( container );
-	for( let i = 0, length = allChildren.length; i < length; i += 50 ) {
-		const chunkChildren = allChildren.slice( i, i + 50 );
+	for( let i = 0, length = allChildren.length; i < length; i += 25 ) {
+		const chunkChildren = allChildren.slice( i, i + 25 );
 		await appContext.documents.createChildren( containerSlug, chunkChildren, chunkChildren.map( elementDataSlug ) );
 	}
 
