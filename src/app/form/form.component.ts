@@ -198,8 +198,8 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	onSubmit():void {
 		if( this._isValidBirthDate() ) {
-			this.newUser.birthDate = `${ this.birthDate.year }/${ this.birthDate.month + 1 }/${this.birthDate.day}`;
-			this.newUser.birthday = `${ this.birthDate.month + 1 }/${this.birthDate.day}`;
+			this.newUser.birthday = `${ this.monthNames[ this.birthDate.month ] } ${ this.birthDate.day }${ this.birthDate.day === 1 ? "st" : this.birthDate.day === 2 ? "nd" : this.birthDate.day === 3 ? "rd" : "th" }`;
+			this.newUser.birthDate = `${ this.newUser.birthday }, ${ this.birthDate.year }`;
 		}
 
 		this._cleanNewUser();
