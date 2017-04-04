@@ -8,8 +8,8 @@ const WebSocket = require( "ws" );
 import { Observable } from "rxjs";
 
 import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS, WS_HOST, NO_BUILD, INJECT, INJECT_TIME } from "script/config";
-import { elementSlug, extractElementsData } from "script/utils";
-import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultNamedContainer } from "script/default-data";
+import { elementDataSlug, extractElementsData } from "script/utils";
+import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultData, DefaultNamedContainer } from "script/default-data";
 
 import { BasicCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import { DocumentEventFactory } from "app/data/documentEvent";
@@ -96,7 +96,6 @@ async function setContainer( parentSlug:string, container:DefaultNamedContainer 
 		await setChildren( parentSlug + container.elementSlug, container ).then( () => {
 			spinner.succeed( "\t\tChildren created" );
 		}, ( error:Error ) => {
-			console.error( (<any>error).response );
 			spinner.fail( "\t\tChildren creation error: " + error.message );
 		} );
 	} else {
@@ -105,12 +104,17 @@ async function setContainer( parentSlug:string, container:DefaultNamedContainer 
 }
 
 async function setChildren( containerSlug:string, container:DefaultContainerData ):Promise<void> {
-	await appContext.documents.createChildren( containerSlug, extractElementsData( container ), container.children.map( elementSlug ) );
+	const allChildren:DefaultData[] = extractElementsData( container );
+	for( let i = 0, length = allChildren.length; i < length; i += 50 ) {
+		const chunkChildren = allChildren.slice( i, i + 50 );
+		await appContext.documents.createChildren( containerSlug, chunkChildren, chunkChildren.map( elementDataSlug ) );
+	}
+
 	for( let element of container.children ) {
 		if( ! (  "children" in element ) ) continue;
 
 		let childContainer:DefaultContainerData = element as DefaultContainerData;
-		await setChildren( containerSlug + elementSlug( element ), childContainer );
+		await setChildren( containerSlug + elementDataSlug( element.data ), childContainer );
 	}
 }
 
@@ -195,9 +199,9 @@ async function createUsers():Promise<void> {
 			const createNew:boolean = Math.random() * 100 > 75;
 			if( createNew ) {
 				const [ document ] = await appContext.documents.createChild<RawBasicData>( element.container, {
-						types: [ element.type ],
-						name: Math.random().toString( 36 ).slice( 2 )
-					} );
+					types: [ element.type ],
+					name: Math.random().toString( 36 ).slice( 2 )
+				} );
 				ora( `\tCreated document: "${ document.id }"` ).succeed();
 
 				user[ element.label ] = document;
