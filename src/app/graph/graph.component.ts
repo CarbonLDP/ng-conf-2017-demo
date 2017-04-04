@@ -58,8 +58,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	progressMode:string;
 	progressValue:number;
 
-	private renderedContainers:Set<string> = new Set();
-
 	private creationSubscription:Subscription;
 
 	constructor( private dataService:CarbonDataService, private syncService:SyncService ) {}
@@ -123,11 +121,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				selectionWidth: 5,
 			},
 			groups: {
-				[VOCAB.Container]: {
-					color: "#607d8b",
-					shape: "square",
-					size: 50,
-				},
 				[VOCAB.User]: {
 					color: "#ffb74d",
 					shape: "box",
@@ -204,7 +197,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					const type:string = CarbonDataUtils.getMainType( document as GraphCarbonData );
 					if( ! type ) return;
 
-					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "contains" );
+					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ) );
 				}
 			} );
 	}
@@ -223,8 +216,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderExistingData():void {
-		this.renderContainer( ContainersData.USERS_SLUG, GraphComponent.getContainerName( ContainersData.USERS_SLUG ) );
-
 		Observable.forkJoin(
 			this.dataService.getUsers()
 				.map( user => this.renderUser( user ) )
@@ -291,9 +282,9 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		return relatedNodes;
 	}
 
-	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName:string ):void {
+	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName?:string ):void {
 		basicData.timesRelated = (basicData.timesRelated || 0);
-		if( edgeName !== "contains" && edgeName !== "states" ) ++ basicData.timesRelated;
+		if( edgeName && edgeName !== "states" ) ++ basicData.timesRelated;
 		if( basicData.timesRelated < 2 ) return;
 
 		basicData.rendered = true;
@@ -302,13 +293,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			label: basicData.name,
 			group: group,
 		} );
-		this.renderEdge( container, basicData.id, edgeName );
+		if( edgeName ) this.renderEdge( container, basicData.id, edgeName );
 		this.renderProperties( basicData );
-
-		if( edgeName === "contains" && ! this.renderedContainers.has( container ) ) {
-			this.renderedContainers.add( container );
-			this.renderContainer( container, GraphComponent.getContainerName( container ) );
-		}
 	}
 
 	private renderEdge( from:string, to:string, label:string ):void {
@@ -322,28 +308,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} );
 	}
 
-	private renderContainer( id:string, label:string ):void {
-		this.nodes.add( {
-			id: id,
-			label: label,
-			group: VOCAB.Container,
-			size: 50,
-		} );
-	}
-
 	private renderContainerData( dataArray:GraphCarbonData[], group:string, containerSlug:string ):void {
-		dataArray.forEach( data => this.renderBasicData( data, group, containerSlug, "contains" ) );
-	}
-
-	private static getContainerName( containerSlug:string ):string {
-		return containerSlug
-			.split( "-" )
-			.map( part => {
-				if( part.startsWith( "os" ) ) return part.slice( 0, 2 ).toUpperCase() + part.slice( 2 );
-				return part.charAt( 0 ).toUpperCase() + part.slice( 1 )
-			} )
-			.join( " " )
-			.slice( 0, - 1 );
+		dataArray.forEach( data => this.renderBasicData( data, group, containerSlug ) );
 	}
 
 	private renderProperties( pointer:Pointer.Class ):void {
@@ -367,7 +333,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 							graphData.timesRelated = (graphData.timesRelated || 0) + 1;
 							this.renderEdge( pointer.id, graphData.id, key );
 							container = ContainersData.TYPE_CONTAINER.get( type );
-							key = "contains";
+							key = void 0;
 
 							if( ! container ) {
 								// TODO: Make generic
