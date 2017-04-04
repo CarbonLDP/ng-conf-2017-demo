@@ -251,6 +251,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	private _addDynamicData( dynamicProperty:DynamicProperty, carbonData:BasicCarbonData ):void {
 		if( ! dynamicProperty.observable ) return;
+		if( dynamicProperty.observable.value.find( element => element.name === carbonData.name ) ) return;
 
 		dynamicProperty.observable.value.push( carbonData );
 		dynamicProperty.observable.value.sort( ( data1:BasicCarbonData, data2:BasicCarbonData ) => data1.name.localeCompare( data2.name ) );
