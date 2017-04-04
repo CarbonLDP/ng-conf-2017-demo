@@ -138,7 +138,7 @@ export class CarbonDataService {
 				if( error.statusCode !== 409 ) return Promise.reject( error );
 
 				const document:PersistedDocument.Class = PersistedDocument.Factory.decorate(
-					this.appContext.documents.getPointer( slug ),
+					this.appContext.documents.getPointer( containerSlug + slug ),
 					this.appContext.documents,
 				);
 				return Object.assign( document, data );
