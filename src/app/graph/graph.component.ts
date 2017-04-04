@@ -30,7 +30,7 @@ declare module "vis" {
 }
 
 interface RawGraphData {
-	timesRelated?:number;
+	nodesRelated?:(BasicCarbonData | User)[];
 	rendered?:boolean;
 }
 
@@ -283,9 +283,15 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName?:string ):void {
-		basicData.timesRelated = (basicData.timesRelated || 0);
-		if( edgeName && edgeName !== "states" ) ++ basicData.timesRelated;
-		if( basicData.timesRelated < 2 ) return;
+		GraphComponent._decorateGraphCarbonData( basicData );
+		if( edgeName && edgeName !== "states" ) basicData.nodesRelated.push( basicData );
+		if( basicData.nodesRelated.length < 2 ) return;
+		if( group === VOCAB.Birthday && ! basicData.rendered ) {
+			const differentDates:number = (basicData.nodesRelated as User[])
+				.reduce( ( birthDatesSet, user ) => birthDatesSet.add( user.birthDate.id ), new Set<string>() )
+				.size;
+			if( differentDates < 2 ) return;
+		}
 
 		basicData.rendered = true;
 		this.nodes.add( {
@@ -321,7 +327,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					.filter( data => Pointer.Factory.is( data ) )
 					.forEach( ( data:Pointer.Class & RawGraphData ) => {
 						if( data.rendered || ! Resource.Factory.is( data ) ) {
-							data.timesRelated = (data.timesRelated || 0) + 1;
+							GraphComponent._decorateGraphCarbonData( data as GraphCarbonData );
+							data.nodesRelated.push( pointer as GraphCarbonData );
 							this.renderEdge( pointer.id, data.id, key );
 							return;
 						}
@@ -330,7 +337,8 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 						let container:string = pointer.id;
 
 						if( ! URIUtils.isBaseOf( pointer.id, graphData.id ) ) {
-							graphData.timesRelated = (graphData.timesRelated || 0) + 1;
+							GraphComponent._decorateGraphCarbonData( graphData );
+							graphData.nodesRelated.push( pointer as GraphCarbonData );
 							this.renderEdge( pointer.id, graphData.id, key );
 							container = ContainersData.TYPE_CONTAINER.get( type );
 							key = void 0;
@@ -363,4 +371,12 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} )
 	}
 
+	private static _decorateGraphCarbonData( basicData:GraphCarbonData ):void {
+		if( "nodesRelated" in basicData ) return;
+
+		Object.defineProperty( basicData, "nodesRelated", {
+			enumerable: false,
+			value: [],
+		} );
+	}
 }
