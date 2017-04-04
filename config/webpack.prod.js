@@ -7,7 +7,6 @@ const ExtractTextPlugin = require( "extract-text-webpack-plugin" );
 const OptimizeCssAssetsPlugin = require( "optimize-css-assets-webpack-plugin" );
 const commonConfig = require( "./webpack.common.js" );
 const helpers = require( "./helpers" );
-const FaviconsWebpackPlugin = require( "favicons-webpack-plugin" );
 
 
 module.exports = function( env ) {
@@ -60,8 +59,6 @@ module.exports = function( env ) {
 					"ENV": JSON.stringify( ENV ),
 				}
 			} ),
-
-			new FaviconsWebpackPlugin( helpers.root( "src", "favicon.svg" ) ),
 		]
 	} )
 };

@@ -29,8 +29,8 @@ let argv = yargs
 		"user": "Email of your Carbon LDP application manager",
 		"password": "Password of your Carbon LDP application manager",
 		"clean": "If set, the script will reset the application data to its default values",
-		"ws_host": "Domain of the web socket server",
-		"ws_ssl": "If the server is under a secure connection or not",
+		"sync_host": "Domain of the synchronizer server",
+		"sync_ssl": "If the synchronizer server is under a secure connection or not",
 		"inject": "Creates the number of users specified",
 		"inject-time": "Time in milliseconds, to wait between every new user creation",
 		"built": "Omits the building of the entire application an its default data. To be used when the application already exists and only want to inject test data",
@@ -62,8 +62,8 @@ let argv = yargs
 		"slug": CARBON_ENV.slug,
 		"user": CARBON_ENV.user,
 		"pass": CARBON_ENV.pass,
-		"ws_host": WS_ENV.host,
-		"ws_ssl": WS_ENV.ssl,
+		"sync_host": WS_ENV.host,
+		"sync_ssl": WS_ENV.ssl,
 		"inject-time": 5000,
 		"built": false,
 	} )
@@ -78,7 +78,7 @@ export const CLEAN_APP:boolean = ! ! argv.clean;
 export const CARBON_USER:string = argv.user;
 export const CARBON_PASS:string = argv.pass;
 
-export const WS_HOST:string = argv[ "ws_host" ];
+export const WS_HOST:string = argv[ "sync_host" ];
 export const INJECT:number = argv.inject;
 export const INJECT_TIME:number = argv[ "inject-time" ];
 export const NO_BUILD:boolean = argv[ "built" ];

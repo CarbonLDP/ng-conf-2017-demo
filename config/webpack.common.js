@@ -1,6 +1,7 @@
 const webpack = require( "webpack" );
 const HtmlWebpackPlugin = require( "html-webpack-plugin" );
 const ExtractTextPlugin = require( "extract-text-webpack-plugin" );
+const FaviconsWebpackPlugin = require( "favicons-webpack-plugin" );
 const helpers = require( "./helpers" );
 const { TsConfigPathsPlugin } = require( "awesome-typescript-loader" );
 
@@ -34,8 +35,8 @@ module.exports = function( env ) {
 	} catch( error ) {
 		METADATA.WS.host = process.env.WS;
 	}
-	[ "ws_host", "ws_ssl" ].forEach( property => {
-		let actualProperty = property.substr( 3 );
+	[ "sync_host", "sync_ssl" ].forEach( property => {
+		let actualProperty = property.substr( 5 );
 		if( env && env[ property ] ) METADATA.WS[ actualProperty ] = env[ property ];
 	} );
 	METADATA.WS.host = JSON.stringify( ( ! METADATA.WS.host.startsWith( "ws://" ) && ! METADATA.WS.host.startsWith( "wss://" ) ) ?
@@ -147,6 +148,8 @@ module.exports = function( env ) {
 
 			// Ignore node dependencies in Carbon LDP SDK
 			new webpack.IgnorePlugin( /^(http|https|url|file-type)$/, /carbonldp/ ),
+
+			new FaviconsWebpackPlugin( helpers.root( "src", "favicon.svg" ) ),
 		]
 	};
 };

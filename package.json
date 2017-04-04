@@ -6,7 +6,8 @@
     "start": "webpack-dev-server --inline --progress --port 8080",
     "build": "rimraf dist && webpack --config config/webpack.prod.js --progress --profile --bail",
     "script:build": "ts-node -r tsconfig-paths/register ./script/index.ts",
-    "script:clean_build": "ts-node -r tsconfig-paths/register ./script/index.ts --clean"
+    "script:clean_build": "ts-node -r tsconfig-paths/register ./script/index.ts --clean",
+    "sync-server": "npm run start --prefix sync-server/ --"
   },
   "contributors": [
     {

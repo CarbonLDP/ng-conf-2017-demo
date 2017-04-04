@@ -8,15 +8,31 @@ Product Demo for NG-Conf 2017.
 - Make sure you have a running `carbonldp-platform`
 - Prepare the default data by running (modify the command as needed):
 
-	```
-	npm run script:build_app -- \
+	```bash
+	npm run script:build -- \
 		--protocol http \
 		--domain localhost:8083 \
 		--user your@agent-email.com \
-		--password YoURP344word`
+		--pass YoURP344word
 	```
 	
-- Run the application: `npm start`
+- Run the server synchronizer:
+
+	```bash
+	npm run sync-server -- \
+		--port 8090
+	```
+
+- Run the application:
+
+	```bash
+	npm start -- \
+		--env.protocol http \
+		--env.domain localhost:8083 \
+		--env.user your@agent-email.com \
+		--env.pass YoURP344word \
+		--env.sync_host localhost:8090
+	```
 
 ## License
 
