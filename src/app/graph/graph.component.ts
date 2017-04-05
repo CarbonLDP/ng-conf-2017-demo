@@ -33,7 +33,7 @@ declare module "vis" {
 }
 
 interface RawGraphData {
-	nodesRelated?:(BasicCarbonData | User)[];
+	_nodesRelatedFrom?:(BasicCarbonData | User)[];
 	rendered?:boolean;
 }
 
@@ -68,6 +68,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild( "userInput" ) userInput:ElementRef;
 
 	private creationSubscription:Subscription;
+	private fitting:any;
 
 	constructor( private dataService:CarbonDataService, private syncService:SyncService ) {}
 
@@ -209,9 +210,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					this.users.value.sort( ( user1:User, user2:User ) => user1.nickname.localeCompare( user2.nickname ) );
 					this.nicknameChange();
 
-					const focusedNodes:string[] = this._focusOnNode( document.id );
-					let ref = setInterval( () => this.graph.fit( { nodes: focusedNodes, animation: false, } ), 1 );
-					setTimeout( () => clearInterval( ref ), 5000 );
+					this._focusOnNode( document.id, 1000 );
 				} else {
 					const type:string = CarbonDataUtils.getMainType( document as GraphCarbonData );
 					if( ! type ) return;
@@ -315,7 +314,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.renderProperties( user );
 	}
 
-	private _focusOnNode( nodeID:string ):string[] {
+	private _focusOnNode( nodeID:string, waitFor:number = 0 ):string[] {
 		this._updateDeselectedNode( this.graph.getSelectedNodes()[ 0 ] as string );
 		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
 
@@ -335,20 +334,27 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.graph.selectNodes( [ nodeID ] );
 
 		relatedNodes.push( nodeID );
-		this.graph.fit( {
-			nodes: relatedNodes,
-			animation: true,
-		} );
+		if( this.fitting ) {
+			clearTimeout( this.fitting );
+		}
+		this.fitting = setTimeout( () => {
+			// this.graph.stopSimulation();
+			this.graph.fit( {
+				nodes: relatedNodes,
+				animation: false,
+			} )
+		}, waitFor );
+
 
 		return relatedNodes;
 	}
 
 	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName?:string ):void {
 		GraphComponent._decorateGraphCarbonData( basicData );
-		if( edgeName && edgeName !== "states" ) basicData.nodesRelated.push( basicData );
-		if( basicData.nodesRelated.length < 2 ) return;
+		if( edgeName && edgeName !== "states" ) basicData._nodesRelatedFrom.push( basicData );
+		if( basicData._nodesRelatedFrom.length < 2 ) return;
 		if( group === VOCAB.Birthday && ! basicData.rendered ) {
-			const differentDates:number = (basicData.nodesRelated as User[])
+			const differentDates:number = (basicData._nodesRelatedFrom as User[])
 				.reduce( ( birthDatesSet, user ) => birthDatesSet.add( user.birthDate.id ), new Set<string>() )
 				.size;
 			if( differentDates < 2 ) return;
@@ -389,7 +395,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					.forEach( ( data:Pointer.Class & RawGraphData ) => {
 						if( data.rendered || ! Resource.Factory.is( data ) ) {
 							GraphComponent._decorateGraphCarbonData( data as GraphCarbonData );
-							data.nodesRelated.push( pointer as GraphCarbonData );
+							data._nodesRelatedFrom.push( pointer as GraphCarbonData );
 							this.renderEdge( pointer.id, data.id, key );
 							return;
 						}
@@ -399,7 +405,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 
 						if( ! URIUtils.isBaseOf( pointer.id, graphData.id ) ) {
 							GraphComponent._decorateGraphCarbonData( graphData );
-							graphData.nodesRelated.push( pointer as GraphCarbonData );
+							graphData._nodesRelatedFrom.push( pointer as GraphCarbonData );
 							this.renderEdge( pointer.id, graphData.id, key );
 							container = ContainersData.TYPE_CONTAINER.get( type );
 							key = void 0;
@@ -433,9 +439,9 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private static _decorateGraphCarbonData( basicData:GraphCarbonData ):void {
-		if( "nodesRelated" in basicData ) return;
+		if( "_nodesRelatedFrom" in basicData ) return;
 
-		Object.defineProperty( basicData, "nodesRelated", {
+		Object.defineProperty( basicData, "_nodesRelatedFrom", {
 			enumerable: false,
 			value: [],
 		} );
