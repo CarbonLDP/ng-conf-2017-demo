@@ -242,15 +242,15 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	inputUser:string | User;
 
 	nicknameChange():void {
+		if( ! this.inputUser ) {
+			this.filteredUsers = this.users;
+			return;
+		}
+
 		if( typeof this.inputUser !== "string" ) {
 			this._focusOnNode( this.inputUser.id );
 			this.filteredUsers = Observable.from( [ [ this.inputUser ] ] );
 			this.userInput.nativeElement.focus();
-			return;
-		}
-
-		if( ! this.inputUser ) {
-			this.filteredUsers = this.users;
 			return;
 		}
 
