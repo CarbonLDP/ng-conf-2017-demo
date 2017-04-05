@@ -17,6 +17,7 @@ import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 import * as Pointer from "carbonldp/Pointer";
 import * as Resource from "carbonldp/Resource";
 import { Util as URIUtils } from "carbonldp/RDF/URI";
+import { ActivatedRoute } from "@angular/router";
 
 declare module "vis" {
 
@@ -67,10 +68,27 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild( MdAutocompleteTrigger ) autoCompleteUsersTrigger:MdAutocompleteTrigger;
 	@ViewChild( "userInput" ) userInput:ElementRef;
 
+	private renderedContainers:Set<string> = new Set();
+	private showContainers:boolean;
 	private creationSubscription:Subscription;
 	private fitting:any;
 
-	constructor( private dataService:CarbonDataService, private syncService:SyncService ) {}
+	constructor( private route:ActivatedRoute, private dataService:CarbonDataService, private syncService:SyncService ) {}
+
+	ngOnInit():void {
+		this.syncService.openNotificationSender();
+
+		this.isProcessing = true;
+		this.progressMode = "determinate";
+		this.progressValue = 0;
+
+		this.route
+			.queryParams
+			.subscribe( params => {
+				console.log( params );
+				this.showContainers = "showContainers" in params;
+			} );
+	}
 
 	ngAfterViewInit():void {
 		this.nodes = new DataSet<Node>();
@@ -131,6 +149,11 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				selectionWidth: 5,
 			},
 			groups: {
+				[VOCAB.Container]: {
+					color: "#607d8b",
+					shape: "square",
+					size: 50,
+				},
 				[VOCAB.User]: {
 					color: "#ffb74d",
 					shape: "box",
@@ -215,17 +238,9 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					const type:string = CarbonDataUtils.getMainType( document as GraphCarbonData );
 					if( ! type ) return;
 
-					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ) );
+					this.renderBasicData( document as GraphCarbonData, type, ContainersData.TYPE_CONTAINER.get( type ), "contains" );
 				}
 			} );
-	}
-
-	ngOnInit():void {
-		this.syncService.openNotificationSender();
-
-		this.isProcessing = true;
-		this.progressMode = "determinate";
-		this.progressValue = 0;
 	}
 
 	ngOnDestroy():void {
@@ -273,6 +288,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private renderExistingData():void {
+		this.renderContainer( ContainersData.USERS_SLUG, GraphComponent.getContainerName( ContainersData.USERS_SLUG ) );
 		this.filteredUsers = this.users = this.dataService.getUsers() as PromiseObservable<User[]>;
 
 		Observable.forkJoin(
@@ -349,9 +365,9 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		return relatedNodes;
 	}
 
-	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName?:string ):void {
+	private renderBasicData( basicData:GraphCarbonData, group:string, container:string, edgeName:string ):void {
 		GraphComponent._decorateGraphCarbonData( basicData );
-		if( edgeName && edgeName !== "states" ) basicData._nodesRelatedFrom.push( basicData );
+		if( edgeName && edgeName !== "contains" && edgeName !== "states" ) basicData._nodesRelatedFrom.push( basicData );
 		if( basicData._nodesRelatedFrom.length < 2 ) return;
 		if( group === VOCAB.Birthday && ! basicData.rendered ) {
 			const differentDates:number = (basicData._nodesRelatedFrom as User[])
@@ -366,11 +382,17 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			label: basicData.name,
 			group: group,
 		} );
-		if( edgeName ) this.renderEdge( container, basicData.id, edgeName );
+		this.renderEdge( container, basicData.id, edgeName );
 		this.renderProperties( basicData );
+
+		if( edgeName === "contains" && ! this.renderedContainers.has( container ) ) {
+			this.renderedContainers.add( container );
+			this.renderContainer( container, GraphComponent.getContainerName( container ) );
+		}
 	}
 
 	private renderEdge( from:string, to:string, label:string ):void {
+		if( ! this.showContainers && label === "contains" ) return;
 		if( this.edges.get( from + to ) ) return;
 
 		this.edges.add( {
@@ -381,8 +403,29 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		} );
 	}
 
+	private renderContainer( id:string, label:string ):void {
+		if( ! this.showContainers ) return;
+		this.nodes.add( {
+			id: id,
+			label: label,
+			group: VOCAB.Container,
+			size: 50,
+		} );
+	}
+
 	private renderContainerData( dataArray:GraphCarbonData[], group:string, containerSlug:string ):void {
-		dataArray.forEach( data => this.renderBasicData( data, group, containerSlug ) );
+		dataArray.forEach( data => this.renderBasicData( data, group, containerSlug, "contains" ) );
+	}
+
+	private static getContainerName( containerSlug:string ):string {
+		return containerSlug
+			.split( "-" )
+			.map( part => {
+				if( part.startsWith( "os" ) ) return part.slice( 0, 2 ).toUpperCase() + part.slice( 2 );
+				return part.charAt( 0 ).toUpperCase() + part.slice( 1 )
+			} )
+			.join( " " )
+			.slice( 0, - 1 );
 	}
 
 	private renderProperties( pointer:Pointer.Class ):void {
@@ -408,7 +451,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 							graphData._nodesRelatedFrom.push( pointer as GraphCarbonData );
 							this.renderEdge( pointer.id, graphData.id, key );
 							container = ContainersData.TYPE_CONTAINER.get( type );
-							key = void 0;
+							key = "contains";
 
 							if( ! container ) {
 								// TODO: Make generic
