@@ -10,7 +10,7 @@ module.exports = function( env ) {
 
 		output: {
 			path: helpers.root( "dist" ),
-			publicPath: "http://localhost:8080/",
+			publicPath: "http://ng-conf.carbonldp.com:8080/",
 			filename: "[name].js",
 			chunkFilename: "[id].chunk.js"
 		},
@@ -25,7 +25,9 @@ module.exports = function( env ) {
 			compress: true,
 			watchOptions: {
 				poll: 1000,
-			}
+			},
+			// Added so other machines can connect to the server
+			host: "0.0.0.0"
 		}
 	} );
 };

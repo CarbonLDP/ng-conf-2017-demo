@@ -33,6 +33,11 @@ Product Demo for NG-Conf 2017.
 		--env.pass YoURP344word \
 		--env.sync_host localhost:8090
 	```
+	
+### Note
+
+You may need to change the domain used to a different one (maybe even save it under your `hosts` file) so other machines
+are able to display the form/graph.
 
 ## License
 
