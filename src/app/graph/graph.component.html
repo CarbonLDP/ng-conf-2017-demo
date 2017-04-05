@@ -6,3 +6,15 @@
 	</md-progress-circle>
 </div>
 <div class="graph" #graph></div>
+
+<md-card class="mat-elevation-z3" class="search" *ngIf="! isProcessing" [class.panel-open]="isPanelOpen()">
+	<md-input-container floatPlaceholder="never">
+		<md-icon mdPrefix>search</md-icon>
+		<input mdInput placeholder="Nickname" [(ngModel)]="inputUser" (ngModelChange)="nicknameChange()" #userInput name="nickname" [mdAutocomplete]="autoUsers" (keyup.esc)="closePanel()" [class.empty]="! inputUser">
+	</md-input-container>
+	<md-autocomplete #autoUsers="mdAutocomplete" [displayWith]="displayNickname">
+		<md-option *ngFor="let user of filteredUsers| async" [value]="user">
+			{{ user.nickname }}
+		</md-option>
+	</md-autocomplete>
+</md-card>

@@ -1,3 +1,5 @@
+@import "../../styles/variables";
+
 :host {
 	flex: 1 1 auto;
 	height: 100%;
@@ -22,4 +24,72 @@
 		margin: auto;
 		height: 50%;
 	}
+}
+
+// Search box
+.search {
+	position: absolute;
+	top: 29px;
+	right: 29px;
+	z-index: 101;
+	padding: 0;
+	width: 350px;
+	display: flex;
+	-ms-flex-direction: row;
+	flex-direction: row;
+
+	&.panel-open {
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	/deep/ .mat-input-container {
+		width: 100%;
+
+		.mat-input-wrapper {
+			margin: 0;
+
+			.mat-input-prefix {
+				position: relative;
+				top: 7px;
+				padding: 0 5px 0 15px;
+
+				.mat-icon {
+					color: map_get($mat-light-theme-foreground, "icon");
+				}
+			}
+
+			input {
+				position: relative;
+				padding: 17px 15px 13px;
+			}
+
+			input:not(.empty) + .mat-input-placeholder-wrapper > .mat-input-placeholder.mat-float:not(.mat-empty) {
+				display: none;
+			}
+
+			.mat-input-placeholder-wrapper {
+				top: 17px;
+				left: 15px;
+				padding: 0;
+
+				.mat-input-placeholder {
+					transform: none;
+					padding: 0;
+
+					&.mat-focused {
+						color: rgba(0, 0, 0, 0.38);
+					}
+				}
+			}
+
+			.mat-input-underline .mat-input-ripple.mat-focused {
+				transform: scaleY(0);
+			}
+		}
+	}
+}
+
+/deep/ .mat-autocomplete-panel {
+	max-width: none !important;
 }

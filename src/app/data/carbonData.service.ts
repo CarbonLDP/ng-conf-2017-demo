@@ -46,9 +46,9 @@ export class CarbonDataService {
 		return Observable.fromPromise( promise );
 	}
 
-	getUsers():Observable<User> {
+	getUsers():Observable<User[]> {
 		let promise:Promise<User[]> = this._getUsers();
-		return Observable.fromPromise( promise ).mergeMap( user => Observable.from( user ) );
+		return Observable.fromPromise( promise );
 	}
 
 	createUser( newUser:UserTemplate ):Observable<void> {

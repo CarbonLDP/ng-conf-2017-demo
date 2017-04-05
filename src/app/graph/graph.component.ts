@@ -1,19 +1,22 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from "@angular/core";
+import { MdAutocompleteTrigger } from "@angular/material";
+
+import { Observable, Subscription } from "rxjs";
+import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 
 import { Network, DataSet, Node, Edge, Options, Properties } from "vis";
 
 import { CarbonDataService } from "app/data/carbonData.service";
-import { User } from "app/data/userData";
-import { Observable, Subscription } from "rxjs";
 import { SyncService } from "app/data/sync.service";
 import { BasicCarbonData, Utils as CarbonDataUtils } from "app/data/carbonData";
-import * as VOCAB from "app/ns/vocab";
+import { User } from "app/data/userData";
 import * as ContainersData from "app/data/containersData";
-import { Util as URIUtils } from "carbonldp/RDF/URI";
+import * as VOCAB from "app/ns/vocab";
 
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 import * as Pointer from "carbonldp/Pointer";
 import * as Resource from "carbonldp/Resource";
+import { Util as URIUtils } from "carbonldp/RDF/URI";
 
 declare module "vis" {
 
@@ -57,6 +60,12 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	isProcessing:boolean;
 	progressMode:string;
 	progressValue:number;
+
+	users:PromiseObservable<User[]>;
+	filteredUsers:Observable<User[]>;
+
+	@ViewChild( MdAutocompleteTrigger ) autoCompleteUsersTrigger:MdAutocompleteTrigger;
+	@ViewChild( "userInput" ) userInput:ElementRef;
 
 	private creationSubscription:Subscription;
 
@@ -166,6 +175,13 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.progressValue = params.iterations / params.total * 100;
 		} );
 
+		this.graph.on( "click", () => {
+			if( this.autoCompleteUsersTrigger ) {
+				this.autoCompleteUsersTrigger.closePanel();
+				this.userInput.nativeElement.blur();
+			}
+		} );
+
 		let selectedNode:string;
 		this.graph.on( "selectNode", ( params:Properties ) => {
 			selectedNode = params.nodes[ 0 ];
@@ -189,7 +205,10 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				if( document.hasType( VOCAB.User ) ) {
 					this.renderUser( document as User );
 
-					this._updateDeselectedNode( this.graph.getSelectedNodes()[ 0 ] as string );
+					this.users.value.push( document as User );
+					this.users.value.sort( ( user1:User, user2:User ) => user1.nickname.localeCompare( user2.nickname ) );
+					this.nicknameChange();
+
 					const focusedNodes:string[] = this._focusOnNode( document.id );
 					let ref = setInterval( () => this.graph.fit( { nodes: focusedNodes, animation: false, } ), 1 );
 					setTimeout( () => clearInterval( ref ), 5000 );
@@ -215,11 +234,51 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.creationSubscription.unsubscribe();
 	}
 
+	displayNickname( user:User ):string {
+		if( ! user ) return null;
+		return user.nickname;
+	}
+
+	inputUser:string | User;
+
+	nicknameChange():void {
+		if( typeof this.inputUser !== "string" ) {
+			this._focusOnNode( this.inputUser.id );
+			this.filteredUsers = Observable.from( [ [ this.inputUser ] ] );
+			this.userInput.nativeElement.focus();
+			return;
+		}
+
+		if( ! this.inputUser ) {
+			this.filteredUsers = this.users;
+			return;
+		}
+
+		const value:string = (this.inputUser as string).replace( /[^a-zA-Z0-9\- ]/g, "" );
+		if( value !== this.inputUser ) {
+			this.filteredUsers = null;
+			return;
+		}
+
+		const mask:RegExp = new RegExp( value, 'gi' );
+		this.filteredUsers = this.users.map( users => users.filter( user => mask.test( user.nickname ) ) );
+	}
+
+	closePanel():void {
+		this.autoCompleteUsersTrigger.closePanel();
+	}
+
+	isPanelOpen():boolean {
+		if( ! this.autoCompleteUsersTrigger ) return false;
+		return this.autoCompleteUsersTrigger.panelOpen;
+	}
+
 	private renderExistingData():void {
+		this.filteredUsers = this.users = this.dataService.getUsers() as PromiseObservable<User[]>;
+
 		Observable.forkJoin(
-			this.dataService.getUsers()
-				.map( user => this.renderUser( user ) )
-				.defaultIfEmpty(),
+			this.users
+				.map( users => users.forEach( user => this.renderUser( user ) ) ),
 
 			...Array.from( ContainersData.CONTAINER_TYPE.keys() )
 				.filter( containerSlug =>
@@ -236,6 +295,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 				) )
 		).subscribe(
 			() => {
+				this.users.value.sort( ( user1:User, user2:User ) => user1.nickname.localeCompare( user2.nickname ) );
 				this.graph.setData( {
 					nodes: this.nodes,
 					edges: this.edges,
@@ -256,6 +316,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	private _focusOnNode( nodeID:string ):string[] {
+		this._updateDeselectedNode( this.graph.getSelectedNodes()[ 0 ] as string );
 		const relatedNodes:string[] = this._getRelatedNodes( nodeID );
 
 		if( ! ContainersData.CONTAINER_TYPE.has( nodeID ) ) {
