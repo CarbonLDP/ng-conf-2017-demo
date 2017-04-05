@@ -8,14 +8,15 @@ const WebSocket = require( "ws" );
 import { Observable } from "rxjs";
 
 import { SECURE, DOMAIN, APP_SLUG, CLEAN_APP, CARBON_USER, CARBON_PASS, WS_HOST, NO_BUILD, INJECT, INJECT_TIME } from "script/config";
-import { elementDataSlug, extractElementsData } from "script/utils";
-import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultData, DefaultNamedContainer } from "script/default-data";
+import { elementDataSlug, extractData } from "script/utils";
+import { DEFAULT_CONTAINERS, DefaultContainerData, DefaultData, DefaultNamedContainer, DefaultElementData } from "script/default-data";
 
 import { BasicCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import { DocumentEventFactory } from "app/data/documentEvent";
 import * as VOCAB from "app/ns/vocab";
 import * as DEMO from "app/ns/demo";
 import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
+import { exists } from "fs";
 
 const ora = require( "ora" );
 
@@ -91,31 +92,34 @@ async function setContainer( parentSlug:string, container:DefaultNamedContainer 
 		}, ( error:Error ) => {
 			spinner.fail( "\tContainer creation error: " + error.message );
 		} );
-
-		spinner = ora( `\t\tCreating children` ).start();
-		await setChildren( parentSlug + container.elementSlug, container ).then( () => {
-			spinner.succeed( "\t\tChildren created" );
-		}, ( error:Error ) => {
-			spinner.fail( "\t\tChildren creation error: " + error.message );
-		} );
 	} else {
-		spinner.info( "\tContainer already exists" );
+		ora( "\tContainer already exists" ).info();
 	}
+
+	spinner = ora( `\t\tCreating children` ).start();
+	await setChildren( parentSlug + container.elementSlug, container ).then( () => {
+		spinner.succeed( "\t\tChildren created" );
+	}, ( error:Error ) => {
+		console.error( (error as any).response );
+		spinner.fail( "\t\tChildren creation error: " + error.message );
+	} );
 }
 
 async function setChildren( containerSlug:string, container:DefaultContainerData ):Promise<void> {
-	const allChildren:DefaultData[] = extractElementsData( container );
-	for( let i = 0, length = allChildren.length; i < length; i += 25 ) {
-		const chunkChildren = allChildren.slice( i, i + 25 );
-		await appContext.documents.createChildren( containerSlug, chunkChildren, chunkChildren.map( elementDataSlug ) );
-	}
+	await container.children.reduce( ( promise, child ) => {
+		const childSlug:string = elementDataSlug( child.data );
 
-	for( let element of container.children ) {
-		if( ! (  "children" in element ) ) continue;
+		return promise.then( () => {
+			return appContext.documents.exists( containerSlug + childSlug );
+		} ).then( ( [ exists ]:[ boolean, Response ] ):Promise<any> => {
+			if( exists ) return Promise.resolve();
 
-		let childContainer:DefaultContainerData = element as DefaultContainerData;
-		await setChildren( containerSlug + elementDataSlug( element.data ), childContainer );
-	}
+			return appContext.documents.createChild( containerSlug, extractData( container, child ), childSlug );
+		} ).then( () => {
+			if( ! (  "children" in child ) ) return Promise.resolve();
+			return setChildren( containerSlug + childSlug, child as DefaultContainerData );
+		} );
+	}, Promise.resolve() );
 }
 
 async function createUsers():Promise<void> {
