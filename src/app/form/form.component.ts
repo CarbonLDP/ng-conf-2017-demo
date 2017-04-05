@@ -85,10 +85,6 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.countries = this.dataService.getCountriesData();
 
-		this.workLayers = this.dataService.getBasicData( ContainersData.WORK_LAYERS_SLUG );
-		this.desktopOSs = this.dataService.getBasicData( ContainersData.DESKTOP_OSS_SLUG );
-		this.mobileOSs = this.dataService.getBasicData( ContainersData.MOBILE_OSS_SLUG );
-
 		this.syncService.openNotificationSender();
 	}
 

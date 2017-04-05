@@ -79,24 +79,6 @@
 					{{ company.name }}
 				</md-option>
 			</md-autocomplete>
-
-			<!-- Technical preferences -->
-			<label class="input-label">Which one of the next do you identify the most?</label>
-			<md-radio-group [(ngModel)]="newUser.worksOn" name="layerPreference" class="app-column">
-				<md-radio-button *ngFor="let layer of workLayers | async" [value]="layer">{{ layer.name }}</md-radio-button>
-			</md-radio-group>
-
-			<br>
-			<label class="input-label">Which desktop OS do you prefer?</label>
-			<md-radio-group [(ngModel)]="newUser.desktopOSPreference" name="desktopOSPreference" class="app-column">
-				<md-radio-button *ngFor="let os of desktopOSs | async" [value]="os">{{ os.name }}</md-radio-button>
-			</md-radio-group>
-
-			<br>
-			<label class="input-label">Which mobile OS do you prefer?</label>
-			<md-radio-group [(ngModel)]="newUser.mobileOSPreference" name="mobileOSPreference" class="app-column">
-				<md-radio-button *ngFor="let os of mobileOSs | async" [value]="os">{{ os.name }}</md-radio-button>
-			</md-radio-group>
 		</md-card-content>
 	</md-card>
 

@@ -1548,78 +1548,6 @@ export let defaultCompanies:DefaultNamedContainer = {
 	],
 };
 
-export let defaultWorkLayers:DefaultNamedContainer = {
-	elementSlug: ContainersData.WORK_LAYERS_SLUG,
-	childTemplate: {
-		types: [ VOCAB.WorkLayer ],
-	},
-	children: [
-		{
-			data: {
-				name: "FrontEnd",
-			},
-		},
-		{
-			data: {
-				name: "BackEnd",
-			},
-		},
-		{
-			data: {
-				name: "Full-Stack",
-			},
-		},
-	],
-};
-
-export let defaultDesktopOSs:DefaultNamedContainer = {
-	elementSlug: ContainersData.DESKTOP_OSS_SLUG,
-	childTemplate: {
-		types: [ VOCAB.DesktopOS ],
-	},
-	children: [
-		{
-			data: {
-				name: "Linux",
-			},
-		},
-		{
-			data: {
-				name: "MacOS",
-			},
-		},
-		{
-			data: {
-				name: "Windows",
-			},
-		},
-	],
-};
-
-export let defaultMobileOSs:DefaultNamedContainer = {
-	elementSlug: ContainersData.MOBILE_OSS_SLUG,
-	childTemplate: {
-		types: [ VOCAB.MobileOS ],
-	},
-	children: [
-		{
-			data: {
-				name: "Android"
-			},
-		},
-		{
-			data: {
-				name: "Windows Phone"
-			},
-		},
-		{
-			data: {
-				name: "iOS"
-			},
-		},
-	],
-};
-
 export let defaultInstitutes:DefaultNamedContainer = {
 	elementSlug: ContainersData.INSTITUTES_SLUG,
 	childTemplate: {
@@ -1665,9 +1593,6 @@ export const DEFAULT_CONTAINERS:DefaultNamedContainer[] = [
 	defaultCountries,
 	defaultCities,
 	defaultCompanies,
-	defaultWorkLayers,
-	defaultDesktopOSs,
-	defaultMobileOSs,
 	defaultInstitutes,
 	defaultBirthDates,
 	defaultBirthdays,
