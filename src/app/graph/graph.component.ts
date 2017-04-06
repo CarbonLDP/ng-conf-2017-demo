@@ -109,7 +109,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					gravitationalConstant: - 40,
 					centralGravity: 0.0025,
 					springConstant: 0,
-					springLength: 1700,
 					avoidOverlap: 0,
 				},
 				barnesHut: {
@@ -119,7 +118,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					springConstant: 0.075,
 				},
 				maxVelocity: 75,
-				solver: "forceAtlas2Based",
+				solver: this.showContainers ? "barnesHut" : "forceAtlas2Based",
 				timestep: 0.35,
 				stabilization: {
 					enabled: true,
@@ -406,6 +405,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			from,
 			to,
 			label,
+			length: label === "contains" ? 700 : void 0,
 		} );
 	}
 
