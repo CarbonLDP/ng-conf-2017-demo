@@ -156,7 +156,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 		this._pressedTimer = setTimeout( () => {
 			this._pressedInputKeys.length = 0;
 			this._pressedTimer = null;
-		}, 500 );
+		}, 1000 );
 	}
 
 	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"birthCity" | "company" | "institute", element?:HTMLInputElement ):void {
