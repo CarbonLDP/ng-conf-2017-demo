@@ -19,6 +19,12 @@ import "rxjs/add/observable/forkJoin";
 // Material Angular
 import "./styles/matherial-theme.scss";
 
+// Deactivate md-select animation to agree missing animations of md-autocomplete
+import { transformPanel, fadeInContent } from "@angular/material/select/select-animations";
+fadeInContent.definitions[ 1 ].animation[ 1 ].timings = 0;
+transformPanel.definitions[ 1 ].animation[ 1 ].timings = 0;
+transformPanel.definitions[ 2 ].animation[ 0 ].timings = 0;
+
 // JQuery
 // import "jquery";
 

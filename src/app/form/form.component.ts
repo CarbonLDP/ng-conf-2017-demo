@@ -151,7 +151,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 		const label:string = String.fromCharCode( ...this._pressedInputKeys ).toLowerCase();
 		const index:number = mdSelect.options.toArray().findIndex( options => options.viewValue.toLowerCase().startsWith( label ) );
 
-		if( index !== - 1 ) mdSelect._keyManager.setActiveItem( index );
+		if( index !== - 1 ) setTimeout( () => mdSelect._keyManager.setActiveItem( index ), 0 );
 
 		this._pressedTimer = setTimeout( () => {
 			this._pressedInputKeys.length = 0;
