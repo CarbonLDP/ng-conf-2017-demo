@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { NgForm } from "@angular/forms";
 
-import { MdAutocompleteTrigger, MdDialog, MdSelect } from "@angular/material";
+import { BACKSPACE, DOWN_ARROW, MdAutocompleteTrigger, MdDialog, MdOption, MdSelect, SPACE, UP_ARROW } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { SyncService } from "app/data/sync.service";
@@ -117,30 +117,31 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 	private _pressedInputKeys:number[] = [];
 	private _pressedTimer:any;
 
-	selectOptionFromKey( $event:KeyboardEvent, mdSelect:MdSelect, isMainSelect?:boolean ):void {
-		if( isMainSelect && ( $event.keyCode === 40 || $event.keyCode === 38 ) ) {
+	selectOptionFromKey( $event:KeyboardEvent, mdSelect:MdSelect, mdOption?:MdOption ):void {
+		if( ! mdOption && ( $event.keyCode === DOWN_ARROW || $event.keyCode === UP_ARROW ) ) {
 			mdSelect.open();
 			$event.preventDefault();
 			return;
 		}
 
-		if( $event.keyCode !== 32
+		if( mdOption && mdOption._handleKeydown === MdOption.prototype._handleKeydown ) {
+			mdOption._handleKeydown = ( event:KeyboardEvent ) => {
+				if( event.keyCode !== SPACE || ! this._pressedTimer )
+					MdOption.prototype._handleKeydown.call( mdOption, event );
+			};
+		}
+
+		if( $event.keyCode !== SPACE
+			&& $event.keyCode !== BACKSPACE
 			&& ( $event.keyCode < 65 || $event.keyCode > 90 )
 			&& ( $event.keyCode < 48 || $event.keyCode > 57 ) )
 			return;
 
-		if( $event.keyCode === 32 ) {
+		if( $event.keyCode === SPACE ) {
 			$event.preventDefault();
-			if( ! isMainSelect && ! this._pressedInputKeys.length ) {
-				mdSelect.close();
-				return;
-			}
-			if( this._pressedTimer ) {
-				mdSelect.writeValue( null );
-				mdSelect.open();
-			}
-		}
-		if( isMainSelect && ! mdSelect.panelOpen ) {
+			if( ! this._pressedInputKeys.length ) return;
+
+		} else if( ! mdSelect.panelOpen ) {
 			mdSelect.open();
 		}
 
