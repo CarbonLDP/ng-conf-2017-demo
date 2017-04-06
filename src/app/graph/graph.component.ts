@@ -1,8 +1,12 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from "@angular/core";
 import { MdAutocompleteTrigger } from "@angular/material";
 
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs/Subscription";
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
+import "rxjs/add/observable/forkJoin";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/mergeMap";
 
 import { Network, DataSet, Node, Edge, Options, Properties } from "vis";
 

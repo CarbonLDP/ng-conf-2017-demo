@@ -1,7 +1,10 @@
 import { Injectable } from "@angular/core";
 
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs/Subscription";
 import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/filter";
 
 import * as Pointer from "carbonldp/Pointer";
 
@@ -16,7 +19,7 @@ export class SyncService {
 	private subscription:Subscription;
 
 	constructor() {
-		this.connection = Observable.webSocket( {
+		this.connection = WebSocketSubject.create( {
 			url: WS_HOST,
 			resultSelector: ( e:MessageEvent ) => e.data,
 			openObserver: {

@@ -7,8 +7,10 @@ import { Class as ProtectedDocument }  from "carbonldp/ProtectedDocument";
 import * as PersistedDocument from "carbonldp/PersistedDocument";
 
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+
+import { Observable } from "rxjs/Observable";
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
+import "rxjs/add/observable/fromPromise";
 
 import { BasicCarbonData, RawBasicData, CountryCarbonData } from "app/data/carbonData";
 import { dataSlug } from "app/utils";
@@ -27,13 +29,13 @@ export class CarbonDataService {
 		return Observable.fromPromise( promise ) as PromiseObservable<BasicCarbonData[]>;
 	}
 
-	getCountriesData():Observable<CountryCarbonData[]> {
+	getCountriesData():PromiseObservable<CountryCarbonData[]> {
 		let promise:Promise<CountryCarbonData[]> = Promise.all( [
 			this._getBasicCarbonData( ContainersData.COUNTRIES_SLUG ),
 			this._getStatesCarbonData()
 		] ).then( ( [ countriesData ] ) => countriesData );
 
-		return Observable.fromPromise( promise );
+		return Observable.fromPromise( promise ) as PromiseObservable<CountryCarbonData[]>;
 	}
 
 	saveBasicData( containerSlug:string, data:RawBasicData ):Observable<BasicCarbonData> {

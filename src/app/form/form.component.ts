@@ -1,8 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { Observable, Subscription } from "rxjs";
 
-import { MdAutocompleteTrigger, MdDialog } from "@angular/material";
+import { MdAutocompleteTrigger, MdDialog, MdSelect } from "@angular/material";
 
 import { CarbonDataService } from "app/data/carbonData.service";
 import { SyncService } from "app/data/sync.service";
@@ -11,10 +10,14 @@ import * as ContainersData from "app/data/containersData";
 import { BasicCarbonData, CountryCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import { UserTemplate, Factory as UserFactory } from "app/data/userData";
 import { SuccessDialog } from "app/form/dialogs/successDialog.component";
-
-import 'rxjs/operator/finally';
-import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 import { FailDialog } from "app/form/dialogs/failDialog.component";
+
+import { Observable } from "rxjs/Observable";
+import { Subscription } from "rxjs/Subscription";
+import { PromiseObservable } from "rxjs/observable/PromiseObservable";
+import "rxjs/add/observable/forkJoin";
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/mergeMap";
 
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 
@@ -29,7 +32,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 	yearNames:number[];
 	birthDate:Birth;
 
-	countries:Observable<CountryCarbonData[]>;
+	countries:PromiseObservable<CountryCarbonData[]>;
 
 	cities:PromiseObservable<BasicCarbonData[]>;
 	filteredCities:Observable<BasicCarbonData[]>;
@@ -115,6 +118,52 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 	ngOnDestroy():void {
 		this.syncService.closeNotificationSender();
 		this.newDocumentsSubscription.unsubscribe();
+	}
+
+	// Workaround to more native select behaviour
+	private _pressedInputKeys:number[] = [];
+	private _pressedTimer:any;
+
+	selectOptionFromKey( $event:KeyboardEvent, mdSelect:MdSelect, isMainSelect?:boolean ):void {
+		if( isMainSelect && ( $event.keyCode === 40 || $event.keyCode === 38 ) ) {
+			mdSelect.open();
+			$event.preventDefault();
+			return;
+		}
+
+		if( $event.keyCode !== 32
+			&& ( $event.keyCode < 65 || $event.keyCode > 90 )
+			&& ( $event.keyCode < 48 || $event.keyCode > 57 ) )
+			return;
+
+		if( $event.keyCode === 32 ) {
+			$event.preventDefault();
+			if( ! isMainSelect && ! this._pressedInputKeys.length ) {
+				mdSelect.close();
+				return;
+			}
+			if( this._pressedTimer ) {
+				mdSelect.writeValue( null );
+				mdSelect.open();
+			}
+		}
+		if( isMainSelect && ! mdSelect.panelOpen ) {
+			mdSelect.open();
+		}
+
+		if( this._pressedTimer ) clearTimeout( this._pressedTimer );
+
+		this._pressedInputKeys.push( $event.keyCode );
+
+		const label:string = String.fromCharCode( ...this._pressedInputKeys ).toLowerCase();
+		const index:number = mdSelect.options.toArray().findIndex( options => options.viewValue.toLowerCase().startsWith( label ) );
+
+		if( index !== - 1 ) mdSelect._keyManager.setActiveItem( index );
+
+		this._pressedTimer = setTimeout( () => {
+			this._pressedInputKeys.length = 0;
+			this._pressedTimer = null;
+		}, 500 );
 	}
 
 	autoCompleteChange( value:string | BasicCarbonData, autoComplete:"birthCity" | "company" | "institute", element?:HTMLInputElement ):void {

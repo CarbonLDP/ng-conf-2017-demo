@@ -23,18 +23,18 @@
 			<!-- Birth date -->
 			<label class="input-label">Birth Date</label>
 			<div class="app-row full-cover">
-				<md-select placeholder="Day" [(ngModel)]="birthDate.day" name="birthDay" #birthDayElement>
-					<md-option *ngFor="let element of getDaysOf( birthDate.month, birthDate.year ); let day = index" [value]="day + 1" (keyup.esc)="birthDayElement.close()">
+				<md-select placeholder="Day" [(ngModel)]="birthDate.day" name="birthDay" #birthDayElement (keydown)="selectOptionFromKey($event, birthDayElement, true)">
+					<md-option *ngFor="let element of getDaysOf( birthDate.month, birthDate.year ); let day = index" [value]="day + 1" (keyup.esc)="birthDayElement.close()" (keydown)="selectOptionFromKey($event, birthDayElement)">
 						{{ day + 1 }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="Month" [(ngModel)]="birthDate.month" name="birthMonth" #birthMonthElement>
-					<md-option *ngFor="let month of monthNames; let i = index" [value]="i" (keyup.esc)="birthMonthElement.close()">
+				<md-select placeholder="Month" [(ngModel)]="birthDate.month" name="birthMonth" #birthMonthElement (keydown)="selectOptionFromKey($event, birthMonthElement, true)">
+					<md-option *ngFor="let month of monthNames; let i = index" [value]="i" (keyup.esc)="birthMonthElement.close()" (keydown)="selectOptionFromKey($event, birthMonthElement)">
 						{{ month }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="Year" [(ngModel)]="birthDate.year" name="birthYear" #birthYearElement>
-					<md-option *ngFor="let year of yearNames" [value]="year" (keyup.esc)="birthYearElement.close()">
+				<md-select placeholder="Year" [(ngModel)]="birthDate.year" name="birthYear" #birthYearElement (keydown)="selectOptionFromKey($event, birthYearElement, true)">
+					<md-option *ngFor="let year of yearNames" [value]="year" (keyup.esc)="birthYearElement.close()" (keydown)="selectOptionFromKey($event, birthYearElement)">
 						{{ year }}
 					</md-option>
 				</md-select>
@@ -43,13 +43,13 @@
 			<!-- Place of birth -->
 			<label class="input-label">Place of Birth</label>
 			<div class="app-row full-cover">
-				<md-select placeholder="Country" [(ngModel)]="newUser.birthCountry" name="birthCountry" #birthCountrySelect>
-					<md-option *ngFor="let country of countries | async" [value]="country" (keyup.esc)="birthCountrySelect.close()">
+				<md-select placeholder="Country" [(ngModel)]="newUser.birthCountry" name="birthCountry" #birthCountrySelect (keydown.space)="$event.preventDefault()" (keydown)="selectOptionFromKey($event, birthCountrySelect, true)">
+					<md-option *ngFor="let country of countries | async" [value]="country" (keyup.esc)="birthCountrySelect.close()" (keydown.space)="$event.preventDefault()" (keydown)="selectOptionFromKey($event, birthCountrySelect)">
 						{{ country.name }}
 					</md-option>
 				</md-select>
-				<md-select placeholder="State" [(ngModel)]="newUser.birthState" name="birthState" [disabled]="isStateDisabled()" #birthStateSelect>
-					<md-option *ngFor="let state of newUser.birthCountry?.states" [value]="state" (keyup.esc)="birthStateSelect.close()">
+				<md-select placeholder="State" [(ngModel)]="newUser.birthState" name="birthState" [disabled]="isStateDisabled()" #birthStateSelect (keydown)="selectOptionFromKey($event, birthStateSelect, true)">
+					<md-option *ngFor="let state of newUser.birthCountry?.states" [value]="state" (keyup.esc)="birthStateSelect.close()" (keydown)="selectOptionFromKey($event, birthStateSelect)">
 						{{ state.name }}
 					</md-option>
 				</md-select>
