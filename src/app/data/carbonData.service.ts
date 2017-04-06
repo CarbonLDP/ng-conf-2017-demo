@@ -10,7 +10,6 @@ import { Injectable } from "@angular/core";
 
 import { Observable } from "rxjs/Observable";
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
-import "rxjs/add/observable/fromPromise";
 
 import { BasicCarbonData, RawBasicData, CountryCarbonData } from "app/data/carbonData";
 import { dataSlug } from "app/utils";

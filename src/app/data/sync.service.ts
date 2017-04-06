@@ -3,8 +3,6 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
 import { WebSocketSubject } from "rxjs/observable/dom/WebSocketSubject";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/filter";
 
 import * as Pointer from "carbonldp/Pointer";
 

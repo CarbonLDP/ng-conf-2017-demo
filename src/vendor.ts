@@ -8,6 +8,13 @@
 
 // RxJS
 // import "rxjs";
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/filter";
+import "rxjs/add/operator/map";
+
+import "rxjs/add/observable/from";
+import "rxjs/add/observable/fromPromise";
+import "rxjs/add/observable/forkJoin";
 
 // Material Angular
 import "./styles/matherial-theme.scss";

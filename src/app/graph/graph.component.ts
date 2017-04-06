@@ -4,9 +4,6 @@ import { MdAutocompleteTrigger } from "@angular/material";
 import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
-import "rxjs/add/observable/forkJoin";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/mergeMap";
 
 import { Network, DataSet, Node, Edge, Options, Properties } from "vis";
 
@@ -89,7 +86,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.route
 			.queryParams
 			.subscribe( params => {
-				console.log( params );
 				this.showContainers = "showContainers" in params;
 			} );
 	}
@@ -113,14 +109,21 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 					gravitationalConstant: - 40,
 					centralGravity: 0.0025,
 					springConstant: 0,
+					springLength: 1700,
 					avoidOverlap: 0,
 				},
+				barnesHut: {
+					gravitationalConstant: - 120000,
+					centralGravity: 0.025,
+					springLength: 1700,
+					springConstant: 0.075,
+				},
 				maxVelocity: 75,
-				solver: 'forceAtlas2Based',
+				solver: "forceAtlas2Based",
 				timestep: 0.35,
 				stabilization: {
 					enabled: true,
-					iterations: 500,
+					iterations: this.showContainers ? 750 : 500,
 					updateInterval: 25,
 				},
 			},
@@ -228,7 +231,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.renderExistingData();
 
 		this.creationSubscription = this.syncService.onDocumentCreated()
-			.flatMap( document => this.dataService.resolveDocument( document ) )
+			.switchMap( document => this.dataService.resolveDocument( document ) )
 			.subscribe( ( document:ProtectedDocument & ( User | GraphCarbonData ) ) => {
 				if( document.hasType( VOCAB.User ) ) {
 					this.renderUser( document as User );
@@ -278,7 +281,7 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			return;
 		}
 
-		const mask:RegExp = new RegExp( value, 'gi' );
+		const mask:RegExp = new RegExp( value, "gi" );
 		this.filteredUsers = this.users.map( users => users.filter( user => mask.test( user.nickname ) ) );
 	}
 
@@ -358,7 +361,6 @@ export class GraphComponent implements OnInit, AfterViewInit, OnDestroy {
 			clearTimeout( this.fitting );
 		}
 		this.fitting = setTimeout( () => {
-			// this.graph.stopSimulation();
 			this.graph.fit( {
 				nodes: relatedNodes,
 				animation: false,

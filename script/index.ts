@@ -191,6 +191,8 @@ async function createUsers():Promise<void> {
 		};
 
 		for( const element of statics ) {
+			if( ! Math.random() ) continue;
+
 			let chosen:number = Math.floor( Math.random() * element.data.length );
 			user[ element.label ] = element.data[ chosen ];
 			if( ! ! user[ element.label ].states ) {
@@ -200,6 +202,8 @@ async function createUsers():Promise<void> {
 		}
 
 		for( const element of dynamics ) {
+			if( ! Math.random() ) continue;
+
 			const createNew:boolean = Math.random() * 100 > 75;
 			if( createNew ) {
 				const [ document ] = await appContext.documents.createChild<RawBasicData>( element.container, {

@@ -15,9 +15,6 @@ import { FailDialog } from "app/form/dialogs/failDialog.component";
 import { Observable } from "rxjs/Observable";
 import { Subscription } from "rxjs/Subscription";
 import { PromiseObservable } from "rxjs/observable/PromiseObservable";
-import "rxjs/add/observable/forkJoin";
-import "rxjs/add/operator/map";
-import "rxjs/add/operator/mergeMap";
 
 import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 
@@ -42,10 +39,6 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	companies:PromiseObservable<BasicCarbonData[]>;
 	filteredCompanies:Observable<BasicCarbonData[]>;
-
-	workLayers:Observable<BasicCarbonData[]>;
-	desktopOSs:Observable<BasicCarbonData[]>;
-	mobileOSs:Observable<BasicCarbonData[]>;
 
 	masks:{
 		nickname:TextMaskFunction;
@@ -96,7 +89,7 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	ngAfterViewInit():void {
 		this.newDocumentsSubscription = this.syncService.onDocumentCreated()
-			.flatMap( document => this.dataService.resolveDocument( document ) )
+			.switchMap( document => this.dataService.resolveDocument( document ) )
 			.subscribe( ( document:ProtectedDocument & BasicCarbonData ) => {
 				const type:string = CarbonDataUtils.getMainType( document );
 				if( ! type ) {
@@ -263,16 +256,16 @@ export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 					} );
 			} );
 
-		Observable.forkJoin( ...savingDynamicData, Promise.resolve() ).flatMap( () => {
-			return this.dataService.createUser( this.newUser );
-		} ).subscribe( () => {
-				this.dialog.open( SuccessDialog )
-					.afterClosed()
-					.subscribe( () => this.initForm() );
-			}, ( error:Error ) => {
-				this.dialog.open( FailDialog, { data: { error: error.message } } );
-			}
-		);
+		Observable.forkJoin( ...savingDynamicData, Promise.resolve() )
+			.switchMap( () => this.dataService.createUser( this.newUser ) )
+			.subscribe( () => {
+					this.dialog.open( SuccessDialog )
+						.afterClosed()
+						.subscribe( () => this.initForm() );
+				}, ( error:Error ) => {
+					this.dialog.open( FailDialog, { data: { error: error.message } } );
+				}
+			);
 	}
 
 	private _isValidBirthDate():boolean {
