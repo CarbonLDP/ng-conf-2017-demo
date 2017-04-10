@@ -4,7 +4,7 @@ import { BrowserModule }  from "@angular/platform-browser";
 import { RouterModule, Routes } from "@angular/router";
 
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { MaterialModule } from "@angular/material";
+import { MdCardModule, MdInputModule, MdAutocompleteModule, MdSelectModule, MdButtonModule, MdIconModule, MdProgressSpinnerModule, MdDialogModule } from "@angular/material";
 
 import { CARBON_PROVIDERS } from "angular-carbonldp/boot";
 import { CARBON_SERVICES_PROVIDERS } from "angular-carbonldp/services";
@@ -12,15 +12,15 @@ import { AuthenticatedGuard, NotAuthenticatedGuard } from "angular-carbonldp/gua
 
 import { TextMaskModule } from 'angular2-text-mask';
 
-import { AppComponent } from "app/app.component";
-import { FormComponent } from "app/form/form.component";
-import { ErrorComponent } from "app/error/error.component";
-import { UniqueNicknameDirective } from "app/form/validators/uniqueNickname.directive";
-import { SuccessDialog } from "app/form/dialogs/successDialog.component";
-import { FailDialog } from "app/form/dialogs/failDialog.component";
-import { GraphComponent } from "app/graph/graph.component";
-import { CarbonDataService } from "app/data/carbonData.service";
-import { SyncService } from "app/data/sync.service";
+import { AppComponent } from "../app/app.component";
+import { FormComponent } from "../app/form/form.component";
+import { ErrorComponent } from "../app/error/error.component";
+import { UniqueNicknameDirective } from "../app/form/validators/uniqueNickname.directive";
+import { SuccessDialog } from "../app/form/dialogs/successDialog.component";
+import { FailDialog } from "../app/form/dialogs/failDialog.component";
+import { GraphComponent } from "../app/graph/graph.component";
+import { CarbonDataService } from "../app/data/carbonData.service";
+import { SyncService } from "../app/data/sync.service";
 
 const appRoutes:Routes = [
 	{
@@ -57,7 +57,7 @@ const appRoutes:Routes = [
 
 @NgModule( {
 	imports: [
-		MaterialModule,
+		MdCardModule, MdInputModule, MdAutocompleteModule, MdSelectModule, MdButtonModule, MdIconModule, MdProgressSpinnerModule, MdDialogModule,
 		BrowserAnimationsModule,
 		BrowserModule,
 		FormsModule,

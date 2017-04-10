@@ -1,9 +1,9 @@
 <div *ngIf="isProcessing" class="processing mat-app-background">
-	<md-progress-circle
+	<md-progress-spinner
 		class="progressing__icon"
 		[mode]="progressMode"
 		[value]="progressValue">
-	</md-progress-circle>
+	</md-progress-spinner>
 </div>
 <div id="config"></div>
 <div class="graph" #graph></div>

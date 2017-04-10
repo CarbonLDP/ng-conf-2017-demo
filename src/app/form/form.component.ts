@@ -3,8 +3,8 @@ import { NgForm } from "@angular/forms";
 
 import { BACKSPACE, DOWN_ARROW, MdAutocompleteTrigger, MdDialog, MdOption, MdSelect, SPACE, UP_ARROW } from "@angular/material";
 
-import { CarbonDataService } from "app/data/carbonData.service";
-import { SyncService } from "app/data/sync.service";
+import { CarbonDataService } from "../../app/data/carbonData.service";
+import { SyncService } from "../../app/data/sync.service";
 import * as ContainersData from "app/data/containersData";
 
 import { BasicCarbonData, CountryCarbonData, RawBasicData, Utils as CarbonDataUtils } from "app/data/carbonData";
@@ -21,7 +21,7 @@ import { Class as ProtectedDocument } from "carbonldp/ProtectedDocument";
 @Component( {
 	selector: "app-form",
 	templateUrl: "./form.component.html",
-	styleUrls: [ "form.component.scss" ],
+	styleUrls: [ "./form.component.scss" ],
 } )
 export class FormComponent implements OnInit, AfterViewInit, OnDestroy {
 

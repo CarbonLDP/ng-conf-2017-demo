@@ -7,8 +7,8 @@ import { PromiseObservable } from "rxjs/observable/PromiseObservable";
 
 import { Network, DataSet, Node, Edge, Options, Properties } from "vis";
 
-import { CarbonDataService } from "app/data/carbonData.service";
-import { SyncService } from "app/data/sync.service";
+import { CarbonDataService } from "../../app/data/carbonData.service";
+import { SyncService } from "../../app/data/sync.service";
 import { BasicCarbonData, Utils as CarbonDataUtils } from "app/data/carbonData";
 import { User } from "app/data/userData";
 import * as ContainersData from "app/data/containersData";

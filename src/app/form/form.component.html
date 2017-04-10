@@ -12,11 +12,9 @@
 			<div class="app-row">
 				<md-input-container class="full-width">
 					<input mdInput type="text" placeholder="Nickname" #nickname="ngModel" [(ngModel)]="newUser.nickname" name="nickname" autocomplete="false" required minlength="2" [textMask]="{mask: masks.nickname}" uniqueNickname #nicknameInput>
-					<md-hint *ngIf="!nickname.pristine && nickname.errors">
-						<span *ngIf="nickname.errors.required">The nickname is obligatory</span>
-						<span *ngIf="nickname.errors.minlength">The nickname should be at least 2 characters long</span>
-						<span *ngIf="nickname.errors.uniqueNickname">The nickname is already taken</span>
-					</md-hint>
+					<md-error *ngIf="nickname.errors && nickname.errors.required">The nickname is obligatory</md-error>
+					<md-error *ngIf="nickname.errors && nickname.errors.minlength">The nickname should be at least 2 characters long</md-error>
+					<md-error *ngIf="nickname.errors && nickname.errors.uniqueNickname">The nickname is already taken</md-error>
 				</md-input-container>
 			</div>
 
@@ -107,9 +105,7 @@
 			</div>
 			<md-input-container class="full-width">
 				<input mdInput type="email" placeholder="Email" [(ngModel)]="newUser.email" #email="ngModel" name="email" autocomplete="off" pattern="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
-				<md-hint *ngIf="!email.pristine && email.errors">
-					<span *ngIf="email.errors.pattern">The email is malformed</span>
-				</md-hint>
+				<md-error *ngIf="email.errors && email.errors.pattern">The email is malformed</md-error>
 			</md-input-container>
 		</md-card-content>
 	</md-card>

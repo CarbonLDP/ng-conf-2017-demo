@@ -1,19 +1,21 @@
-import { Component, OnInit } from "@angular/core";
-import { MdDialogRef } from "@angular/material";
+import { Component, Inject } from "@angular/core";
+import { MD_DIALOG_DATA } from "@angular/material";
+
+interface FailDialogData {
+	error:string;
+}
 
 @Component( {
 	selector: 'app-form-fail-dialog',
 	templateUrl: './failDialog.component.html',
-	styleUrls: [ "commonDialog.component.scss" ]
+	styleUrls: [ "./commonDialog.component.scss" ]
 } )
-export class FailDialog implements OnInit {
+export class FailDialog {
 
 	error:string;
 
-	constructor( private dialogRef:MdDialogRef<FailDialog> ) {}
-
-	ngOnInit() {
-		this.error = this.dialogRef.config.data.error;
+	constructor( @Inject( MD_DIALOG_DATA ) data:FailDialogData ) {
+		this.error = data.error;
 	}
 
 }
