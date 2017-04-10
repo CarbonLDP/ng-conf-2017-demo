@@ -5,12 +5,18 @@ const commonConfig = require( "./webpack.common.js" );
 const helpers = require( "./helpers" );
 
 module.exports = function( env ) {
+
+	let host = ( env && env.host ) || "http://localhost";
+	if( ! host.startsWith( "http" ) )
+		host = "http://" + host;
+	host = host + ":8080/";
+
 	return webpackMerge( commonConfig( env ), {
 		devtool: "cheap-module-eval-source-map",
 
 		output: {
 			path: helpers.root( "dist" ),
-			publicPath: "http://ng-conf.carbonldp.com:8080/",
+			publicPath: host,
 			filename: "[name].js",
 			chunkFilename: "[id].chunk.js"
 		},
